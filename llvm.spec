@@ -12,6 +12,8 @@ BuildRequires:	gcc >= 3.4
 Requires:	/sbin/ldconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%define	_sysconfdir	/etc/%{name}
+
 %description
 LLVM is a compiler infrastructure designed for compile-time,
 link-time, runtime, and idle-time optimization of programs from
@@ -39,6 +41,8 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
+find $RPM_BUILD_ROOT -name .dir |xargs rm -f
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -50,9 +54,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CREDITS.TXT LICENSE.TXT README.txt docs
 %attr(755,root,root) %{_bindir}/*
+%dir %{_sysconfdir}
+%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/*
 %{_libdir}/*.o
 %{_libdir}/*.a
 %{_libdir}/*.la
 %attr(755,root,root) %{_libdir}/*.so*
 %{_includedir}/llvm
+%{_includedir}/llvm-c
 %{_mandir}/man?/llvm*
