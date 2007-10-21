@@ -1,0 +1,44 @@
+--- Makefile.config.in~	2007-10-21 15:22:13.000000000 +0200
++++ Makefile.config.in	2007-10-21 15:26:03.219091571 +0200
+@@ -49,7 +49,18 @@
+ PROJ_SRC_DIR    := $(shell cd $(LLVM_SRC_ROOT)/$(patsubst $(PROJ_OBJ_ROOT)%,%,$(PROJ_OBJ_DIR)); $(PWD))
+ prefix          := @prefix@
+ PROJ_prefix     := $(prefix)
++
++bindir     := @bindir@
++libdir     := @libdir@
++datadir    := @datadir@
++docsdir    := @docsdir@
++etcdir     := @sysconfdir@
++includedir := @includedir@
++infodir    := @infodir@
++mandir     := @mandir@
++
+ PROJ_VERSION    := $(LLVMVersion)
++
+ else
+ ifndef PROJ_SRC_ROOT
+ $(error Projects must define PROJ_SRC_ROOT)
+@@ -76,14 +76,14 @@
+ 
+ LLVMMAKE := $(LLVM_SRC_ROOT)/make
+ 
+-PROJ_bindir     := $(DESTDIR)$(PROJ_prefix)/bin
+-PROJ_libdir     := $(DESTDIR)$(PROJ_prefix)/lib
+-PROJ_datadir    := $(DESTDIR)$(PROJ_prefix)/share
+-PROJ_docsdir    := $(DESTDIR)$(PROJ_prefix)/docs/llvm
+-PROJ_etcdir     := $(DESTDIR)$(PROJ_prefix)/etc/llvm
+-PROJ_includedir := $(DESTDIR)$(PROJ_prefix)/include
+-PROJ_infodir    := $(DESTDIR)$(PROJ_prefix)/info
+-PROJ_mandir     := $(DESTDIR)$(PROJ_prefix)/share/man
++PROJ_bindir     := $(DESTDIR)$(bindir)
++PROJ_libdir     := $(DESTDIR)$(libdir)
++PROJ_datadir    := $(DESTDIR)$(datadir)
++PROJ_docsdir    := $(DESTDIR)$(docsdir)
++PROJ_etcdir     := $(DESTDIR)$(etcdir)
++PROJ_includedir := $(DESTDIR)$(includedir)
++PROJ_infodir    := $(DESTDIR)$(infodir)
++PROJ_mandir     := $(DESTDIR)$(mandir)
+ 
+ # Determine if we're on a unix type operating system
+ LLVM_ON_UNIX:=@LLVM_ON_UNIX@
