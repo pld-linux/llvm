@@ -1,15 +1,15 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
+Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	2.1
 Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
-URL:		http://llvm.org/
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	b930e7213b37acc934d0d163cf13af18
 Patch0:		%{name}-dirs.patch
-BuildRequires:	gcc >= 3.4
-Requires:	/sbin/ldconfig
+URL:		http://llvm.org/
+BuildRequires:	gcc >= 5:3.4
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define	_sysconfdir	/etc/%{name}
@@ -23,6 +23,17 @@ currently supports compilation of C and C++ programs, using front-ends
 derived from GCC 4.0.1. A new front-end for the C family of languages
 is in development. The compiler infrastructure includes mirror sets of
 programming tools as well as libraries with equivalent functionality.
+
+%description -l pl.UTF-8
+LLVM to infrastruktura kompilatora zaprojektowana do optymalizacji
+czasu kompilowania, linkowania, działania i bezczynności programów w
+dowolnych językach programowania. Jest napisana w C++, rozwijana od
+roku 2000 przez Uniwersytet w Illinois i Apple. Aktualnie obsługuje
+kompilację programów w C i C++ przy użyciu frontendów wywodzących się
+z GCC 4.0.1. W trakcie tworzenia jest nowy frontend do języków z
+rodziny C. Infrastruktura kompilatora zawiera lustrzane zestawy
+narzędzi programistycznych oraz biblioteki z odpowiadającą narzędziom
+funkcjonalnością.
 
 %prep
 %setup -q
@@ -46,9 +57,8 @@ find $RPM_BUILD_ROOT -name .dir |xargs rm -f
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
+%post	-p /sbin/ldconfig
+%postun	-p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
