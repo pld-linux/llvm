@@ -63,13 +63,38 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CREDITS.TXT LICENSE.TXT README.txt docs
-%attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %{_bindir}/bugpoint
+%attr(755,root,root) %{_bindir}/gccas
+%attr(755,root,root) %{_bindir}/gccld
+%attr(755,root,root) %{_bindir}/llc
+%attr(755,root,root) %{_bindir}/lli
+%attr(755,root,root) %{_bindir}/llvm-*
+%attr(755,root,root) %{_bindir}/llvm2cpp
+%attr(755,root,root) %{_bindir}/llvmc
+%attr(755,root,root) %{_bindir}/opt
 %dir %{_sysconfdir}
-%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/*
-%{_libdir}/*.o
-%{_libdir}/*.a
-%{_libdir}/*.la
-%attr(755,root,root) %{_libdir}/*.so*
+%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c
+%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c++
+%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cpp
+%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cxx
+%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/ll
+%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/st
+%{_libdir}/LLVM*.o
+%{_libdir}/libLLVM*.a
+# just example?
+%attr(755,root,root) %{_libdir}/LLVMHello.so*
+%{_libdir}/LLVMHello.la
+%{_libdir}/LLVMHello.a
 %{_includedir}/llvm
 %{_includedir}/llvm-c
-%{_mandir}/man?/llvm*
+%{_mandir}/man1/bugpoint.1*
+%{_mandir}/man1/llc.1*
+%{_mandir}/man1/lli.1*
+%{_mandir}/man1/llvm-*.1*
+%{_mandir}/man1/llvm2cpp.1*
+%{_mandir}/man1/llvmc.1*
+%{_mandir}/man1/llvmgcc.1*
+%{_mandir}/man1/llvmgxx.1*
+%{_mandir}/man1/opt.1*
+%{_mandir}/man1/stkrc.1*
+%{_mandir}/man1/tblgen.1*
