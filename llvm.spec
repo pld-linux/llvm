@@ -1,12 +1,12 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	2.1
+Version:	2.3
 Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	b930e7213b37acc934d0d163cf13af18
+# Source0-md5:	17254d72863b7fa005f3fb327aea3439
 Patch0:		%{name}-dirs.patch
 URL:		http://llvm.org/
 BuildRequires:	gcc >= 5:3.4
