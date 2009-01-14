@@ -10,9 +10,13 @@ Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
 Patch0:		%{name}-dirs.patch
 URL:		http://llvm.org/
 BuildRequires:	gcc >= 5:3.4
+# gcc4 might be installed, but not current __cc
+%if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
+BuildRequires:	__cc >= 3.4
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define	_sysconfdir	/etc/%{name}
+%define		_sysconfdir	/etc/%{name}
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
