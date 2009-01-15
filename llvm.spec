@@ -1,11 +1,13 @@
 # TODO
 # - gcc/c++ packages: http://cvs.fedoraproject.org/viewvc/rpms/llvm/devel/llvm.spec?revision=HEAD&view=markup
+# - test gcc pkgs and all
 #
 # Conditional build:
 %bcond_with		ocaml	# build without OCaml bindings
-%bcond_with		gcc		# build without gcc
+%bcond_without		gcc		# build without gcc
 #
-%define		lgcc_version	4.2
+%define		lgcc_vertar		4.2
+%define		lgcc_version	4.2.1
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
@@ -15,7 +17,7 @@ License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	17254d72863b7fa005f3fb327aea3439
-Source1:	http://llvm.org/releases/%{version}/%{name}-gcc-%{lgcc_version}-%{version}.source.tar.gz
+Source1:	http://llvm.org/releases/%{version}/%{name}-gcc-%{lgcc_vertar}-%{version}.source.tar.gz
 # Source1-md5:	18aa4f8226ddab58af2f12cff135470d
 Patch0:		%{name}-dirs.patch
 URL:		http://llvm.org/
@@ -30,6 +32,9 @@ BuildRequires:	__cc >= 3.4
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/%{name}
+
+# strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
+%define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -132,8 +137,8 @@ bash %configure \
 
 export PATH=%{_builddir}/%{?buildsubdir}/Release/bin:$PATH
 
-install -d llvm-gcc%{lgcc_version}-%{version}.source/build
-cd llvm-gcc%{lgcc_version}-%{version}.source/build
+install -d llvm-gcc%{lgcc_vertar}-%{version}.source/build
+cd llvm-gcc%{lgcc_vertar}-%{version}.source/build
 ../configure \
 	--host=%{_host} \
 	--build=%{_build} \
@@ -160,6 +165,33 @@ rm -rf $RPM_BUILD_ROOT
 	DESTDIR=$RPM_BUILD_ROOT
 
 find $RPM_BUILD_ROOT -name .dir | xargs rm -fv
+
+# Get rid of erroneously installed example files.
+rm $RPM_BUILD_ROOT%{_libdir}/%{name}/LLVMHello.*
+
+%if %{with gcc}
+# Install llvm-gcc.
+
+%{__make} -C llvm-gcc%{lgcc_vertar}-%{version}.source/build install \
+	DESTDIR=$RPM_BUILD_ROOT
+
+cd $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}
+find . -name '*.la' -print0 | xargs -0r rm
+find . -name '*.a' -exec $RPM_BUILD_ROOT%{_bindir}/llvm-ranlib {} \;
+cd ../bin
+ln llvm-c++ llvm-gcc llvm-g++ $RPM_BUILD_ROOT%{_bindir}
+rm llvm-cpp llvm-gccbug llvm-gcov %{_target_platform}-gcc*
+cd ..
+mv man/man1/llvm-gcc.1 man/man1/llvm-g++.1 $RPM_BUILD_ROOT%{_mandir}/man1
+rm -r info man %{_lib}/libiberty.a
+rm -r libexec/gcc/%{_target_platform}/%{lgcc_version}/install-tools
+
+rm -r $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/gcc/%{_target_platform}/%{lgcc_version}/install-tools
+rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libgomp.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libgomp.spec
+rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libssp.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libssp_nonshared.a
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -198,27 +230,46 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-config
 %{_includedir}/llvm
 %{_includedir}/llvm-c
-%{_libdir}/LLVM*.o
-%{_libdir}/libLLVM*.a
-# just example?
-%attr(755,root,root) %{_libdir}/LLVMHello.so*
-%{_libdir}/LLVMHello.la
+%{_libdir}/llvm/LLVM*.o
+%{_libdir}/llvm/libLLVM*.a
 
 %if %{with gcc}
 %files gcc
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/llvm2cpp
-%attr(755,root,root) %{_bindir}/llvmc
-%dir %{_sysconfdir}
-%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c
-%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cpp
-%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/ll
-%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/st
-%{_mandir}/man1/llvm2cpp.1*
-%{_mandir}/man1/llvmc.1*
+#%attr(755,root,root) %{_bindir}/llvm2cpp
+#%attr(755,root,root) %{_bindir}/llvmc
+#%dir %{_sysconfdir}
+#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c
+#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cpp
+#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/ll
+#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/st
+#%{_mandir}/man1/llvm2cpp.1*
+#%{_mandir}/man1/llvmc.1*
+%attr(755,root,root) %{_bindir}/llvm-gcc
+%dir %{_libdir}/llvm-gcc
+%dir %{_libdir}/llvm-gcc/bin
+%dir %{_libdir}/llvm-gcc/include
+%dir %{_libdir}/llvm-gcc/%{_lib}
+%dir %{_libdir}/llvm-gcc/libexec
+%dir %{_libdir}/llvm-gcc/libexec/gcc
+%dir %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}
+%{_libdir}/llvm-gcc/%{_lib}/gcc
+%{_libdir}/llvm-gcc/%{_lib}/libmudflap*.a
+%{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-gcc
+%{_libdir}/llvm-gcc/bin/llvm-gcc
+%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1
+%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/collect2
+%{_mandir}/man1/llvm-gcc.*
 
 %files gcc-c++
 %defattr(644,root,root,755)
-%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c++
-%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cxx
+#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c++
+#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cxx
+%attr(755,root,root) %{_bindir}/llvm-[cg]++
+%{_libdir}/llvm-gcc/%{_lib}/lib*++.a
+%{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-[cg]++
+%{_libdir}/llvm-gcc/bin/llvm-[cg]++
+%{_libdir}/llvm-gcc/include/c++
+%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1plus
+%{_mandir}/man1/llvm-g++.*
 %endif
