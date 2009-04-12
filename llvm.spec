@@ -11,14 +11,14 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	2.3
+Version:	2.5
 Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	17254d72863b7fa005f3fb327aea3439
+# Source0-md5:	55df2ea8665c8094ad2ef85187b9fc74
 Source1:	http://llvm.org/releases/%{version}/%{name}-gcc-%{lgcc_vertar}-%{version}.source.tar.gz
-# Source1-md5:	18aa4f8226ddab58af2f12cff135470d
+# Source1-md5:	c5800d85059fcf80429a86c536127595
 Patch0:		%{name}-dirs.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
@@ -208,7 +208,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
 %attr(755,root,root) %{_bindir}/opt
-%attr(755,root,root) %{_bindir}/llvmc2
+%attr(755,root,root) %{_bindir}/llvmc
 %attr(755,root,root) %{_bindir}/llvm-*
 %exclude %attr(755,root,root) %{_bindir}/llvm-config
 %{_mandir}/man1/bugpoint.1*
@@ -218,8 +218,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvmgcc.1*
 %{_mandir}/man1/llvmgxx.1*
 %{_mandir}/man1/opt.1*
-%{_mandir}/man1/stkrc.1*
+#%{_mandir}/man1/stkrc.1*
 %{_mandir}/man1/tblgen.1*
+
 
 %files doc
 %defattr(644,root,root,755)
@@ -255,8 +256,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}
 %{_libdir}/llvm-gcc/%{_lib}/gcc
 %{_libdir}/llvm-gcc/%{_lib}/libmudflap*.a
-%{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-gcc
-%{_libdir}/llvm-gcc/bin/llvm-gcc
+%attr(755,root,root) %{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-gcc
+%attr(755,root,root) %{_libdir}/llvm-gcc/bin/llvm-gcc
 %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1
 %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/collect2
 %{_mandir}/man1/llvm-gcc.*
@@ -267,9 +268,9 @@ rm -rf $RPM_BUILD_ROOT
 #%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cxx
 %attr(755,root,root) %{_bindir}/llvm-[cg]++
 %{_libdir}/llvm-gcc/%{_lib}/lib*++.a
-%{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-[cg]++
-%{_libdir}/llvm-gcc/bin/llvm-[cg]++
+%attr(755,root,root) %{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-[cg]++
+%attr(755,root,root) %{_libdir}/llvm-gcc/bin/llvm-[cg]++
 %{_libdir}/llvm-gcc/include/c++
-%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1plus
+%attr(755,root,root) %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1plus
 %{_mandir}/man1/llvm-g++.*
 %endif
