@@ -290,7 +290,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/scan-build
 %attr(755,root,root) %{_bindir}/scan-view
-%{_libdir}/clang-analyzer
+%dir %{_libdir}/clang-analyzer
+%attr(755,root,root) %{_libdir}/clang-analyzer/scan-*
+%{_libdir}/clang-analyzer/*.*
+%dir %{_libdir}/clang-analyzer/libexec
+%attr(755,root,root) %{_libdir}/clang-analyzer/libexec/*
+%{_libdir}/clang-analyzer/Resource
 
 %files ocaml
 %defattr(644,root,root,755)
