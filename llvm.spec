@@ -2,29 +2,36 @@
 # - gcc/c++ packages: http://cvs.fedoraproject.org/viewvc/rpms/llvm/devel/llvm.spec?revision=HEAD&view=markup
 # - test gcc pkgs and all
 #
-# Conditional build:
-%bcond_with		ocaml	# build without OCaml bindings
-%bcond_without		gcc		# build without gcc
-#
 %define		lgcc_vertar		4.2
-%define		lgcc_version	4.2.1
+%define		lgcc_version	4.2
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	2.5
+Version:	2.6
 Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	55df2ea8665c8094ad2ef85187b9fc74
-Source1:	http://llvm.org/releases/%{version}/%{name}-gcc-%{lgcc_vertar}-%{version}.source.tar.gz
-# Source1-md5:	c5800d85059fcf80429a86c536127595
-Patch0:		%{name}-dirs.patch
+Source0:	http://llvm.org/prereleases/%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	d4d2cfbb962eca0c96aa1d794e23a681
+Source1:	http://llvm.org/prereleases/2.6/clang-%{version}.tar.gz
+# Source1-md5:	80a2a9bbe8fa7c403b2ec7aca8b4108f
+# http://llvm.org/bugs/show_bug.cgi?id=3153
+Patch0:		%{name}-2.6-destdir.patch
+Patch1:		%{name}-2.6-destdir-clang.patch
+# http://llvm.org/bugs/show_bug.cgi?id=4911
+Patch2:		%{name}-2.5-tclsh_check.patch
+# Data files should be installed with timestamps preserved
+Patch3:		%{name}-2.6-timestamp.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
-BuildRequires:	gcc >= 5:3.4
+BuildRequires:	bison
+BuildRequires:	doxygen
+BuildRequires:	flex
+BuildRequires:	graphviz
+BuildRequires:	groff
 BuildRequires:	libltdl-devel
-%{?with_ocaml:BuildRequires:  ocaml}
+BuildRequires:	libstdc++-devel >= 5:3.4
+BuildRequires:	ocaml-ocamldoc
 # gcc4 might be installed, but not current __cc
 %if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
 BuildRequires:	__cc >= 3.4
@@ -75,24 +82,6 @@ Requires:	libstdc++-devel >= 6:3.4
 This package contains library and header files needed to develop new
 native programs that use the LLVM infrastructure.
 
-%package gcc
-Summary:	C compiler for LLVM
-License:	GPL+
-Group:		Development/Languages
-Requires:	%{name} = %{version}-%{release}
-
-%description gcc
-C compiler for LLVM.
-
-%package gcc-c++
-Summary:	C++ compiler for LLVM
-License:	GPL+
-Group:		Development/Languages
-Requires:	%{name}-gcc = %{version}-%{release}
-
-%description gcc-c++
-C++ compiler for LLVM.
-
 %package ocaml
 Summary:	OCaml binding for LLVM
 Group:		Development/Libraries
@@ -112,86 +101,138 @@ Requires:	%{name}-ocaml = %{version}-%{release}
 The %{name}-ocaml-devel package contains libraries and signature files
 for developing applications that use %{name}-ocaml.
 
+%package -n clang
+Summary:	A C language family frontend for LLVM
+License:	NCSA
+Group:		Development/Languages
+
+%description -n clang
+clang: noun 1. A loud, resonant, metallic sound. 2. The strident call
+of a crane or goose. 3. C-language family front-end toolkit.
+
+The goal of the Clang project is to create a new C, C++, Objective C
+and Objective C++ front-end for the LLVM compiler. Its tools are built
+as libraries and designed to be loosely-coupled and extendable.
+
+%package -n clang-analyzer
+Summary:	A source code analysis framework
+License:	NCSA
+Group:		Development/Languages
+Requires:	clang = %{version}-%{release}
+# not picked up automatically since files are currently not instaled
+# in standard Python hierarchies yet
+Requires:	python
+
+%description -n clang-analyzer
+The Clang Static Analyzer consists of both a source code analysis
+framework and a standalone tool that finds bugs in C and Objective-C
+programs. The standalone tool is invoked from the command-line, and is
+intended to run in tandem with a build of a project or code base.
+
 %prep
-%setup -q %{?with_gcc:-a1}
-%patch0 -p0
+%setup -q -a1
+mv clang-*.* tools/clang
+%patch0 -p0 -b .destdir
+cd tools/clang
+%patch1 -p0 -b .destdir-clang
+cd ../..
+%patch2 -p1 -b .tclsh_check
+%patch3 -p1 -b .timestamp
 
 %build
+# Disabling assertions now, rec. by pure and needed for OpenGTL
+# no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3239
+#
 # bash specific 'test a < b'
-bash %configure \
+mkdir obj && cd obj
+bash ../%configure \
 	--libdir=%{_libdir}/%{name} \
 	--datadir=%{_datadir}/%{name}-%{version} \
-	--enable-bindings=%{!?with_ocaml:no}%{?with_ocaml:ocaml} \
+%ifarch %{ix86}
+	--enable-pic=no \
+%endif
 	--disable-static \
-	--enable-assertions \
+	--disable-assertions \
 	--enable-debug-runtime \
 	--enable-jit \
 	--enable-optimized \
 	--enable-shared \
 	--with-pic
 
-%{__make} OPTIMIZE_OPTION="%{rpmcflags}"
+# FIXME file this
+# configure does not properly specify libdir
+sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 
-%if %{with gcc}
-# Build llvm-gcc.
-
-export PATH=%{_builddir}/%{?buildsubdir}/Release/bin:$PATH
-
-install -d llvm-gcc%{lgcc_vertar}-%{version}.source/build
-cd llvm-gcc%{lgcc_vertar}-%{version}.source/build
-../configure \
-	--host=%{_host} \
-	--build=%{_build} \
-	--target=%{_target_platform} \
-	--prefix=%{_libdir}/llvm-gcc \
-	--libdir=%{_libdir}/llvm-gcc/%{_lib} \
-	--enable-threads \
-	--disable-nls \
-%ifarch %{x8664}
-	--disable-multilib \
-	--disable-shared \
-%endif
-	--enable-languages=c,c++ \
-	--enable-llvm=%{_builddir}/%{?buildsubdir} \
-	--program-prefix=llvm-
-
-%{__make} LLVM_VERSION_INFO=%{version}
-%endif
+%{__make} \
+	OPTIMIZE_OPTION="%{rpmcflags} %{rpmcppflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
+cd obj
+chmod -x examples/Makefile
 
-find $RPM_BUILD_ROOT -name .dir | xargs rm -fv
+%{__make} -j1 install \
+	PROJ_docsdir=/moredocs \
+	DESTDIR=$RPM_BUILD_ROOT
+cd ..
+
+# Static analyzer not installed by default:
+# http://clang-analyzer.llvm.org/installation#OtherPlatforms
+install -d $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/libexec
+# wrong path used
+install -d $RPM_BUILD_ROOT%{_libexecdir}
+mv $RPM_BUILD_ROOT/usr/libexec/clang-cc $RPM_BUILD_ROOT%{_libexecdir}/clang-cc
+# link clang-cc for scan-build to find
+ln -s %{_libexecdir}/clang-cc $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/libexec/
+# create launchers
+for f in scan-{build,view}; do
+  ln -s %{_libdir}/clang-analyzer/$f $RPM_BUILD_ROOT%{_bindir}/$f
+done
+
+cd tools/clang/utils
+cp -p ccc-analyzer $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/libexec/
+
+for f in scan-build scanview.css sorttable.js; do
+  cp -p $f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
+done
+cd ../../..
+
+cd tools/clang/tools/scan-view
+cp -pr * $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
+cd ../../../../
+
+# Move documentation back to build directory
+#
+rm -rf moredocs
+mv $RPM_BUILD_ROOT/moredocs .
+rm moredocs/*.tar.gz
+#rm moredocs/ocamldoc/html/*.tar.gz
+
+# And prepare Clang documentation
+#
+rm -rf clang-docs
+mkdir clang-docs
+for f in LICENSE.TXT NOTES.txt README.txt TODO.txt; do
+  ln tools/clang/$f clang-docs/
+done
+#rm -rf tools/clang/docs/{doxygen*,Makefile*,*.graffle,tools}
 
 # Get rid of erroneously installed example files.
-rm $RPM_BUILD_ROOT%{_libdir}/%{name}/LLVMHello.*
+rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*LLVMHello.*
 
-%if %{with gcc}
-# Install llvm-gcc.
+# Remove deprecated tools.
+rm $RPM_BUILD_ROOT%{_bindir}/gcc{as,ld}
 
-%{__make} -C llvm-gcc%{lgcc_vertar}-%{version}.source/build install \
-	DESTDIR=$RPM_BUILD_ROOT
+# FIXME file this bug
+sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
+	$RPM_BUILD_ROOT%{_bindir}/llvm-config
 
-cd $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}
-find . -name '*.la' -print0 | xargs -0r rm
-find . -name '*.a' -exec $RPM_BUILD_ROOT%{_bindir}/llvm-ranlib {} \;
-cd ../bin
-ln llvm-c++ llvm-gcc llvm-g++ $RPM_BUILD_ROOT%{_bindir}
-rm llvm-cpp llvm-gccbug llvm-gcov %{_target_platform}-gcc*
-cd ..
-mv man/man1/llvm-gcc.1 man/man1/llvm-g++.1 $RPM_BUILD_ROOT%{_mandir}/man1
-rm -r info man %{_lib}/libiberty.a
-rm -r libexec/gcc/%{_target_platform}/%{lgcc_version}/install-tools
+chmod -x $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
 
-rm -r $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/gcc/%{_target_platform}/%{lgcc_version}/install-tools
-rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libgomp.a
-rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libgomp.spec
-rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libssp.a
-rm -f $RPM_BUILD_ROOT%{_libdir}/llvm-gcc/%{_lib}/libssp_nonshared.a
-%endif
+# remove documentation makefiles:
+# they require the build directory to work
+find examples -name 'Makefile' | xargs -0r rm -f
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -203,8 +244,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CREDITS.TXT LICENSE.TXT README.txt
 %attr(755,root,root) %{_bindir}/bugpoint
-%attr(755,root,root) %{_bindir}/gccas
-%attr(755,root,root) %{_bindir}/gccld
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
 %attr(755,root,root) %{_bindir}/opt
@@ -214,6 +253,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/llc.1*
 %{_mandir}/man1/lli.1*
+%{_mandir}/man1/llvmc.1*
 %{_mandir}/man1/llvm-*.1*
 %{_mandir}/man1/llvmgcc.1*
 %{_mandir}/man1/llvmgxx.1*
@@ -221,56 +261,45 @@ rm -rf $RPM_BUILD_ROOT
 #%{_mandir}/man1/stkrc.1*
 %{_mandir}/man1/tblgen.1*
 
-
 %files doc
 %defattr(644,root,root,755)
-%doc docs/*.{html,css} docs/img examples
+%doc docs/*.{html,css} docs/img examples moredocs/html
 
 %files devel
 %defattr(644,root,root,755)
+#%doc docs/doxygen
 %attr(755,root,root) %{_bindir}/llvm-config
 %{_includedir}/llvm
 %{_includedir}/llvm-c
-%{_libdir}/llvm/LLVM*.o
-%{_libdir}/llvm/libLLVM*.a
+%{_libdir}/%{name}
 
-%if %{with gcc}
-%files gcc
+%files -n clang
 %defattr(644,root,root,755)
-#%attr(755,root,root) %{_bindir}/llvm2cpp
-#%attr(755,root,root) %{_bindir}/llvmc
-#%dir %{_sysconfdir}
-#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c
-#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cpp
-#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/ll
-#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/st
-#%{_mandir}/man1/llvm2cpp.1*
-#%{_mandir}/man1/llvmc.1*
-%attr(755,root,root) %{_bindir}/llvm-gcc
-%dir %{_libdir}/llvm-gcc
-%dir %{_libdir}/llvm-gcc/bin
-%dir %{_libdir}/llvm-gcc/include
-%dir %{_libdir}/llvm-gcc/%{_lib}
-%dir %{_libdir}/llvm-gcc/libexec
-%dir %{_libdir}/llvm-gcc/libexec/gcc
-%dir %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}
-%{_libdir}/llvm-gcc/%{_lib}/gcc
-%{_libdir}/llvm-gcc/%{_lib}/libmudflap*.a
-%attr(755,root,root) %{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-gcc
-%attr(755,root,root) %{_libdir}/llvm-gcc/bin/llvm-gcc
-%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1
-%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/collect2
-%{_mandir}/man1/llvm-gcc.*
+%doc clang-docs/*
+%doc tools/clang/docs/*
+%attr(755,root,root) %{_bindir}/clang*
+%attr(755,root,root) %{_bindir}/FileCheck
+%attr(755,root,root) %{_bindir}/FileUpdate
+%attr(755,root,root) %{_bindir}/tblgen
+%{_prefix}/lib/clang
+%{_libexecdir}/clang-cc
+%{_mandir}/man1/clang.1.*
+%{_mandir}/man1/FileCheck.1.*
 
-%files gcc-c++
+%files -n clang-analyzer
 %defattr(644,root,root,755)
-#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/c++
-#%verify(not md5 mtime size) %config(noreplace) %{_sysconfdir}/cxx
-%attr(755,root,root) %{_bindir}/llvm-[cg]++
-%{_libdir}/llvm-gcc/%{_lib}/lib*++.a
-%attr(755,root,root) %{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-[cg]++
-%attr(755,root,root) %{_libdir}/llvm-gcc/bin/llvm-[cg]++
-%{_libdir}/llvm-gcc/include/c++
-%attr(755,root,root) %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1plus
-%{_mandir}/man1/llvm-g++.*
-%endif
+%attr(755,root,root) %{_bindir}/scan-build
+%attr(755,root,root) %{_bindir}/scan-view
+%{_libdir}/clang-analyzer
+
+%files ocaml
+%defattr(644,root,root,755)
+%doc moredocs/ocamldoc/html/*
+%{_libdir}/ocaml/*.cma
+%{_libdir}/ocaml/*.cmi
+
+%files ocaml-devel
+%defattr(644,root,root,755)
+%{_libdir}/ocaml/*.a
+%{_libdir}/ocaml/*.cmx*
+%{_libdir}/ocaml/*.mli
