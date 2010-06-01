@@ -7,19 +7,14 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	2.6
+Version:	2.7
 Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
-Source0:	http://llvm.org/prereleases/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	d4d2cfbb962eca0c96aa1d794e23a681
-Source1:	http://llvm.org/prereleases/2.6/clang-%{version}.tar.gz
-# Source1-md5:	80a2a9bbe8fa7c403b2ec7aca8b4108f
-# http://llvm.org/bugs/show_bug.cgi?id=3153
-Patch0:		%{name}-2.6-destdir.patch
-Patch1:		%{name}-2.6-destdir-clang.patch
-# http://llvm.org/bugs/show_bug.cgi?id=4911
-Patch2:		%{name}-2.5-tclsh_check.patch
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tgz
+# Source0-md5:	ac322661f20e7d6c810b1869f886ad9b
+Source1:	http://llvm.org/releases/2.7/clang-%{version}.tgz
+# Source1-md5:	b83260aa8c13494adf8978b5f238bf1b
 # Data files should be installed with timestamps preserved
 Patch3:		%{name}-2.6-timestamp.patch
 URL:		http://llvm.org/
@@ -132,11 +127,6 @@ intended to run in tandem with a build of a project or code base.
 %prep
 %setup -q -a1
 mv clang-*.* tools/clang
-%patch0 -p0 -b .destdir
-cd tools/clang
-%patch1 -p0 -b .destdir-clang
-cd ../..
-%patch2 -p1 -b .tclsh_check
 %patch3 -p1 -b .timestamp
 
 %build
@@ -178,27 +168,20 @@ chmod -x examples/Makefile
 cd ..
 
 # Static analyzer not installed by default:
-# http://clang-analyzer.llvm.org/installation#OtherPlatforms
-install -d $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/libexec
+install -d $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
 # wrong path used
 install -d $RPM_BUILD_ROOT%{_libexecdir}
-mv $RPM_BUILD_ROOT/usr/libexec/clang-cc $RPM_BUILD_ROOT%{_libexecdir}/clang-cc
-# link clang-cc for scan-build to find
-ln -s %{_libexecdir}/clang-cc $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/libexec/
 # create launchers
+
 for f in scan-{build,view}; do
   ln -s %{_libdir}/clang-analyzer/$f $RPM_BUILD_ROOT%{_bindir}/$f
 done
 
-cd tools/clang/utils
-cp -p ccc-analyzer $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/libexec/
+cd tools/clang/tools/scan-build
 
 for f in scan-build scanview.css sorttable.js; do
   cp -p $f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
 done
-cd ../../..
-
-cd tools/clang/tools/scan-view
 cp -pr * $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
 cd ../../../../
 
@@ -220,9 +203,6 @@ done
 
 # Get rid of erroneously installed example files.
 rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*LLVMHello.*
-
-# Remove deprecated tools.
-rm $RPM_BUILD_ROOT%{_bindir}/gcc{as,ld}
 
 # FIXME file this bug
 sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
@@ -278,13 +258,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc clang-docs/*
 %doc tools/clang/docs/*
 %attr(755,root,root) %{_bindir}/clang*
-%attr(755,root,root) %{_bindir}/FileCheck
-%attr(755,root,root) %{_bindir}/FileUpdate
 %attr(755,root,root) %{_bindir}/tblgen
 %{_prefix}/lib/clang
-%{_libexecdir}/clang-cc
 %{_mandir}/man1/clang.1.*
-%{_mandir}/man1/FileCheck.1.*
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
@@ -292,10 +268,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/scan-view
 %dir %{_libdir}/clang-analyzer
 %attr(755,root,root) %{_libdir}/clang-analyzer/scan-*
+%attr(755,root,root) %{_libdir}/clang-analyzer/c++-*
+%attr(755,root,root) %{_libdir}/clang-analyzer/ccc-*
+%attr(755,root,root) %{_libdir}/clang-analyzer/set-xcode-*
 %{_libdir}/clang-analyzer/*.*
-%dir %{_libdir}/clang-analyzer/libexec
-%attr(755,root,root) %{_libdir}/clang-analyzer/libexec/*
-%{_libdir}/clang-analyzer/Resource
 
 %files ocaml
 %defattr(644,root,root,755)
