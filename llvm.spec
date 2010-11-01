@@ -1,28 +1,43 @@
 # TODO
-# - gcc/c++ packages: http://cvs.fedoraproject.org/viewvc/rpms/llvm/devel/llvm.spec?revision=HEAD&view=markup
-# - test gcc pkgs and all
+#warning: Installed (but unpackaged) file(s) found:
+#   /usr/share/man/man1/lit.1.gz
 #
-%define		lgcc_vertar		4.2
-%define		lgcc_version	4.2
+# Conditional build:
+%bcond_without	ocaml	# ocaml binding
+%bcond_with		apidocs	# The doxygen docs are HUGE, so they are not built by default.
+%bcond_with		tests	# run tests
+
+%ifarch s390 s390x sparc64
+# No ocaml on these arches
+%undefine	with_ocaml
+%endif
+
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	2.7
-Release:	0.1
+Version:	2.8
+Release:	0.2
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tgz
-# Source0-md5:	ac322661f20e7d6c810b1869f886ad9b
-Source1:	http://llvm.org/releases/2.7/clang-%{version}.tgz
-# Source1-md5:	b83260aa8c13494adf8978b5f238bf1b
+# Source0-md5:	220d361b4d17051ff4bb21c64abe05ba
+Source1:	http://llvm.org/releases/%{version}/clang-%{version}.tgz
+# Source1-md5:	10e14c901fc3728eecbd5b829e011b59
 # Data files should be installed with timestamps preserved
 Patch3:		%{name}-2.6-timestamp.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
-BuildRequires:	doxygen
 BuildRequires:	flex
+%if %{with apidocs}
+BuildRequires:	doxygen
 BuildRequires:	graphviz
+%endif
+%if %{with tests}
+BuildRequires:	dejagnu
+BuildRequires:	python
+BuildRequires:	tcl-devel
+%endif
 BuildRequires:	groff
 BuildRequires:	libltdl-devel
 BuildRequires:	libstdc++-devel >= 5:3.4
@@ -31,9 +46,14 @@ BuildRequires:	ocaml-ocamldoc
 %if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
 BuildRequires:	__cc >= 3.4
 %endif
+# LLVM is not supported on PPC64
+# http://llvm.org/bugs/show_bug.cgi?id=3729
+ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/%{name}
+
+%define		specflags_ppc	-fno-var-tracking-assignments
 
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
 %define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
@@ -59,14 +79,6 @@ rodziny C. Infrastruktura kompilatora zawiera lustrzane zestawy
 narzędzi programistycznych oraz biblioteki z odpowiadającą narzędziom
 funkcjonalnością.
 
-%package doc
-Summary:	Documentation for LLVM
-Group:		Documentation
-Requires:	%{name} = %{version}-%{release}
-
-%description doc
-Documentation for the LLVM compiler infrastructure.
-
 %package devel
 Summary:	Libraries and header files for LLVM
 Group:		Development/Languages
@@ -77,24 +89,21 @@ Requires:	libstdc++-devel >= 6:3.4
 This package contains library and header files needed to develop new
 native programs that use the LLVM infrastructure.
 
-%package ocaml
-Summary:	OCaml binding for LLVM
-Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
-%requires_eq	ocaml-runtime
+%package doc
+Summary:	Documentation for LLVM
+Group:		Documentation
+# does not require base
 
-%description    ocaml
-OCaml binding for LLVM.
+%description doc
+Documentation for the LLVM compiler infrastructure.
 
-%package ocaml-devel
-Summary:	Development files for %{name}-ocaml
-Group:		Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	%{name}-ocaml = %{version}-%{release}
+%package apidocs
+Summary:	API documentation for LLVM
+Group:		Development/Languages
+Requires:	%{name}-doc = %{version}-%{release}
 
-%description ocaml-devel
-The %{name}-ocaml-devel package contains libraries and signature files
-for developing applications that use %{name}-ocaml.
+%description apidocs
+API documentation for the LLVM compiler infrastructure.
 
 %package -n clang
 Summary:	A C language family frontend for LLVM
@@ -124,22 +133,78 @@ framework and a standalone tool that finds bugs in C and Objective-C
 programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
+%package -n clang-devel
+Summary:	Header files for clang
+Group:		Development/Languages
+Requires:	clang = %{version}-%{release}
+
+%description -n clang-devel
+This package contains header files for the Clang compiler.
+
+%package -n clang-doc
+Summary:	Documentation for Clang
+Group:		Documentation
+Requires:	%{name} = %{version}-%{release}
+
+%description -n clang-doc
+Documentation for the Clang compiler front-end.
+
+%package -n clang-apidocs
+Summary:	API documentation for Clang
+Group:		Development/Languages
+Requires:	clang-doc = %{version}-%{release}
+
+%description -n clang-apidocs
+API documentation for the Clang compiler.
+
+%package ocaml
+Summary:	OCaml binding for LLVM
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+%requires_eq	ocaml-runtime
+
+%description    ocaml
+OCaml binding for LLVM.
+
+%package ocaml-devel
+Summary:	Development files for %{name}-ocaml
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{version}-%{release}
+Requires:	%{name}-ocaml = %{version}-%{release}
+
+%description ocaml-devel
+The llvm-ocaml-devel package contains libraries and signature files
+for developing applications that use llvm-ocaml.
+
+%package ocaml-doc
+Summary:	Documentation for LLVM's OCaml binding
+Group:		Documentation
+Requires:	%{name}-ocaml = %{version}-%{release}
+
+%description ocaml-doc
+HTML documentation for LLVM's OCaml binding.
+
 %prep
 %setup -q -a1
 mv clang-*.* tools/clang
-%patch3 -p1 -b .timestamp
+%patch3 -p1
+
+install -d obj
 
 %build
 # Disabling assertions now, rec. by pure and needed for OpenGTL
-# no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3239
+# TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
 #
 # bash specific 'test a < b'
-mkdir obj && cd obj
+cd obj
 bash ../%configure \
 	--libdir=%{_libdir}/%{name} \
 	--datadir=%{_datadir}/%{name}-%{version} \
 %ifarch %{ix86}
 	--enable-pic=no \
+%endif
+%if %{with apidocs}
+	--enable-doxygen \
 %endif
 	--disable-static \
 	--disable-assertions \
@@ -156,63 +221,58 @@ sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 %{__make} \
 	OPTIMIZE_OPTION="%{rpmcflags} %{rpmcppflags}"
 
+%if %{with test}
+%{__make} check 2>&1 | tee llvm-testlog.txt
+%{__make} -C tools/clang test 2>&1 | tee clang-testlog.txt
+%endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
-
-cd obj
-chmod -x examples/Makefile
-
-%{__make} -j1 install \
+%{__make} -C obj -j1 install \
 	PROJ_docsdir=/moredocs \
 	DESTDIR=$RPM_BUILD_ROOT
-cd ..
 
 # Static analyzer not installed by default:
-install -d $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
-# wrong path used
-install -d $RPM_BUILD_ROOT%{_libexecdir}
+# http://clang-analyzer.llvm.org/installation#OtherPlatforms
+install -d $RPM_BUILD_ROOT%{_libdir}/clang-analyzer
 # create launchers
-
 for f in scan-{build,view}; do
-  ln -s %{_libdir}/clang-analyzer/$f $RPM_BUILD_ROOT%{_bindir}/$f
+	ln -s %{_libdir}/clang-analyzer/$f/$f $RPM_BUILD_ROOT%{_bindir}/$f
+	cp -pr tools/clang/tools/$f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer
 done
-
-cd tools/clang/tools/scan-build
-
-for f in scan-build scanview.css sorttable.js; do
-  cp -p $f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
-done
-cp -pr * $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/
-cd ../../../../
 
 # Move documentation back to build directory
-#
 rm -rf moredocs
 mv $RPM_BUILD_ROOT/moredocs .
-rm moredocs/*.tar.gz
-#rm moredocs/ocamldoc/html/*.tar.gz
+rm -fv moredocs/*.tar.gz
+rm -fv moredocs/ocamldoc/html/*.tar.gz
+
+# and separate the apidoc
+%if %{with apidocs}
+rm -rf apidoc clang-apidoc
+mv moredocs/html/doxygen apidoc
+cp -a tools/clang/docs/doxygen/html clang-apidoc
+%endif
 
 # And prepare Clang documentation
-#
 rm -rf clang-docs
-mkdir clang-docs
+install -d clang-docs
 for f in LICENSE.TXT NOTES.txt README.txt TODO.txt; do
-  ln tools/clang/$f clang-docs/
+	ln tools/clang/$f clang-docs
 done
-#rm -rf tools/clang/docs/{doxygen*,Makefile*,*.graffle,tools}
 
 # Get rid of erroneously installed example files.
-rm $RPM_BUILD_ROOT%{_libdir}/%{name}/*LLVMHello.*
+rm -v $RPM_BUILD_ROOT%{_libdir}/%{name}/*LLVMHello.*
 
 # FIXME file this bug
 sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
 	$RPM_BUILD_ROOT%{_bindir}/llvm-config
 
-chmod -x $RPM_BUILD_ROOT%{_libdir}/%{name}/*.a
-
 # remove documentation makefiles:
 # they require the build directory to work
-find examples -name 'Makefile' | xargs -0r rm -f
+rm -rf moredocs/examples
+cp -a examples moredocs/examples
+find moredocs/examples -name Makefile | xargs -0r rm -f
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -223,6 +283,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CREDITS.TXT LICENSE.TXT README.txt
+%{?with_tests:%doc llvm-testlog.txt}
 %attr(755,root,root) %{_bindir}/bugpoint
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
@@ -241,24 +302,30 @@ rm -rf $RPM_BUILD_ROOT
 #%{_mandir}/man1/stkrc.1*
 %{_mandir}/man1/tblgen.1*
 
-%files doc
-%defattr(644,root,root,755)
-%doc docs/*.{html,css} docs/img examples moredocs/html
-
 %files devel
 %defattr(644,root,root,755)
-#%doc docs/doxygen
 %attr(755,root,root) %{_bindir}/llvm-config
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %{_libdir}/%{name}
 
+%files doc
+%defattr(644,root,root,755)
+%doc moredocs/examples moredocs/html
+
+%if %{with apidocs}
+%files apidocs
+%defattr(644,root,root,755)
+%doc apidoc/*
+%endif
+
 %files -n clang
 %defattr(644,root,root,755)
 %doc clang-docs/*
-%doc tools/clang/docs/*
+%{?with_tests:%doc clang-testlog.txt}
 %attr(755,root,root) %{_bindir}/clang*
 %attr(755,root,root) %{_bindir}/tblgen
+%attr(755,root,root) %{_bindir}/c-index-test
 %{_prefix}/lib/clang
 %{_mandir}/man1/clang.1.*
 
@@ -267,15 +334,36 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/scan-build
 %attr(755,root,root) %{_bindir}/scan-view
 %dir %{_libdir}/clang-analyzer
-%attr(755,root,root) %{_libdir}/clang-analyzer/scan-*
-%attr(755,root,root) %{_libdir}/clang-analyzer/c++-*
-%attr(755,root,root) %{_libdir}/clang-analyzer/ccc-*
-%attr(755,root,root) %{_libdir}/clang-analyzer/set-xcode-*
-%{_libdir}/clang-analyzer/*.*
 
+%dir %{_libdir}/clang-analyzer/scan-view
+%attr(755,root,root) %{_libdir}/clang-analyzer/scan-view/scan-view
+%{_libdir}/clang-analyzer/scan-view/Resources
+%{_libdir}/clang-analyzer/scan-view/*.py
+
+%dir %{_libdir}/clang-analyzer/scan-build
+%{_libdir}/clang-analyzer/scan-build/*.css
+%{_libdir}/clang-analyzer/scan-build/*.js
+%attr(755,root,root) %{_libdir}/clang-analyzer/scan-build/scan-build
+%attr(755,root,root) %{_libdir}/clang-analyzer/scan-build/*-analyzer
+
+%files -n clang-devel
+%defattr(644,root,root,755)
+%{_includedir}/clang
+%{_includedir}/clang-c
+
+%files -n clang-doc
+%defattr(644,root,root,755)
+%doc tools/clang/docs/*
+
+%if %{with apidocs}
+%files -n clang-apidocs
+%defattr(644,root,root,755)
+%doc clang-apidoc/*
+%endif
+
+%if %{with ocaml}
 %files ocaml
 %defattr(644,root,root,755)
-%doc moredocs/ocamldoc/html/*
 %{_libdir}/ocaml/*.cma
 %{_libdir}/ocaml/*.cmi
 
@@ -284,3 +372,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/ocaml/*.a
 %{_libdir}/ocaml/*.cmx*
 %{_libdir}/ocaml/*.mli
+
+%files ocaml-doc
+%defattr(644,root,root,755)
+%doc moredocs/ocamldoc/html/*
+%endif
