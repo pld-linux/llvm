@@ -15,14 +15,14 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	2.8
+Version:	2.7
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tgz
-# Source0-md5:	220d361b4d17051ff4bb21c64abe05ba
+# Source0-md5:	ac322661f20e7d6c810b1869f886ad9b
 Source1:	http://llvm.org/releases/%{version}/clang-%{version}.tgz
-# Source1-md5:	10e14c901fc3728eecbd5b829e011b59
+# Source1-md5:	b83260aa8c13494adf8978b5f238bf1b
 # Data files should be installed with timestamps preserved
 Patch3:		%{name}-2.6-timestamp.patch
 URL:		http://llvm.org/
@@ -330,7 +330,6 @@ rm -rf $RPM_BUILD_ROOT
 %{?with_tests:%doc clang-testlog.txt}
 %attr(755,root,root) %{_bindir}/clang*
 %attr(755,root,root) %{_bindir}/tblgen
-%attr(755,root,root) %{_bindir}/c-index-test
 %{_prefix}/lib/clang
 %{_mandir}/man1/clang.1.*
 
