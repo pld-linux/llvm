@@ -312,10 +312,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %{_libdir}/lib*.a
+# x86-64 only .a/.so?
+%ifarch %{x8664}
 %attr(755,root,root) %{_libdir}/libBugpointPasses.so
 %attr(755,root,root) %{_libdir}/libEnhancedDisassembly.so
-%exclude %attr(755,root,root) %{_libdir}/libLLVM-*.*.so
 %attr(755,root,root) %{_libdir}/libLTO.so
+%endif
+#
+%exclude %attr(755,root,root) %{_libdir}/libLLVM-*.*.so
 %exclude %attr(755,root,root) %{_libdir}/libclang.so
 %attr(755,root,root) %{_libdir}/libprofile_rt.so
 
