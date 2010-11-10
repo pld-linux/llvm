@@ -16,7 +16,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	2.8
-Release:	1
+Release:	2
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tgz
@@ -189,6 +189,9 @@ HTML documentation for LLVM's OCaml binding.
 mv clang-*.* tools/clang
 %patch3 -p1
 
+# configure does not properly specify libdir
+sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
+
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
 	s,^#!.*bin/env perl,#!%{__perl},
@@ -218,10 +221,6 @@ bash ../%configure \
 	--enable-optimized \
 	--enable-shared \
 	--with-pic
-
-# FIXME file this
-# configure does not properly specify libdir
-sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 
 %{__make} \
 	OPTIMIZE_OPTION="%{rpmcflags} %{rpmcppflags}"
@@ -267,10 +266,10 @@ for f in LICENSE.TXT NOTES.txt README.txt TODO.txt; do
 done
 
 # Get rid of erroneously installed example files.
-rm -v $RPM_BUILD_ROOT%{_libdir}/%{name}/*LLVMHello.*
+rm -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
 
 # FIXME file this bug
-sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
+sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}",' \
 	$RPM_BUILD_ROOT%{_bindir}/llvm-config
 
 # remove documentation makefiles:
@@ -278,9 +277,6 @@ sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
 rm -rf moredocs/examples
 cp -a examples moredocs/examples
 find moredocs/examples -name Makefile | xargs -0r rm -f
-
-# Move shared runtime to standard libdir.
-mv $RPM_BUILD_ROOT%{_libdir}/%{name}/lib{LLVM-*.*,clang}.so $RPM_BUILD_ROOT%{_libdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -315,9 +311,13 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-config
 %{_includedir}/llvm
 %{_includedir}/llvm-c
-%{_libdir}/%{name}
+%{_libdir}/lib*.a
+%attr(755,root,root) %{_libdir}/libBugpointPasses.so
+%attr(755,root,root) %{_libdir}/libEnhancedDisassembly.so
 %exclude %attr(755,root,root) %{_libdir}/libLLVM-*.*.so
+%attr(755,root,root) %{_libdir}/libLTO.so
 %exclude %attr(755,root,root) %{_libdir}/libclang.so
+%attr(755,root,root) %{_libdir}/libprofile_rt.so
 
 %files doc
 %defattr(644,root,root,755)
