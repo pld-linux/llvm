@@ -279,6 +279,9 @@ rm -rf moredocs/examples
 cp -a examples moredocs/examples
 find moredocs/examples -name Makefile | xargs -0r rm -f
 
+# Move shared runtime to standard libdir.
+mv $RPM_BUILD_ROOT%{_libdir}/%{name}/lib{LLVM-*.*,clang}.so $RPM_BUILD_ROOT%{_libdir}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -296,6 +299,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvmc
 %attr(755,root,root) %{_bindir}/llvm-*
 %exclude %attr(755,root,root) %{_bindir}/llvm-config
+%attr(755,root,root) %{_libdir}/libLLVM-*.*.so
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/llc.1*
 %{_mandir}/man1/lli.1*
@@ -305,7 +309,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvmgxx.1*
 %{_mandir}/man1/opt.1*
 #%{_mandir}/man1/stkrc.1*
-%{_mandir}/man1/tblgen.1*
 
 %files devel
 %defattr(644,root,root,755)
@@ -313,6 +316,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %{_libdir}/%{name}
+%exclude %attr(755,root,root) %{_libdir}/libLLVM-*.*.so
+%exclude %attr(755,root,root) %{_libdir}/libclang.so
 
 %files doc
 %defattr(644,root,root,755)
@@ -331,8 +336,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang*
 %attr(755,root,root) %{_bindir}/tblgen
 %attr(755,root,root) %{_bindir}/c-index-test
+%attr(755,root,root) %{_libdir}/libclang.so
 %{_prefix}/lib/clang
 %{_mandir}/man1/clang.1.*
+%{_mandir}/man1/tblgen.1*
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
