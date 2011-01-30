@@ -42,6 +42,8 @@ BuildRequires:	groff
 BuildRequires:	libltdl-devel
 BuildRequires:	libstdc++-devel >= 5:3.4
 BuildRequires:	ocaml-ocamldoc
+BuildRequires:	perl-tools-pod
+BuildRequires:	rpm-pythonprov
 # gcc4 might be installed, but not current __cc
 %if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
 BuildRequires:	__cc >= 3.4
