@@ -25,6 +25,7 @@ Source1:	http://llvm.org/releases/%{version}/clang-%{version}.tgz
 # Source1-md5:	634de18d04b7a4ded19ec4c17d23cfca
 # Data files should be installed with timestamps preserved
 Patch3:		%{name}-2.6-timestamp.patch
+Patch4:		%{name}-pld.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -190,6 +191,9 @@ HTML documentation for LLVM's OCaml binding.
 %setup -q -a1
 mv clang-*.* tools/clang
 %patch3 -p1
+%patch4 -p1
+
+sed -i 's|triplet-plox-here|%{_host}|' tools/clang/lib/Driver/ToolChains.cpp
 
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in

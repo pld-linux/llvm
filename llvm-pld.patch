@@ -1,0 +1,13 @@
+diff -ruN llvm-2.9./tools/clang/lib/Driver/ToolChains.cpp llvm-2.9/tools/clang/lib/Driver/ToolChains.cpp
+--- llvm-2.9./tools/clang/lib/Driver/ToolChains.cpp	2011-03-21 22:29:27.000000000 +0100
++++ llvm-2.9/tools/clang/lib/Driver/ToolChains.cpp	2011-04-17 16:57:06.471923892 +0200
+@@ -1447,6 +1447,9 @@
+     else if (!llvm::sys::fs::exists("/usr/lib/gcc/i586-suse-linux", Exists) &&
+              Exists)
+       GccTriple = "i586-suse-linux";
++    else if (!llvm::sys::fs::exists("/usr/lib/gcc/triplet-plox-here", Exists) &&
++             Exists)
++      GccTriple = "triplet-plox-here";
+   }
+ 
+   const char* GccVersions[] = {"4.5.2", "4.5.1", "4.5", "4.4.5", "4.4.4",
