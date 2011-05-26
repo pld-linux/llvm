@@ -322,7 +322,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/lib*.a
 # x86-64 only .a/.so?
 %ifarch %{x8664}
-%attr(755,root,root) %{_libdir}/libBugpointPasses.so
+%attr(755,root,root) %{_libdir}/BugpointPasses.so
 %attr(755,root,root) %{_libdir}/libEnhancedDisassembly.so
 %attr(755,root,root) %{_libdir}/libLTO.so
 %endif
