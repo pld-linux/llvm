@@ -229,6 +229,7 @@ bash ../%configure \
 	--with-pic
 
 %{__make} \
+	REQUIRES_RTTI=1 \
 	OPTIMIZE_OPTION="%{rpmcflags} %{rpmcppflags}"
 
 %if %{with test}
