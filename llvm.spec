@@ -66,50 +66,59 @@ LLVM is a compiler infrastructure designed for compile-time,
 link-time, runtime, and idle-time optimization of programs from
 arbitrary programming languages. LLVM is written in C++ and has been
 developed since 2000 at the University of Illinois and Apple. It
-currently supports compilation of C and C++ programs, using front-ends
-derived from GCC 4.0.1. A new front-end for the C family of languages
-is in development. The compiler infrastructure includes mirror sets of
-programming tools as well as libraries with equivalent functionality.
+currently supports compilation of C and C++ programs using clang
+frontend.
 
 %description -l pl.UTF-8
 LLVM to infrastruktura kompilatora zaprojektowana do optymalizacji
 czasu kompilowania, linkowania, działania i bezczynności programów w
 dowolnych językach programowania. Jest napisana w C++, rozwijana od
 roku 2000 przez Uniwersytet w Illinois i Apple. Aktualnie obsługuje
-kompilację programów w C i C++ przy użyciu frontendów wywodzących się
-z GCC 4.0.1. W trakcie tworzenia jest nowy frontend do języków z
-rodziny C. Infrastruktura kompilatora zawiera lustrzane zestawy
-narzędzi programistycznych oraz biblioteki z odpowiadającą narzędziom
-funkcjonalnością.
+kompilację programów w C i C++ przy użyciu frontendu clang.
 
 %package devel
-Summary:	Libraries and header files for LLVM
+Summary:	Static libraries and header files for LLVM
+Summary(pl.UTF-8):	Biblioteki statyczne i pliki nagłówkowe dla LLVM-a
 Group:		Development/Languages
 Requires:	%{name} = %{version}-%{release}
 Requires:	libstdc++-devel >= 6:3.4
 
 %description devel
-This package contains library and header files needed to develop new
-native programs that use the LLVM infrastructure.
+This package contains static libraries and header files needed to
+develop new native programs that use the LLVM infrastructure.
+
+%description devel -l pl.UTF-8
+Ten pakiet zawiera biblioteki statyczne oraz pliki nagłówkowe
+potrzebne do tworzenia nowych programów natywnych wykorzystujących
+infrastrukturę LLVM.
 
 %package doc
 Summary:	Documentation for LLVM
+Summary(pl.UTF-8):	Dokumentacja do LLVM-a
 Group:		Documentation
 # does not require base
 
 %description doc
 Documentation for the LLVM compiler infrastructure.
 
+%description doc -l pl.UTF-8
+Dokumentacja do infrastruktury kompilatorów LLVM.
+
 %package apidocs
 Summary:	API documentation for LLVM
+Summary(pl.UTF-8):	Dokumentacja API LLVM-a
 Group:		Development/Languages
 Requires:	%{name}-doc = %{version}-%{release}
 
 %description apidocs
 API documentation for the LLVM compiler infrastructure.
 
+%description apidocs -l pl.UTF-8
+Dokumentacja API infrastruktury kompilatorów LLVM.
+
 %package -n clang
 Summary:	A C language family frontend for LLVM
+Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C
 License:	NCSA
 Group:		Development/Languages
 
@@ -121,8 +130,19 @@ The goal of the Clang project is to create a new C, C++, Objective C
 and Objective C++ front-end for the LLVM compiler. Its tools are built
 as libraries and designed to be loosely-coupled and extendable.
 
+%description -n clang -l pl.UTF-8
+clang (z angielskiego): 1. głośny, rezonujący, metaliczny dźwięk; 2.
+piskliwy odgłos żurawia lub gęsi; 3. narzędzia frontendowe dla języków
+z rodziny C.
+
+Celem projektu Clang jest utworzenie nowego frontendu dla kompilatora
+LLVM do języków C, C++, Objective C i Objective C++. Narzędzia są
+budowane jako biblioteki i zaprojektowane z myślą o swobodnym łączeniu
+i rozszerzaniu.
+
 %package -n clang-analyzer
 Summary:	A source code analysis framework
+Summary(pl.UTF-8):	Szkielet do analizy kodu źródłowego
 License:	NCSA
 Group:		Development/Languages
 Requires:	clang = %{version}-%{release}
@@ -136,56 +156,88 @@ framework and a standalone tool that finds bugs in C and Objective-C
 programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
+%description -n clang-analyzer -l pl.UTF-8
+Clang Static Analyzer składa się ze szkieletu do analizy kodu
+źródłowego oraz samodzielnego narzędzia znajdującego błędy w
+programach w C i C++. Narzędzie jest wywoływane z linii poleceń, z
+myślą o uruchamianiu wraz z kompilacją projektu lub kodu.
+
 %package -n clang-devel
-Summary:	Header files for clang
+Summary:	Header files for Clang
+Summary(pl.UTF-8):	Pliki nagłówkowe Clanga
 Group:		Development/Languages
 Requires:	clang = %{version}-%{release}
 
 %description -n clang-devel
 This package contains header files for the Clang compiler.
 
+%description -n clang-devel -l pl.UTF-8
+Ten pakiet zawiera pliki nagłówkowe kompilatora Clang.
+
 %package -n clang-doc
 Summary:	Documentation for Clang
+Summary(pl.UTF-8):	Dokumentacja do Clanga
 Group:		Documentation
 Requires:	%{name} = %{version}-%{release}
 
 %description -n clang-doc
 Documentation for the Clang compiler front-end.
 
+%description -n clang-doc -l pl.UTF-8
+Dokumentacja do frontendu kompilatora Clang.
+
 %package -n clang-apidocs
 Summary:	API documentation for Clang
+Summary(pl.UTF-8):	Dokumentacja API Clanga
 Group:		Development/Languages
 Requires:	clang-doc = %{version}-%{release}
 
 %description -n clang-apidocs
 API documentation for the Clang compiler.
 
+%description -n clang-apidocs -l pl.UTF-8
+Dokumentacja API kompilatora Clang.
+
 %package ocaml
 Summary:	OCaml binding for LLVM
-Group:		Development/Libraries
+Summary(pl.UTF-8):	Wiązanie OCamla do LLVM-a
+Group:		Libraries
 Requires:	%{name} = %{version}-%{release}
 %requires_eq	ocaml-runtime
 
-%description    ocaml
+%description ocaml
 OCaml binding for LLVM.
 
+%description ocaml -l pl.UTF-8
+Wiązanie OCamla do LLVM-a.
+
 %package ocaml-devel
-Summary:	Development files for %{name}-ocaml
+Summary:	Development files for LLVM OCaml binding
+Summary(pl.UTF-8):	Pliki programistyczne wiązania OCamla do LLVM-a
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	%{name}-ocaml = %{version}-%{release}
 
 %description ocaml-devel
 The llvm-ocaml-devel package contains libraries and signature files
-for developing applications that use llvm-ocaml.
+for developing applications that use llvm-ocaml binding.
+
+%description ocaml-devel -l pl.UTF-8
+Ten pakiet zawiera biblioteki i pliki sygnatur do tworzenia aplikacji
+wykorzystujących wiązanie llvm-ocaml.
+
 
 %package ocaml-doc
 Summary:	Documentation for LLVM's OCaml binding
+Summary(pl.UTF-8):	Dokumentacja wiązania OCamla do LLVM-a
 Group:		Documentation
 Requires:	%{name}-ocaml = %{version}-%{release}
 
 %description ocaml-doc
 HTML documentation for LLVM's OCaml binding.
+
+%description ocaml-doc -l pl.UTF-8
+Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
 %setup -q -a1
