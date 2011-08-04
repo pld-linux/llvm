@@ -1,11 +1,8 @@
-# TODO
-#warning: Installed (but unpackaged) file(s) found:
-#   /usr/share/man/man1/lit.1.gz
 #
 # Conditional build:
 %bcond_without	ocaml	# ocaml binding
-%bcond_with		apidocs	# The doxygen docs are HUGE, so they are not built by default.
-%bcond_with		tests	# run tests
+%bcond_with	apidocs	# The doxygen docs are HUGE, so they are not built by default.
+%bcond_with	tests	# run tests
 
 %ifarch s390 s390x sparc64
 # No ocaml on these arches
@@ -43,6 +40,7 @@ BuildRequires:	groff
 BuildRequires:	libltdl-devel
 BuildRequires:	libstdc++-devel >= 5:3.4
 BuildRequires:	ocaml-ocamldoc
+BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	rpm-pythonprov
 # gcc4 might be installed, but not current __cc
@@ -303,6 +301,9 @@ for f in scan-{build,view}; do
 	ln -s %{_libdir}/clang-analyzer/$f/$f $RPM_BUILD_ROOT%{_bindir}/$f
 	cp -pr tools/clang/tools/$f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer
 done
+%py_comp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
+%py_ocomp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
+%py_postclean %{_libdir}/clang-analyzer/scan-view
 
 # Move documentation back to build directory
 rm -rf moredocs
@@ -345,44 +346,65 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CREDITS.TXT LICENSE.TXT README.txt
-%{?with_tests:%doc llvm-testlog.txt}
+%doc CREDITS.TXT LICENSE.TXT README.txt %{?with_tests:llvm-testlog.txt}
 %attr(755,root,root) %{_bindir}/bugpoint
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
-%attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_bindir}/llvmc
-%attr(755,root,root) %{_bindir}/llvm-*
+%attr(755,root,root) %{_bindir}/llvm-ar
+%attr(755,root,root) %{_bindir}/llvm-as
+%attr(755,root,root) %{_bindir}/llvm-bcanalyzer
+%attr(755,root,root) %{_bindir}/llvm-diff
+%attr(755,root,root) %{_bindir}/llvm-dis
+%attr(755,root,root) %{_bindir}/llvm-extract
+%attr(755,root,root) %{_bindir}/llvm-ld
+%attr(755,root,root) %{_bindir}/llvm-link
+%attr(755,root,root) %{_bindir}/llvm-mc
+%attr(755,root,root) %{_bindir}/llvm-nm
+%attr(755,root,root) %{_bindir}/llvm-objdump
+%attr(755,root,root) %{_bindir}/llvm-prof
+%attr(755,root,root) %{_bindir}/llvm-ranlib
+%attr(755,root,root) %{_bindir}/llvm-stub
 %attr(755,root,root) %{_bindir}/macho-dump
-%exclude %attr(755,root,root) %{_bindir}/llvm-config
-%attr(755,root,root) %{_libdir}/libLLVM-*.*.so
+%attr(755,root,root) %{_bindir}/opt
+%attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/lit.1*
 %{_mandir}/man1/llc.1*
 %{_mandir}/man1/lli.1*
-%{_mandir}/man1/llvm-*.1*
+%{_mandir}/man1/llvm-ar.1*
+%{_mandir}/man1/llvm-as.1*
+%{_mandir}/man1/llvm-bcanalyzer.1*
+%{_mandir}/man1/llvm-diff.1*
+%{_mandir}/man1/llvm-dis.1*
+%{_mandir}/man1/llvm-extract.1*
+%{_mandir}/man1/llvm-ld.1*
+%{_mandir}/man1/llvm-link.1*
+%{_mandir}/man1/llvm-nm.1*
+%{_mandir}/man1/llvm-prof.1*
+%{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvmc.1*
 %{_mandir}/man1/llvmgcc.1*
 %{_mandir}/man1/llvmgxx.1*
 %{_mandir}/man1/opt.1*
-#%{_mandir}/man1/stkrc.1*
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
-%{_includedir}/llvm
-%{_includedir}/llvm-c
-%{_libdir}/lib*.a
-# x86-64 only .a/.so?
+%attr(755,root,root) %{_libdir}/profile_rt.so
+%{_libdir}/libCompilerDriver.a
+%{_libdir}/libLLVM*.a
+%{_libdir}/libllvm*.a
 %ifarch %{x8664}
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
 %attr(755,root,root) %{_libdir}/libEnhancedDisassembly.so
 %attr(755,root,root) %{_libdir}/libLTO.so
+%{_libdir}/libEnhancedDisassembly.a
+%{_libdir}/libLTO.a
 %endif
-#
-%exclude %attr(755,root,root) %{_libdir}/libLLVM-*.*.so
-%exclude %attr(755,root,root) %{_libdir}/libclang.so
-%attr(755,root,root) %{_libdir}/profile_rt.so
+%{_includedir}/llvm
+%{_includedir}/llvm-c
+%{_mandir}/man1/llvm-config.1*
 
 %files doc
 %defattr(644,root,root,755)
@@ -396,13 +418,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang
 %defattr(644,root,root,755)
-%doc clang-docs/*
-%{?with_tests:%doc clang-testlog.txt}
-%attr(755,root,root) %{_bindir}/clang*
+%doc clang-docs/{LICENSE.TXT,NOTES.txt,README.txt,TODO.txt} %{?with_tests:clang-testlog.txt}
+%attr(755,root,root) %{_bindir}/clang
+%attr(755,root,root) %{_bindir}/clang++
 %attr(755,root,root) %{_bindir}/tblgen
 %attr(755,root,root) %{_libdir}/libclang.so
 %{_prefix}/lib/clang
-%{_mandir}/man1/clang.1.*
+%{_mandir}/man1/clang.1*
 %{_mandir}/man1/tblgen.1*
 
 %files -n clang-analyzer
@@ -411,25 +433,26 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/scan-view
 %dir %{_libdir}/clang-analyzer
 
-%dir %{_libdir}/clang-analyzer/scan-view
-%attr(755,root,root) %{_libdir}/clang-analyzer/scan-view/scan-view
-%{_libdir}/clang-analyzer/scan-view/Resources
-%{_libdir}/clang-analyzer/scan-view/*.py
-
 %dir %{_libdir}/clang-analyzer/scan-build
 %{_libdir}/clang-analyzer/scan-build/*.css
 %{_libdir}/clang-analyzer/scan-build/*.js
 %attr(755,root,root) %{_libdir}/clang-analyzer/scan-build/scan-build
 %attr(755,root,root) %{_libdir}/clang-analyzer/scan-build/*-analyzer
 
+%dir %{_libdir}/clang-analyzer/scan-view
+%attr(755,root,root) %{_libdir}/clang-analyzer/scan-view/scan-view
+%{_libdir}/clang-analyzer/scan-view/Resources
+%{_libdir}/clang-analyzer/scan-view/*.py[co]
+
 %files -n clang-devel
 %defattr(644,root,root,755)
+%{_libdir}/libclang*.a
 %{_includedir}/clang
 %{_includedir}/clang-c
 
 %files -n clang-doc
 %defattr(644,root,root,755)
-%doc tools/clang/docs/*
+%doc tools/clang/docs/*.{css,html,png,txt}
 
 %if %{with apidocs}
 %files -n clang-apidocs
@@ -440,14 +463,16 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with ocaml}
 %files ocaml
 %defattr(644,root,root,755)
-%{_libdir}/ocaml/*.cma
-%{_libdir}/ocaml/*.cmi
+%{_libdir}/ocaml/llvm*.cma
+%{_libdir}/ocaml/llvm*.cmi
 
 %files ocaml-devel
 %defattr(644,root,root,755)
-%{_libdir}/ocaml/*.a
-%{_libdir}/ocaml/*.cmx*
-%{_libdir}/ocaml/*.mli
+%{_libdir}/ocaml/libLLVM*.a
+%{_libdir}/ocaml/libllvm*.a
+%{_libdir}/ocaml/llvm*.a
+%{_libdir}/ocaml/llvm*.cmx*
+%{_libdir}/ocaml/llvm*.mli
 
 %files ocaml-doc
 %defattr(644,root,root,755)
