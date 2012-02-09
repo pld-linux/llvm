@@ -1,13 +1,79 @@
-diff -ruN llvm-2.9./tools/clang/lib/Driver/ToolChains.cpp llvm-2.9/tools/clang/lib/Driver/ToolChains.cpp
---- llvm-2.9./tools/clang/lib/Driver/ToolChains.cpp	2011-03-21 22:29:27.000000000 +0100
-+++ llvm-2.9/tools/clang/lib/Driver/ToolChains.cpp	2011-04-17 16:57:06.471923892 +0200
-@@ -1447,6 +1447,9 @@
-     else if (!llvm::sys::fs::exists("/usr/lib/gcc/i586-suse-linux", Exists) &&
-              Exists)
-       GccTriple = "i586-suse-linux";
-+    else if (!llvm::sys::fs::exists("/usr/lib/gcc/triplet-plox-here", Exists) &&
-+             Exists)
-+      GccTriple = "triplet-plox-here";
-   }
+--- llvm-3.0./tools/clang/lib/Driver/ToolChains.cpp.orig	2012-02-09 11:41:41.000000000 +0100
++++ llvm-3.0./tools/clang/lib/Driver/ToolChains.cpp	2012-02-09 12:25:54.844008378 +0100
+@@ -1378,6 +1378,7 @@
  
-   const char* GccVersions[] = {"4.5.2", "4.5.1", "4.5", "4.4.5", "4.4.4",
+ enum LinuxDistro {
+   ArchLinux,
++  PLDLinux,
+   DebianLenny,
+   DebianSqueeze,
+   DebianWheezy,
+@@ -1426,6 +1427,10 @@
+          Distro == UbuntuNatty  || Distro == UbuntuOneiric;
+ }
+ 
++static bool IsPLD(enum LinuxDistro Distro) {
++  return Distro == PLDLinux;
++}
++
+ static LinuxDistro DetectLinuxDistro(llvm::Triple::ArchType Arch) {
+   llvm::OwningPtr<llvm::MemoryBuffer> File;
+   if (!llvm::MemoryBuffer::getFile("/etc/lsb-release", File)) {
+@@ -1507,6 +1512,9 @@
+   if (!llvm::sys::fs::exists("/etc/arch-release", Exists) && Exists)
+     return ArchLinux;
+ 
++  if (!llvm::sys::fs::exists("/etc/pld-release", Exists) && Exists)
++    return PLDLinux;
++
+   return UnknownDistro;
+ }
+ 
+@@ -1647,6 +1655,7 @@
+   } else if (HostArch == llvm::Triple::x86_64) {
+     static const char *const X86_64LibDirs[] = { "/lib64", "/lib" };
+     static const char *const X86_64Triples[] = {
++      "x86_64-pld-linux",
+       "x86_64-linux-gnu",
+       "x86_64-unknown-linux-gnu",
+       "x86_64-pc-linux-gnu",
+@@ -1664,6 +1673,8 @@
+   } else if (HostArch == llvm::Triple::x86) {
+     static const char *const X86LibDirs[] = { "/lib32", "/lib" };
+     static const char *const X86Triples[] = {
++      "i486-pld-linux",
++      "i686-pld-linux",
+       "i686-linux-gnu",
+       "i686-pc-linux-gnu",
+       "i486-linux-gnu",
+@@ -1802,7 +1813,7 @@
+ 
+   LinuxDistro Distro = DetectLinuxDistro(Arch);
+ 
+-  if (IsOpenSuse(Distro) || IsUbuntu(Distro)) {
++  if (IsOpenSuse(Distro) || IsUbuntu(Distro) || IsPLD(Distro)) {
+     ExtraOpts.push_back("-z");
+     ExtraOpts.push_back("relro");
+   }
+@@ -1811,18 +1822,18 @@
+     ExtraOpts.push_back("-X");
+ 
+   if (IsRedhat(Distro) || IsOpenSuse(Distro) || Distro == UbuntuMaverick ||
+-      Distro == UbuntuNatty || Distro == UbuntuOneiric)
++      Distro == UbuntuNatty || Distro == UbuntuOneiric || IsPLD(Distro))
+     ExtraOpts.push_back("--hash-style=gnu");
+ 
+   if (IsDebian(Distro) || IsOpenSuse(Distro) || Distro == UbuntuLucid ||
+       Distro == UbuntuJaunty || Distro == UbuntuKarmic)
+     ExtraOpts.push_back("--hash-style=both");
+ 
+-  if (IsRedhat(Distro))
++  if (IsRedhat(Distro) || IsPLD(Distro))
+     ExtraOpts.push_back("--no-add-needed");
+ 
+   if (Distro == DebianSqueeze || Distro == DebianWheezy ||
+-      IsOpenSuse(Distro) ||
++      IsOpenSuse(Distro) || IsPLD(Distro) ||
+       (IsRedhat(Distro) && Distro != RHEL4 && Distro != RHEL5) ||
+       Distro == UbuntuLucid ||
+       Distro == UbuntuMaverick || Distro == UbuntuKarmic ||
