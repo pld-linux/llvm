@@ -1,7 +1,4 @@
 #
-# TODO:
-# make *** No rule to make target (...)/rpm/BUILD/llvm-3.0.src/obj/bindings/ocaml/llvm/Release/META.llvm, needed by install-meta.
-#
 # Conditional build:
 %bcond_without	ocaml	# ocaml binding
 %bcond_with	apidocs	# The doxygen docs are HUGE, so they are not built by default.
@@ -16,7 +13,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.0
-Release:	0.1
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
@@ -26,6 +23,7 @@ Source1:	http://llvm.org/releases/%{version}/clang-%{version}.tar.gz
 # Data files should be installed with timestamps preserved
 Patch3:		%{name}-2.6-timestamp.patch
 Patch4:		%{name}-pld.patch
+Patch5:		%{name}-bug11177.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -245,6 +243,7 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 mv clang-*.* tools/clang
 %patch3 -p1
 %patch4 -p1
+%patch5 -p0
 
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -464,11 +463,13 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with ocaml}
 %files ocaml
 %defattr(644,root,root,755)
+%{_libdir}/ocaml/META.llvm
 %{_libdir}/ocaml/llvm*.cma
 %{_libdir}/ocaml/llvm*.cmi
 
 %files ocaml-devel
 %defattr(644,root,root,755)
+%{_libdir}/libllvm*.a
 %{_libdir}/ocaml/libLLVM*.a
 %{_libdir}/ocaml/libllvm*.a
 %{_libdir}/ocaml/llvm*.a
