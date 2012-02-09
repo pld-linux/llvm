@@ -1,4 +1,7 @@
 #
+# TODO:
+# make *** No rule to make target (...)/rpm/BUILD/llvm-3.0.src/obj/bindings/ocaml/llvm/Release/META.llvm, needed by install-meta.
+#
 # Conditional build:
 %bcond_without	ocaml	# ocaml binding
 %bcond_with	apidocs	# The doxygen docs are HUGE, so they are not built by default.
@@ -12,14 +15,14 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	2.9
-Release:	3
+Version:	3.0
+Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tgz
-# Source0-md5:	793138412d2af2c7c7f54615f8943771
-Source1:	http://llvm.org/releases/%{version}/clang-%{version}.tgz
-# Source1-md5:	634de18d04b7a4ded19ec4c17d23cfca
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	a8e5f5f1c1adebae7b4a654c376a6005
+Source1:	http://llvm.org/releases/%{version}/clang-%{version}.tar.gz
+# Source1-md5:	43350706ae6cf05d0068885792ea0591
 # Data files should be installed with timestamps preserved
 Patch3:		%{name}-2.6-timestamp.patch
 Patch4:		%{name}-pld.patch
@@ -238,12 +241,10 @@ HTML documentation for LLVM's OCaml binding.
 Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
-%setup -q -a1
+%setup -q -a1 -n %{name}-%{version}.src
 mv clang-*.* tools/clang
 %patch3 -p1
 %patch4 -p1
-
-sed -i 's|triplet-plox-here|%{_host}|' tools/clang/lib/Driver/ToolChains.cpp
 
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -270,6 +271,7 @@ bash ../%configure \
 %if %{with apidocs}
 	--enable-doxygen \
 %endif
+	--enable-bindings=%{?with_ocaml:ocaml}%{!?with_ocaml:none} \
 	--disable-static \
 	--disable-assertions \
 	--enable-debug-runtime \
@@ -282,7 +284,7 @@ bash ../%configure \
 	REQUIRES_RTTI=1 \
 	OPTIMIZE_OPTION="%{rpmcflags} %{rpmcppflags}"
 
-%if %{with test}
+%if %{with tests}
 %{__make} check 2>&1 | tee llvm-testlog.txt
 %{__make} -C tools/clang test 2>&1 | tee clang-testlog.txt
 %endif
@@ -321,7 +323,7 @@ cp -a tools/clang/docs/doxygen/html clang-apidoc
 # And prepare Clang documentation
 rm -rf clang-docs
 install -d clang-docs
-for f in LICENSE.TXT NOTES.txt README.txt TODO.txt; do
+for f in LICENSE.TXT NOTES.txt README.txt; do
 	ln tools/clang/$f clang-docs
 done
 
@@ -350,12 +352,13 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/bugpoint
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
-%attr(755,root,root) %{_bindir}/llvmc
 %attr(755,root,root) %{_bindir}/llvm-ar
 %attr(755,root,root) %{_bindir}/llvm-as
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
+%attr(755,root,root) %{_bindir}/llvm-cov
 %attr(755,root,root) %{_bindir}/llvm-diff
 %attr(755,root,root) %{_bindir}/llvm-dis
+%attr(755,root,root) %{_bindir}/llvm-dwarfdump
 %attr(755,root,root) %{_bindir}/llvm-extract
 %attr(755,root,root) %{_bindir}/llvm-ld
 %attr(755,root,root) %{_bindir}/llvm-link
@@ -364,7 +367,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-objdump
 %attr(755,root,root) %{_bindir}/llvm-prof
 %attr(755,root,root) %{_bindir}/llvm-ranlib
+%attr(755,root,root) %{_bindir}/llvm-rtdyld
+%attr(755,root,root) %{_bindir}/llvm-size
 %attr(755,root,root) %{_bindir}/llvm-stub
+%attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/macho-dump
 %attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
@@ -383,21 +389,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-prof.1*
 %{_mandir}/man1/llvm-ranlib.1*
-%{_mandir}/man1/llvmc.1*
-%{_mandir}/man1/llvmgcc.1*
-%{_mandir}/man1/llvmgxx.1*
 %{_mandir}/man1/opt.1*
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
-%attr(755,root,root) %{_libdir}/profile_rt.so
-%{_libdir}/libCompilerDriver.a
+%attr(755,root,root) %{_libdir}/libprofile_rt.so
 %{_libdir}/libLLVM*.a
-%{_libdir}/libllvm*.a
+%{_libdir}/libprofile_rt.a
 %ifarch %{x8664}
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
-%attr(755,root,root) %{_libdir}/libEnhancedDisassembly.so
 %attr(755,root,root) %{_libdir}/libLTO.so
 %{_libdir}/libEnhancedDisassembly.a
 %{_libdir}/libLTO.a
@@ -418,10 +419,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang
 %defattr(644,root,root,755)
-%doc clang-docs/{LICENSE.TXT,NOTES.txt,README.txt,TODO.txt} %{?with_tests:clang-testlog.txt}
+%doc clang-docs/{LICENSE.TXT,NOTES.txt,README.txt} %{?with_tests:clang-testlog.txt}
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
-%attr(755,root,root) %{_bindir}/tblgen
+%attr(755,root,root) %{_bindir}/clang-tblgen
 %attr(755,root,root) %{_libdir}/libclang.so
 %{_prefix}/lib/clang
 %{_mandir}/man1/clang.1*
