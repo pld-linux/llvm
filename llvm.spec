@@ -264,16 +264,16 @@ cd obj
 bash ../%configure \
 	--libdir=%{_libdir}/%{name} \
 	--datadir=%{_datadir}/%{name}-%{version} \
+	--disable-assertions \
 %ifarch %{ix86}
-	--enable-pic=no \
+	--disable-pic \
 %endif
+	--disable-static \
+	--enable-bindings=%{?with_ocaml:ocaml}%{!?with_ocaml:none} \
+	--enable-debug-runtime \
 %if %{with apidocs}
 	--enable-doxygen \
 %endif
-	--enable-bindings=%{?with_ocaml:ocaml}%{!?with_ocaml:none} \
-	--disable-static \
-	--disable-assertions \
-	--enable-debug-runtime \
 	--enable-jit \
 	--enable-optimized \
 	--enable-shared \
