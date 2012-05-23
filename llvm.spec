@@ -12,18 +12,17 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.0
+Version:	3.1
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	a8e5f5f1c1adebae7b4a654c376a6005
-Source1:	http://llvm.org/releases/%{version}/clang-%{version}.tar.gz
-# Source1-md5:	43350706ae6cf05d0068885792ea0591
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
+# Source0-md5:	16eaa7679f84113f65b12760fdfe4ee1
+Source1:	http://llvm.org/releases/%{version}/clang-%{version}.src.tar.gz
+# Source1-md5:	59bf2d3120a3805f27cafda3823caaf8
 # Data files should be installed with timestamps preserved
 Patch3:		%{name}-2.6-timestamp.patch
 Patch4:		%{name}-pld.patch
-Patch5:		%{name}-bug11177.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -243,7 +242,6 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 mv clang-*.* tools/clang
 %patch3 -p1
 %patch4 -p1
-%patch5 -p0
 
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -366,8 +364,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-objdump
 %attr(755,root,root) %{_bindir}/llvm-prof
 %attr(755,root,root) %{_bindir}/llvm-ranlib
+%attr(755,root,root) %{_bindir}/llvm-readobj
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
 %attr(755,root,root) %{_bindir}/llvm-size
+%attr(755,root,root) %{_bindir}/llvm-stress
 %attr(755,root,root) %{_bindir}/llvm-stub
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/macho-dump
@@ -380,6 +380,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-ar.1*
 %{_mandir}/man1/llvm-as.1*
 %{_mandir}/man1/llvm-bcanalyzer.1*
+%{_mandir}/man1/llvm-cov.1*
 %{_mandir}/man1/llvm-diff.1*
 %{_mandir}/man1/llvm-dis.1*
 %{_mandir}/man1/llvm-extract.1*
@@ -388,6 +389,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-prof.1*
 %{_mandir}/man1/llvm-ranlib.1*
+%{_mandir}/man1/llvm-stress.1*
 %{_mandir}/man1/opt.1*
 
 %files devel
@@ -399,7 +401,6 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{x8664}
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
 %attr(755,root,root) %{_libdir}/libLTO.so
-%{_libdir}/libEnhancedDisassembly.a
 %{_libdir}/libLTO.a
 %endif
 %{_includedir}/llvm

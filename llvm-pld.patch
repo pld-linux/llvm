@@ -1,6 +1,23 @@
 --- llvm-3.0./tools/clang/lib/Driver/ToolChains.cpp.orig	2012-02-09 11:41:41.000000000 +0100
 +++ llvm-3.0./tools/clang/lib/Driver/ToolChains.cpp	2012-02-09 12:25:54.844008378 +0100
-@@ -1378,6 +1378,7 @@
+@@ -1190,6 +1190,7 @@
+ 
+   static const char *const X86_64LibDirs[] = { "/lib64", "/lib" };
+   static const char *const X86_64Triples[] = {
++    "x86_64-pld-linux",
+     "x86_64-linux-gnu",
+     "x86_64-unknown-linux-gnu",
+     "x86_64-pc-linux-gnu",
+@@ -1202,6 +1203,8 @@
+   };
+   static const char *const X86LibDirs[] = { "/lib32", "/lib" };
+   static const char *const X86Triples[] = {
++    "i686-pld-linux",
++    "i486-pld-linux",
+     "i686-linux-gnu",
+     "i686-pc-linux-gnu",
+     "i486-linux-gnu",
+@@ -1815,6 +1818,7 @@
  
  enum LinuxDistro {
    ArchLinux,
@@ -8,8 +25,8 @@
    DebianLenny,
    DebianSqueeze,
    DebianWheezy,
-@@ -1426,6 +1427,10 @@
-          Distro == UbuntuNatty  || Distro == UbuntuOneiric;
+@@ -1860,6 +1864,10 @@
+   return Distro >= UbuntuHardy && Distro <= UbuntuPrecise;
  }
  
 +static bool IsPLD(enum LinuxDistro Distro) {
@@ -17,9 +34,9 @@
 +}
 +
  static LinuxDistro DetectLinuxDistro(llvm::Triple::ArchType Arch) {
-   llvm::OwningPtr<llvm::MemoryBuffer> File;
+   OwningPtr<llvm::MemoryBuffer> File;
    if (!llvm::MemoryBuffer::getFile("/etc/lsb-release", File)) {
-@@ -1507,6 +1512,9 @@
+@@ -1936,6 +1944,9 @@
    if (!llvm::sys::fs::exists("/etc/arch-release", Exists) && Exists)
      return ArchLinux;
  
@@ -29,24 +46,7 @@
    return UnknownDistro;
  }
  
-@@ -1647,6 +1655,7 @@
-   } else if (HostArch == llvm::Triple::x86_64) {
-     static const char *const X86_64LibDirs[] = { "/lib64", "/lib" };
-     static const char *const X86_64Triples[] = {
-+      "x86_64-pld-linux",
-       "x86_64-linux-gnu",
-       "x86_64-unknown-linux-gnu",
-       "x86_64-pc-linux-gnu",
-@@ -1664,6 +1673,8 @@
-   } else if (HostArch == llvm::Triple::x86) {
-     static const char *const X86LibDirs[] = { "/lib32", "/lib" };
-     static const char *const X86Triples[] = {
-+      "i486-pld-linux",
-+      "i686-pld-linux",
-       "i686-linux-gnu",
-       "i686-pc-linux-gnu",
-       "i486-linux-gnu",
-@@ -1802,7 +1813,7 @@
+@@ -2003,7 +2014,7 @@
  
    LinuxDistro Distro = DetectLinuxDistro(Arch);
  
@@ -55,17 +55,18 @@
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
-@@ -1811,18 +1822,18 @@
-     ExtraOpts.push_back("-X");
+@@ -2024,7 +2035,7 @@
+   // ABI requires a mapping between the GOT and the symbol table.
+   // Android loader does not support .gnu.hash.
+   if (!IsMips && !IsAndroid) {
+-    if (IsRedhat(Distro) || IsOpenSuse(Distro) ||
++    if (IsRedhat(Distro) || IsOpenSuse(Distro) || IsPLD(Distro) ||
+         (IsUbuntu(Distro) && Distro >= UbuntuMaverick))
+       ExtraOpts.push_back("--hash-style=gnu");
  
-   if (IsRedhat(Distro) || IsOpenSuse(Distro) || Distro == UbuntuMaverick ||
--      Distro == UbuntuNatty || Distro == UbuntuOneiric)
-+      Distro == UbuntuNatty || Distro == UbuntuOneiric || IsPLD(Distro))
-     ExtraOpts.push_back("--hash-style=gnu");
- 
-   if (IsDebian(Distro) || IsOpenSuse(Distro) || Distro == UbuntuLucid ||
-       Distro == UbuntuJaunty || Distro == UbuntuKarmic)
-     ExtraOpts.push_back("--hash-style=both");
+@@ -2033,11 +2044,11 @@
+       ExtraOpts.push_back("--hash-style=both");
+   }
  
 -  if (IsRedhat(Distro))
 +  if (IsRedhat(Distro) || IsPLD(Distro))
@@ -75,5 +76,5 @@
 -      IsOpenSuse(Distro) ||
 +      IsOpenSuse(Distro) || IsPLD(Distro) ||
        (IsRedhat(Distro) && Distro != RHEL4 && Distro != RHEL5) ||
-       Distro == UbuntuLucid ||
-       Distro == UbuntuMaverick || Distro == UbuntuKarmic ||
+       (IsUbuntu(Distro) && Distro >= UbuntuKarmic))
+     ExtraOpts.push_back("--build-id");
