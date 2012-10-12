@@ -1,0 +1,44 @@
+--- llvm-3.1.src/tools/llvm-config/llvm-config.cpp.orig	2012-05-16 00:06:08.000000000 +0200
++++ llvm-3.1.src/tools/llvm-config/llvm-config.cpp	2012-10-12 17:44:41.041037043 +0200
+@@ -234,11 +234,11 @@
+       break;
+     case CMakeStyle:
+       ActiveBinDir = ActiveObjRoot + "/bin";
+-      ActiveLibDir = ActiveObjRoot + "/lib";
++      ActiveLibDir = LLVM_LIBDIR;
+       break;
+     case CMakeBuildModeStyle:
+       ActiveBinDir = ActiveObjRoot + "/bin/" + LLVM_BUILDMODE;
+-      ActiveLibDir = ActiveObjRoot + "/lib/" + LLVM_BUILDMODE;
++      ActiveLibDir = LLVM_LIBDIR "/" LLVM_BUILDMODE;
+       break;
+     }
+ 
+@@ -249,7 +249,7 @@
+     ActivePrefix = CurrentExecPrefix;
+     ActiveIncludeDir = ActivePrefix + "/include";
+     ActiveBinDir = ActivePrefix + "/bin";
+-    ActiveLibDir = ActivePrefix + "/lib";
++    ActiveLibDir = LLVM_LIBDIR;
+     ActiveIncludeOption = "-I" + ActiveIncludeDir;
+   }
+ 
+--- llvm-3.1.src/autoconf/configure.ac.orig	2012-05-11 22:48:57.000000000 +0200
++++ llvm-3.1.src/autoconf/configure.ac	2012-10-12 17:39:00.668599306 +0200
+@@ -1472,13 +1472,13 @@
+ fi
+ eval LLVM_PREFIX="${prefix}";
+ eval LLVM_BINDIR="${prefix}/bin";
+-eval LLVM_LIBDIR="${prefix}/lib";
++eval LLVM_LIBDIR="${libdir}";
+ eval LLVM_DATADIR="${prefix}/share/llvm";
+ eval LLVM_DOCSDIR="${prefix}/share/doc/llvm";
+ eval LLVM_ETCDIR="${prefix}/etc/llvm";
+ eval LLVM_INCLUDEDIR="${prefix}/include";
+-eval LLVM_INFODIR="${prefix}/info";
+-eval LLVM_MANDIR="${prefix}/man";
++eval LLVM_INFODIR="${datadir}/info";
++eval LLVM_MANDIR="${datadir}/man";
+ LLVM_CONFIGTIME=`date`
+ AC_SUBST(LLVM_PREFIX)
+ AC_SUBST(LLVM_BINDIR)

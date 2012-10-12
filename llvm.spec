@@ -13,17 +13,20 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.1
-Release:	1
+Release:	2
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
 # Source0-md5:	16eaa7679f84113f65b12760fdfe4ee1
 Source1:	http://llvm.org/releases/%{version}/clang-%{version}.src.tar.gz
 # Source1-md5:	59bf2d3120a3805f27cafda3823caaf8
+Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
-Patch3:		%{name}-2.6-timestamp.patch
-Patch4:		%{name}-pld.patch
+Patch1:		%{name}-2.6-timestamp.patch
+Patch2:		%{name}-pld.patch
 URL:		http://llvm.org/
+BuildRequires:	autoconf >= 2.60
+BuildRequires:	automake >= 1:1.9.6
 BuildRequires:	bash
 BuildRequires:	bison
 BuildRequires:	flex
@@ -38,6 +41,7 @@ BuildRequires:	tcl-devel
 %endif
 BuildRequires:	groff
 BuildRequires:	libltdl-devel
+BuildRequires:	libtool >= 2:1.5.22
 BuildRequires:	libstdc++-devel >= 5:3.4
 BuildRequires:	ocaml-ocamldoc
 BuildRequires:	perl-base >= 1:5.6
@@ -240,8 +244,9 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 %prep
 %setup -q -a1 -n %{name}-%{version}.src
 mv clang-*.* tools/clang
-%patch3 -p1
-%patch4 -p1
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -254,6 +259,12 @@ grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 install -d obj
 
 %build
+cd autoconf
+%{__aclocal} -I m4
+%{__autoconf} -o ../configure configure.ac
+cd ..
+%{__autoheader} -I autoconf -I autoconf/m4 autoconf/configure.ac
+
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
 #
@@ -307,8 +318,8 @@ done
 # Move documentation back to build directory
 rm -rf moredocs
 mv $RPM_BUILD_ROOT/moredocs .
-rm -fv moredocs/*.tar.gz
-rm -fv moredocs/ocamldoc/html/*.tar.gz
+%{__rm} -v moredocs/*.tar.gz
+%{__rm} -v moredocs/ocamldoc/html/*.tar.gz
 
 # and separate the apidoc
 %if %{with apidocs}
@@ -325,11 +336,7 @@ for f in LICENSE.TXT NOTES.txt README.txt; do
 done
 
 # Get rid of erroneously installed example files.
-rm -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
-
-# FIXME file this bug
-sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}",' \
-	$RPM_BUILD_ROOT%{_bindir}/llvm-config
+%{__rm} -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
 
 # remove documentation makefiles:
 # they require the build directory to work
