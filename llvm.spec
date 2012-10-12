@@ -13,7 +13,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.1
-Release:	3
+Release:	4
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
@@ -250,6 +250,7 @@ mv clang-*.* tools/clang
 
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
+sed -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' tools/clang/lib/Headers/Makefile
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
@@ -430,7 +431,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang++
 %attr(755,root,root) %{_bindir}/clang-tblgen
 %attr(755,root,root) %{_libdir}/libclang.so
-%{_prefix}/lib/clang
+%{_libdir}/clang
 %{_mandir}/man1/clang.1*
 %{_mandir}/man1/tblgen.1*
 
