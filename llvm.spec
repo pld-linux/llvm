@@ -1,4 +1,8 @@
 #
+# TODO:
+# - fix include search path to support libdir/gcc/platform/version/include.
+#   current error: /usr/include/wchar.h:39:11: fatal error: 'stdarg.h' file not found# include <stdarg.h>
+#
 # Conditional build:
 %bcond_without	ocaml	# ocaml binding
 %bcond_with	apidocs	# The doxygen docs are HUGE, so they are not built by default.
