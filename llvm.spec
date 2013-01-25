@@ -59,6 +59,7 @@ BuildRequires:	dejagnu
 BuildRequires:	python
 BuildRequires:	tcl-devel
 %endif
+Requires:	%{name}-libs = %{version}-%{release}
 # LLVM is not supported on PPC64
 # http://llvm.org/bugs/show_bug.cgi?id=3729
 ExcludeArch:	ppc64
@@ -86,11 +87,23 @@ dowolnych językach programowania. Jest napisana w C++, rozwijana od
 roku 2000 przez Uniwersytet w Illinois i Apple. Aktualnie obsługuje
 kompilację programów w C i C++ przy użyciu frontendu clang.
 
+%package libs
+Summary:	LLVM shared library
+Summary(pl.UTF-8):	Biblioteka współdzielona LLVM-a
+Group:		Libraries
+Conflicts:	llvm < 3.2
+
+%description libs
+LLVM shared library.
+
+%description libs -l pl.UTF-8
+Biblioteka współdzielona LLVM-a.
+
 %package devel
 Summary:	Static libraries and header files for LLVM
 Summary(pl.UTF-8):	Biblioteki statyczne i pliki nagłówkowe dla LLVM-a
 Group:		Development/Languages
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-libs = %{version}-%{release}
 Requires:	libstdc++-devel >= 6:3.4
 
 %description devel
@@ -131,6 +144,7 @@ Summary:	A C language family frontend for LLVM
 Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C
 License:	NCSA
 Group:		Development/Languages
+Requires:	%{name} = %{version}-%{release}
 
 %description -n clang
 clang: noun 1. A loud, resonant, metallic sound. 2. The strident call
@@ -176,6 +190,7 @@ myślą o uruchamianiu wraz z kompilacją projektu lub kodu.
 Summary:	Header files for Clang
 Summary(pl.UTF-8):	Pliki nagłówkowe Clanga
 Group:		Development/Languages
+Requires:	%{name}-devel = %{version}-%{release}
 Requires:	clang = %{version}-%{release}
 
 %description -n clang-devel
@@ -235,7 +250,6 @@ for developing applications that use llvm-ocaml binding.
 %description ocaml-devel -l pl.UTF-8
 Ten pakiet zawiera biblioteki i pliki sygnatur do tworzenia aplikacji
 wykorzystujących wiązanie llvm-ocaml.
-
 
 %package ocaml-doc
 Summary:	Documentation for LLVM's OCaml binding
@@ -369,8 +383,8 @@ find moredocs/examples -name Makefile | xargs -0r rm -f
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post	-p /sbin/ldconfig
-%postun	-p /sbin/ldconfig
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -400,7 +414,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/macho-dump
 %attr(755,root,root) %{_bindir}/opt
-%attr(755,root,root) %{_libdir}/libLLVM-%{version}svn.so
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/lit.1*
 %{_mandir}/man1/llc.1*
@@ -419,6 +432,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-stress.1*
 %{_mandir}/man1/opt.1*
 %{_mandir}/man1/tblgen.1*
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libLLVM-%{version}svn.so
 
 %files devel
 %defattr(644,root,root,755)
