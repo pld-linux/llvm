@@ -30,6 +30,8 @@ Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
+# R600 target support from git://people.freedesktop.org/~tstellar/llvm
+Patch3:		%{name}-r600.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -269,6 +271,7 @@ mv clang-*.* tools/clang
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -305,6 +308,7 @@ bash ../%configure \
 %if %{with apidocs}
 	--enable-doxygen \
 %endif
+	--enable-experimental-targets=R600 \
 	--enable-jit \
 	--enable-optimized \
 	--enable-shared \
