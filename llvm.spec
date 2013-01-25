@@ -6,6 +6,7 @@
 # Conditional build:
 %bcond_without	ocaml	# ocaml binding
 %bcond_with	apidocs	# The doxygen docs are HUGE, so they are not built by default.
+%bcond_without	man	# man pages
 %bcond_with	tests	# run tests
 
 %ifarch s390 s390x sparc64
@@ -16,14 +17,15 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.1
-Release:	4
+Version:	3.2
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
+#Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
-# Source0-md5:	16eaa7679f84113f65b12760fdfe4ee1
+# Source0-md5:	71610289bbc819e3e15fdd562809a2d7
 Source1:	http://llvm.org/releases/%{version}/clang-%{version}.src.tar.gz
-# Source1-md5:	59bf2d3120a3805f27cafda3823caaf8
+# Source1-md5:	3896ef4334df08563b05d0848ba80582
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
@@ -34,14 +36,10 @@ BuildRequires:	automake >= 1:1.9.6
 BuildRequires:	bash
 BuildRequires:	bison
 BuildRequires:	flex
-%if %{with apidocs}
-BuildRequires:	doxygen
-BuildRequires:	graphviz
-%endif
-%if %{with tests}
-BuildRequires:	dejagnu
-BuildRequires:	python
-BuildRequires:	tcl-devel
+BuildRequires:	gcc >= 5:3.4
+# gcc4 might be installed, but not current __cc
+%if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
+BuildRequires:	__cc >= 3.4
 %endif
 BuildRequires:	groff
 BuildRequires:	libltdl-devel
@@ -51,9 +49,15 @@ BuildRequires:	ocaml-ocamldoc
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	rpm-pythonprov
-# gcc4 might be installed, but not current __cc
-%if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
-BuildRequires:	__cc >= 3.4
+%{?with_man:BuildRequires:	sphinx-pdg}
+%if %{with apidocs}
+BuildRequires:	doxygen
+BuildRequires:	graphviz
+%endif
+%if %{with tests}
+BuildRequires:	dejagnu
+BuildRequires:	python
+BuildRequires:	tcl-devel
 %endif
 # LLVM is not supported on PPC64
 # http://llvm.org/bugs/show_bug.cgi?id=3729
@@ -301,6 +305,12 @@ bash ../%configure \
 %{__make} -C tools/clang test 2>&1 | tee clang-testlog.txt
 %endif
 
+cd ..
+
+%if %{with man}
+%{__make} -C docs -f Makefile.sphinx man
+%endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
 %{__make} -C obj -j1 install \
@@ -315,9 +325,17 @@ for f in scan-{build,view}; do
 	ln -s %{_libdir}/clang-analyzer/$f/$f $RPM_BUILD_ROOT%{_bindir}/$f
 	cp -pr tools/clang/tools/$f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer
 done
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-build/scan-build.1 $RPM_BUILD_ROOT%{_mandir}/man1
 %py_comp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
 %py_ocomp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
 %py_postclean %{_libdir}/clang-analyzer/scan-view
+
+%if %{with man}
+install -d $RPM_BUILD_ROOT%{_mandir}/man1
+cp -p docs/_build/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
+# these tools are not installed
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build}.1
+%endif
 
 # Move documentation back to build directory
 rm -rf moredocs
@@ -368,9 +386,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-dis
 %attr(755,root,root) %{_bindir}/llvm-dwarfdump
 %attr(755,root,root) %{_bindir}/llvm-extract
-%attr(755,root,root) %{_bindir}/llvm-ld
 %attr(755,root,root) %{_bindir}/llvm-link
 %attr(755,root,root) %{_bindir}/llvm-mc
+%attr(755,root,root) %{_bindir}/llvm-mcmarkup
 %attr(755,root,root) %{_bindir}/llvm-nm
 %attr(755,root,root) %{_bindir}/llvm-objdump
 %attr(755,root,root) %{_bindir}/llvm-prof
@@ -379,11 +397,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
 %attr(755,root,root) %{_bindir}/llvm-size
 %attr(755,root,root) %{_bindir}/llvm-stress
-%attr(755,root,root) %{_bindir}/llvm-stub
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/macho-dump
 %attr(755,root,root) %{_bindir}/opt
-%attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
+%attr(755,root,root) %{_libdir}/libLLVM-%{version}svn.so
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/lit.1*
 %{_mandir}/man1/llc.1*
@@ -395,13 +412,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-diff.1*
 %{_mandir}/man1/llvm-dis.1*
 %{_mandir}/man1/llvm-extract.1*
-%{_mandir}/man1/llvm-ld.1*
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-prof.1*
 %{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvm-stress.1*
 %{_mandir}/man1/opt.1*
+%{_mandir}/man1/tblgen.1*
 
 %files devel
 %defattr(644,root,root,755)
@@ -431,18 +448,20 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang
 %defattr(644,root,root,755)
 %doc clang-docs/{LICENSE.TXT,NOTES.txt,README.txt} %{?with_tests:clang-testlog.txt}
+%attr(755,root,root) %{_bindir}/c-index-test
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
+%attr(755,root,root) %{_bindir}/clang-check
 %attr(755,root,root) %{_bindir}/clang-tblgen
 %attr(755,root,root) %{_libdir}/libclang.so
 %{_libdir}/clang
 %{_mandir}/man1/clang.1*
-%{_mandir}/man1/tblgen.1*
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/scan-build
 %attr(755,root,root) %{_bindir}/scan-view
+%{_mandir}/man1/scan-build.1*
 %dir %{_libdir}/clang-analyzer
 
 %dir %{_libdir}/clang-analyzer/scan-build
