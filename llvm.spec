@@ -274,8 +274,9 @@ mv clang-*.* tools/clang
 %patch3 -p1
 
 # configure does not properly specify libdir
-sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
-sed -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' tools/clang/lib/Headers/Makefile
+%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
+%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' tools/clang/lib/Headers/Makefile
+%{__sed} -i 's|/lib/|/%{_lib}/|' lib/Support/Unix/Path.inc
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},

@@ -42,3 +42,74 @@
  LLVM_CONFIGTIME=`date`
  AC_SUBST(LLVM_PREFIX)
  AC_SUBST(LLVM_BINDIR)
+--- llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2013-01-26 17:40:15.003203777 +0100
++++ llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp	2013-01-26 18:49:17.313536763 +0100
+@@ -2154,7 +2154,7 @@ Linux::Linux(const Driver &D, const llvm
+     // host system, and a more minimal sysroot available that is the target of
+     // the cross.
+     if (StringRef(LibPath).startswith(SysRoot)) {
+-      addPathIfExists(LibPath + "/../" + GCCTriple.str() + "/lib/../" + Multilib,
++      addPathIfExists(LibPath + "/../" + GCCTriple.str() + "/" + Multilib,
+                       Paths);
+       addPathIfExists(LibPath + "/" + MultiarchTriple, Paths);
+       addPathIfExists(LibPath + "/../" + Multilib, Paths);
+@@ -2166,14 +2166,14 @@ Linux::Linux(const Driver &D, const llvm
+     }
+   }
+   addPathIfExists(SysRoot + "/lib/" + MultiarchTriple, Paths);
+-  addPathIfExists(SysRoot + "/lib/../" + Multilib, Paths);
+-  addPathIfExists(SysRoot + "/usr/lib/" + MultiarchTriple, Paths);
+-  addPathIfExists(SysRoot + "/usr/lib/../" + Multilib, Paths);
++  addPathIfExists(SysRoot + "/" + Multilib, Paths);
++  addPathIfExists(SysRoot + LLVM_LIBDIR "/" + MultiarchTriple, Paths);
++  addPathIfExists(SysRoot + "/usr/" + Multilib, Paths);
+ 
+   // Try walking via the GCC triple path in case of multiarch GCC
+   // installations with strange symlinks.
+   if (GCCInstallation.isValid())
+-    addPathIfExists(SysRoot + "/usr/lib/" + GCCInstallation.getTriple().str() +
++    addPathIfExists(SysRoot + LLVM_LIBDIR "/" + GCCInstallation.getTriple().str() +
+                     "/../../" + Multilib, Paths);
+ 
+   // Add the non-multilib suffixed paths (if potentially different).
+@@ -2189,7 +2189,7 @@ Linux::Linux(const Driver &D, const llvm
+     }
+   }
+   addPathIfExists(SysRoot + "/lib", Paths);
+-  addPathIfExists(SysRoot + "/usr/lib", Paths);
++  addPathIfExists(SysRoot + LLVM_LIBDIR, Paths);
+ }
+ 
+ bool Linux::HasNativeLLVMSupport() const {
+--- llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp.orig	2012-11-21 08:56:23.000000000 +0100
++++ llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp	2013-01-26 18:43:56.952167604 +0100
+@@ -218,7 +218,7 @@ static void addProfileRT(const ToolChain
+   // libprofile_rt.so. We used to use the -l:libprofile_rt.a syntax, but that is
+   // not supported by old linkers.
+   std::string ProfileRT =
+-    std::string(TC.getDriver().Dir) + "/../lib/libprofile_rt.a";
++    LLVM_LIBDIR "/libprofile_rt.a";
+ 
+   CmdArgs.push_back(Args.MakeArgString(ProfileRT));
+ }
+@@ -4881,9 +4881,9 @@ void solaris::Link::ConstructJob(Compila
+                                   const ArgList &Args,
+                                   const char *LinkingOutput) const {
+   // FIXME: Find a real GCC, don't hard-code versions here
+-  std::string GCCLibPath = "/usr/gcc/4.5/lib/gcc/";
++  std::string GCCLibPath = LLVM_LIBDIR "/gcc/";
+   const llvm::Triple &T = getToolChain().getTriple();
+-  std::string LibPath = "/usr/lib/";
++  std::string LibPath = LLVM_LIBDIR "/";
+   llvm::Triple::ArchType Arch = T.getArch();
+   switch (Arch) {
+         case llvm::Triple::x86:
+@@ -6049,7 +6049,7 @@ void linuxtools::Link::ConstructJob(Comp
+   // forward.
+   if (D.IsUsingLTO(Args) || Args.hasArg(options::OPT_use_gold_plugin)) {
+     CmdArgs.push_back("-plugin");
+-    std::string Plugin = ToolChain.getDriver().Dir + "/../lib/LLVMgold.so";
++    std::string Plugin = LLVM_LIBDIR "/LLVMgold.so";
+     CmdArgs.push_back(Args.MakeArgString(Plugin));
+   }
+ 
