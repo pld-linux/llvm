@@ -25,7 +25,7 @@ Group:		Development/Languages
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
 # Source0-md5:	40564e1dc390f9844f1711c08b08e391
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.gz
-# Source1-md5: xyz
+# Source1-md5:	8284891e3e311829b8e44ac813d0c9ef
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
