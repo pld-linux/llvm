@@ -23,7 +23,7 @@ License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
-# Source0-md5:	71610289bbc819e3e15fdd562809a2d7
+# Source0-md5:	40564e1dc390f9844f1711c08b08e391
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
