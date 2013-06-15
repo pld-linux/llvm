@@ -17,21 +17,17 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.2
-Release:	3
+Version:	3.3
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
 # Source0-md5:	71610289bbc819e3e15fdd562809a2d7
-Source1:	http://llvm.org/releases/%{version}/clang-%{version}.src.tar.gz
-# Source1-md5:	3896ef4334df08563b05d0848ba80582
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
-# R600 target support from git://people.freedesktop.org/~tstellar/llvm
-Patch3:		%{name}-r600.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -266,12 +262,10 @@ HTML documentation for LLVM's OCaml binding.
 Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
-%setup -q -a1 -n %{name}-%{version}.src
-mv clang-*.* tools/clang
+%setup -q -n %{name}-%{version}.src
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -317,7 +311,12 @@ bash ../%configure \
 	--enable-shared \
 	--with-pic
 
+# hack so it will find own headers
+install -d Release
+ln -s lib Release/lib64
+
 %{__make} \
+	VERBOSE=1 \
 	REQUIRES_RTTI=1 \
 	OPTIMIZE_OPTION="%{rpmcflags} %{rpmcppflags}"
 
@@ -418,6 +417,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
 %attr(755,root,root) %{_bindir}/llvm-size
 %attr(755,root,root) %{_bindir}/llvm-stress
+%attr(755,root,root) %{_bindir}/llvm-symbolizer
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/macho-dump
 %attr(755,root,root) %{_bindir}/opt
@@ -437,6 +437,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-prof.1*
 %{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvm-stress.1*
+%{_mandir}/man1/llvm-symbolizer.1*
 %{_mandir}/man1/opt.1*
 %{_mandir}/man1/tblgen.1*
 
@@ -476,6 +477,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
 %attr(755,root,root) %{_bindir}/clang-check
+%attr(755,root,root) %{_bindir}/clang-format
 %attr(755,root,root) %{_bindir}/clang-tblgen
 %attr(755,root,root) %{_libdir}/libclang.so
 %{_libdir}/clang

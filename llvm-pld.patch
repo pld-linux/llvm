@@ -30,11 +30,11 @@
    return Distro >= UbuntuHardy && Distro <= UbuntuRaring;
  }
  
-+static bool IsPLD(enum LinuxDistro Distro) {
++static bool IsPLD(enum Distro Distro) {
 +  return Distro == PLDLinux;
 +}
 +
- static LinuxDistro DetectLinuxDistro(llvm::Triple::ArchType Arch) {
+ static Distro DetectDistro(llvm::Triple::ArchType Arch) {
    OwningPtr<llvm::MemoryBuffer> File;
    if (!llvm::MemoryBuffer::getFile("/etc/lsb-release", File)) {
 @@ -1955,6 +1964,9 @@
@@ -49,7 +49,7 @@
  
 @@ -2072,7 +2084,7 @@
  
-   LinuxDistro Distro = DetectLinuxDistro(Arch);
+   Distro Distro = DetectDistro(Arch);
  
 -  if (IsOpenSuse(Distro) || IsUbuntu(Distro)) {
 +  if (IsOpenSuse(Distro) || IsUbuntu(Distro) || IsPLD(Distro)) {
@@ -64,8 +64,8 @@
 +    if (IsRedhat(Distro) || IsOpenSuse(Distro) || IsPLD(Distro) ||
          (IsUbuntu(Distro) && Distro >= UbuntuMaverick))
        ExtraOpts.push_back("--hash-style=gnu");
- 
-@@ -2097,11 +2109,11 @@
+
+@@ -2128,11 +2128,11 @@
        ExtraOpts.push_back("--hash-style=both");
    }
  
@@ -74,8 +74,9 @@
      ExtraOpts.push_back("--no-add-needed");
  
    if (Distro == DebianSqueeze || Distro == DebianWheezy ||
--      IsOpenSuse(Distro) ||
-+      IsOpenSuse(Distro) || IsPLD(Distro) ||
+-      Distro == DebianJessie || IsOpenSuse(Distro) ||
++      Distro == DebianJessie || IsOpenSuse(Distro) || IsPLD(Distro) ||
        (IsRedhat(Distro) && Distro != RHEL4 && Distro != RHEL5) ||
        (IsUbuntu(Distro) && Distro >= UbuntuKarmic))
      ExtraOpts.push_back("--build-id");
+
