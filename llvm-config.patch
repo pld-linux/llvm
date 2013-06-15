@@ -72,15 +72,15 @@
                      "/../../" + Multilib, Paths);
  
    // Add the non-multilib suffixed paths (if potentially different).
-@@ -2189,7 +2189,7 @@ Linux::Linux(const Driver &D, const llvm
+@@ -2342,7 +2342,7 @@ Linux::Linux(const Driver &D, const llvm
      }
    }
    addPathIfExists(SysRoot + "/lib", Paths);
 -  addPathIfExists(SysRoot + "/usr/lib", Paths);
 +  addPathIfExists(SysRoot + LLVM_LIBDIR, Paths);
- }
  
- bool Linux::HasNativeLLVMSupport() const {
+   IsPIEDefault = SanitizerArgs(*this, Args).hasZeroBaseShadow();
+ }
 --- llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp.orig	2012-11-21 08:56:23.000000000 +0100
 +++ llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp	2013-01-26 18:43:56.952167604 +0100
 @@ -218,7 +218,7 @@ static void addProfileRT(const ToolChain

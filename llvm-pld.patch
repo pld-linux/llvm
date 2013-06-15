@@ -59,7 +59,7 @@
 @@ -2088,7 +2100,7 @@
    // ABI requires a mapping between the GOT and the symbol table.
    // Android loader does not support .gnu.hash.
-   if (!isMipsArch(Arch) && !IsAndroid) {
+   if (!IsMips && !IsAndroid) {
 -    if (IsRedhat(Distro) || IsOpenSuse(Distro) ||
 +    if (IsRedhat(Distro) || IsOpenSuse(Distro) || IsPLD(Distro) ||
          (IsUbuntu(Distro) && Distro >= UbuntuMaverick))

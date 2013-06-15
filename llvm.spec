@@ -24,6 +24,8 @@ Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
 # Source0-md5:	40564e1dc390f9844f1711c08b08e391
+Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.gz
+# Source1-md5: xyz
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
@@ -262,7 +264,8 @@ HTML documentation for LLVM's OCaml binding.
 Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -a1 -n %{name}-%{version}.src
+mv cfe-%{version}.src tools/clang
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -310,10 +313,6 @@ bash ../%configure \
 	--enable-optimized \
 	--enable-shared \
 	--with-pic
-
-# hack so it will find own headers
-install -d Release
-ln -s lib Release/lib64
 
 %{__make} \
 	VERBOSE=1 \
@@ -436,6 +435,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-prof.1*
 %{_mandir}/man1/llvm-ranlib.1*
+%{_mandir}/man1/llvm-readobj.1*
 %{_mandir}/man1/llvm-stress.1*
 %{_mandir}/man1/llvm-symbolizer.1*
 %{_mandir}/man1/opt.1*
@@ -443,7 +443,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libLLVM-%{version}svn.so
+%attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
 
 %files devel
 %defattr(644,root,root,755)
