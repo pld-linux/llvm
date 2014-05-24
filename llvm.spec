@@ -17,19 +17,20 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.3
+Version:	3.4.1
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
-# Source0-md5:	40564e1dc390f9844f1711c08b08e391
+# Source0-md5:	b90697f4de35563ad6c35924defa8dd1
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.gz
-# Source1-md5:	8284891e3e311829b8e44ac813d0c9ef
+# Source1-md5:	c64fdc567383211c9ac212d6f7b69263
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
+Patch3:		%{name}-destdir.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -269,10 +270,10 @@ mv cfe-%{version}.src tools/clang
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
-%{__sed} -i 's|/lib/|/%{_lib}/|' lib/Support/Unix/Path.inc
 # clang resources
 %{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' tools/clang/lib/Headers/Makefile
 %{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
@@ -379,6 +380,10 @@ done
 # Get rid of erroneously installed example files.
 %{__rm} -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
 
+echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
+# llvm-prof has been removed before LLVM 3.4
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/llvm-prof.1
+
 # remove documentation makefiles:
 # they require the build directory to work
 rm -rf moredocs/examples
@@ -397,6 +402,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/bugpoint
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
+%attr(755,root,root) %{_bindir}/lli-child-target
 %attr(755,root,root) %{_bindir}/llvm-ar
 %attr(755,root,root) %{_bindir}/llvm-as
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
@@ -410,7 +416,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-mcmarkup
 %attr(755,root,root) %{_bindir}/llvm-nm
 %attr(755,root,root) %{_bindir}/llvm-objdump
-%attr(755,root,root) %{_bindir}/llvm-prof
 %attr(755,root,root) %{_bindir}/llvm-ranlib
 %attr(755,root,root) %{_bindir}/llvm-readobj
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
@@ -433,7 +438,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-extract.1*
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-nm.1*
-%{_mandir}/man1/llvm-prof.1*
 %{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvm-readobj.1*
 %{_mandir}/man1/llvm-stress.1*
@@ -444,13 +448,12 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
+%attr(755,root,root) %{_libdir}/libLLVM-3.4.so
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
-%attr(755,root,root) %{_libdir}/libprofile_rt.so
 %{_libdir}/libLLVM*.a
-%{_libdir}/libprofile_rt.a
 %ifarch %{x8664}
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
 %attr(755,root,root) %{_libdir}/libLTO.so
@@ -520,7 +523,8 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with ocaml}
 %files ocaml
 %defattr(644,root,root,755)
-%{_libdir}/ocaml/META.llvm
+%{_libdir}/ocaml/META.llvm*
+%attr(755,root,root) %{_libdir}/ocaml/dllllvm*.so
 %{_libdir}/ocaml/llvm*.cma
 %{_libdir}/ocaml/llvm*.cmi
 

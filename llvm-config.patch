@@ -23,15 +23,9 @@
      ActiveIncludeOption = "-I" + ActiveIncludeDir;
    }
  
---- llvm-3.1.src/autoconf/configure.ac.orig	2012-05-11 22:48:57.000000000 +0200
-+++ llvm-3.1.src/autoconf/configure.ac	2012-10-12 17:39:00.668599306 +0200
-@@ -1472,13 +1472,13 @@
- fi
- eval LLVM_PREFIX="${prefix}";
- eval LLVM_BINDIR="${prefix}/bin";
--eval LLVM_LIBDIR="${prefix}/lib";
-+eval LLVM_LIBDIR="${libdir}";
- eval LLVM_DATADIR="${prefix}/share/llvm";
+--- llvm-3.4.1.src/autoconf/configure.ac.orig	2014-05-21 18:37:05.321379360 +0200
++++ llvm-3.4.1.src/autoconf/configure.ac	2014-05-21 18:40:49.568041358 +0200
+@@ -1813,8 +1813,9 @@
  eval LLVM_DOCSDIR="${prefix}/share/doc/llvm";
  eval LLVM_ETCDIR="${prefix}/etc/llvm";
  eval LLVM_INCLUDEDIR="${prefix}/include";
@@ -39,50 +33,88 @@
 -eval LLVM_MANDIR="${prefix}/man";
 +eval LLVM_INFODIR="${datadir}/info";
 +eval LLVM_MANDIR="${datadir}/man";
++eval LLVM_LIBDIR="${libdir}";
  LLVM_CONFIGTIME=`date`
  AC_SUBST(LLVM_PREFIX)
  AC_SUBST(LLVM_BINDIR)
---- llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2013-01-26 17:40:15.003203777 +0100
-+++ llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp	2013-01-26 18:49:17.313536763 +0100
-@@ -2154,7 +2154,7 @@ Linux::Linux(const Driver &D, const llvm
-     // host system, and a more minimal sysroot available that is the target of
-     // the cross.
-     if (StringRef(LibPath).startswith(SysRoot)) {
--      addPathIfExists(LibPath + "/../" + GCCTriple.str() + "/lib/../" + Multilib,
-+      addPathIfExists(LibPath + "/../" + GCCTriple.str() + "/" + Multilib,
-                       Paths);
-       addPathIfExists(LibPath + "/" + MultiarchTriple, Paths);
-       addPathIfExists(LibPath + "/../" + Multilib, Paths);
-@@ -2166,14 +2166,14 @@ Linux::Linux(const Driver &D, const llvm
+@@ -1824,6 +1825,7 @@
+ AC_SUBST(LLVM_INCLUDEDIR)
+ AC_SUBST(LLVM_INFODIR)
+ AC_SUBST(LLVM_MANDIR)
++AC_SUBST(LLVM_LIBDIR)
+ AC_SUBST(LLVM_CONFIGTIME)
+ 
+ dnl Disable embedding timestamps in the build directory, with ENABLE_TIMESTAMPS.
+@@ -1851,6 +1851,8 @@
+                    [Installation directory for .info files])
+ AC_DEFINE_UNQUOTED(LLVM_MANDIR, "$LLVM_MANDIR",
+                    [Installation directory for man pages])
++AC_DEFINE_UNQUOTED(LLVM_LIBDIR, "$LLVM_LIBDIR",
++                   [Installation directory for libraries])
+ AC_DEFINE_UNQUOTED(LLVM_CONFIGTIME, "$LLVM_CONFIGTIME",
+                    [Time at which LLVM was configured])
+ AC_DEFINE_UNQUOTED(LLVM_HOST_TRIPLE, "$host",
+--- llvm-3.4.1.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2014-05-21 18:42:38.311372419 +0200
++++ llvm-3.4.1.src/tools/clang/lib/Driver/ToolChains.cpp	2014-05-22 21:00:55.159398641 +0200
+@@ -2358,19 +2358,6 @@ static StringRef getMultilibDir(const ll
+     return Triple.isArch32Bit() ? "lib" : "lib64";
+   }
+ 
+-  // It happens that only x86 and PPC use the 'lib32' variant of multilib, and
+-  // using that variant while targeting other architectures causes problems
+-  // because the libraries are laid out in shared system roots that can't cope
+-  // with a 'lib32' multilib search path being considered. So we only enable
+-  // them when we know we may need it.
+-  //
+-  // FIXME: This is a bit of a hack. We should really unify this code for
+-  // reasoning about multilib spellings with the lib dir spellings in the
+-  // GCCInstallationDetector, but that is a more significant refactoring.
+-  if (Triple.getArch() == llvm::Triple::x86 ||
+-      Triple.getArch() == llvm::Triple::ppc)
+-    return "lib32";
+-
+   return Triple.isArch32Bit() ? "lib" : "lib64";
+ }
+ 
+@@ -2504,14 +2491,14 @@ Linux::Linux(const Driver &D, const llvm
      }
    }
    addPathIfExists(SysRoot + "/lib/" + MultiarchTriple, Paths);
 -  addPathIfExists(SysRoot + "/lib/../" + Multilib, Paths);
--  addPathIfExists(SysRoot + "/usr/lib/" + MultiarchTriple, Paths);
--  addPathIfExists(SysRoot + "/usr/lib/../" + Multilib, Paths);
 +  addPathIfExists(SysRoot + "/" + Multilib, Paths);
-+  addPathIfExists(SysRoot + LLVM_LIBDIR "/" + MultiarchTriple, Paths);
+   addPathIfExists(SysRoot + "/usr/lib/" + MultiarchTriple, Paths);
+-  addPathIfExists(SysRoot + "/usr/lib/../" + Multilib, Paths);
 +  addPathIfExists(SysRoot + "/usr/" + Multilib, Paths);
  
-   // Try walking via the GCC triple path in case of multiarch GCC
+   // Try walking via the GCC triple path in case of biarch or multiarch GCC
    // installations with strange symlinks.
-   if (GCCInstallation.isValid())
+   if (GCCInstallation.isValid()) {
 -    addPathIfExists(SysRoot + "/usr/lib/" + GCCInstallation.getTriple().str() +
-+    addPathIfExists(SysRoot + LLVM_LIBDIR "/" + GCCInstallation.getTriple().str() +
++    addPathIfExists(SysRoot + "/usr/" + Multilib + "/" + GCCInstallation.getTriple().str() +
                      "/../../" + Multilib, Paths);
  
-   // Add the non-multilib suffixed paths (if potentially different).
-@@ -2342,7 +2342,7 @@ Linux::Linux(const Driver &D, const llvm
-     }
+     // Add the non-multilib suffixed paths (if potentially different).
+@@ -2531,8 +2518,8 @@ Linux::Linux(const Driver &D, const llvm
+     if (StringRef(LibPath).startswith(SysRoot))
+       addPathIfExists(LibPath, Paths);
    }
-   addPathIfExists(SysRoot + "/lib", Paths);
+-  addPathIfExists(SysRoot + "/lib", Paths);
 -  addPathIfExists(SysRoot + "/usr/lib", Paths);
-+  addPathIfExists(SysRoot + LLVM_LIBDIR, Paths);
- 
-   IsPIEDefault = SanitizerArgs(*this, Args).hasZeroBaseShadow();
++  addPathIfExists(SysRoot + "/" + Multilib, Paths);
++  addPathIfExists(SysRoot + "/usr/" + Multilib, Paths);
  }
+ 
+ bool FreeBSD::HasNativeLLVMSupport() const {
 --- llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp.orig	2012-11-21 08:56:23.000000000 +0100
 +++ llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp	2013-01-26 18:43:56.952167604 +0100
+@@ -26,6 +26,7 @@
+ #include "llvm/ADT/StringExtras.h"
+ #include "llvm/ADT/StringSwitch.h"
+ #include "llvm/ADT/Twine.h"
++#include "llvm/Config/config.h"
+ #include "llvm/Option/Arg.h"
+ #include "llvm/Option/ArgList.h"
+ #include "llvm/Option/Option.h"
 @@ -218,7 +218,7 @@ static void addProfileRT(const ToolChain
    // libprofile_rt.so. We used to use the -l:libprofile_rt.a syntax, but that is
    // not supported by old linkers.

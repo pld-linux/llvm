@@ -1,33 +1,30 @@
---- llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2012-12-16 16:59:27.000000000 +0100
-+++ llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp	2013-01-24 12:42:19.582377854 +0100
-@@ -1062,6 +1062,7 @@
+--- llvm-3.4.1.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2014-05-22 21:48:10.216006217 +0200
++++ llvm-3.4.1.src/tools/clang/lib/Driver/ToolChains.cpp	2014-05-23 17:11:10.551218440 +0200
+@@ -1122,12 +1122,14 @@
  
    static const char *const X86_64LibDirs[] = { "/lib64", "/lib" };
    static const char *const X86_64Triples[] = {
-+    "x86_64-pld-linux",
-     "x86_64-linux-gnu",
-     "x86_64-unknown-linux-gnu",
-     "x86_64-pc-linux-gnu",
-@@ -1074,6 +1075,9 @@
++    "x86_64-pld-linux", "amd64-pld-linux",
+     "x86_64-linux-gnu", "x86_64-unknown-linux-gnu", "x86_64-pc-linux-gnu",
+     "x86_64-redhat-linux6E", "x86_64-redhat-linux", "x86_64-suse-linux",
+     "x86_64-manbo-linux-gnu", "x86_64-linux-gnu", "x86_64-slackware-linux"
    };
    static const char *const X86LibDirs[] = { "/lib32", "/lib" };
    static const char *const X86Triples[] = {
-+    "i686-pld-linux",
-+    "i586-pld-linux",
-+    "i486-pld-linux",
-     "i686-linux-gnu",
-     "i686-pc-linux-gnu",
-     "i486-linux-gnu",
-@@ -1830,6 +1834,7 @@
++    "i686-pld-linux", "i586-pld-linux", "i485-pld-linux", "i386-pld-linux", "athlon-pld-linux",
+     "i686-linux-gnu", "i686-pc-linux-gnu", "i486-linux-gnu", "i386-linux-gnu",
+     "i386-redhat-linux6E", "i686-redhat-linux", "i586-redhat-linux",
+     "i386-redhat-linux", "i586-suse-linux", "i486-slackware-linux",
+@@ -2167,6 +2169,7 @@
  
- enum LinuxDistro {
+ enum Distro {
    ArchLinux,
 +  PLDLinux,
    DebianLenny,
    DebianSqueeze,
    DebianWheezy,
-@@ -1877,6 +1882,10 @@
-   return Distro >= UbuntuHardy && Distro <= UbuntuRaring;
+@@ -2209,6 +2212,10 @@
+   return Distro >= UbuntuHardy && Distro <= UbuntuTrusty;
  }
  
 +static bool IsPLD(enum Distro Distro) {
@@ -37,35 +34,35 @@
  static Distro DetectDistro(llvm::Triple::ArchType Arch) {
    OwningPtr<llvm::MemoryBuffer> File;
    if (!llvm::MemoryBuffer::getFile("/etc/lsb-release", File)) {
-@@ -1955,6 +1964,9 @@
-   if (!llvm::sys::fs::exists("/etc/arch-release", Exists) && Exists)
+@@ -2276,6 +2283,9 @@
+   if (llvm::sys::fs::exists("/etc/arch-release"))
      return ArchLinux;
  
-+  if (!llvm::sys::fs::exists("/etc/pld-release", Exists) && Exists)
++  if (!llvm::sys::fs::exists("/etc/pld-release"))
 +    return PLDLinux;
 +
    return UnknownDistro;
  }
  
-@@ -2072,7 +2084,7 @@
+@@ -2382,7 +2392,7 @@
  
    Distro Distro = DetectDistro(Arch);
  
--  if (IsOpenSuse(Distro) || IsUbuntu(Distro)) {
-+  if (IsOpenSuse(Distro) || IsUbuntu(Distro) || IsPLD(Distro)) {
+-  if (IsOpenSUSE(Distro) || IsUbuntu(Distro)) {
++  if (IsOpenSUSE(Distro) || IsUbuntu(Distro) || IsPLD(Distro)) {
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
-@@ -2088,7 +2100,7 @@
+@@ -2402,7 +2412,7 @@
    // ABI requires a mapping between the GOT and the symbol table.
    // Android loader does not support .gnu.hash.
    if (!IsMips && !IsAndroid) {
--    if (IsRedhat(Distro) || IsOpenSuse(Distro) ||
-+    if (IsRedhat(Distro) || IsOpenSuse(Distro) || IsPLD(Distro) ||
+-    if (IsRedhat(Distro) || IsOpenSUSE(Distro) ||
++    if (IsRedhat(Distro) || IsOpenSUSE(Distro) || IsPLD(Distro) ||
          (IsUbuntu(Distro) && Distro >= UbuntuMaverick))
        ExtraOpts.push_back("--hash-style=gnu");
-
-@@ -2128,11 +2128,11 @@
+ 
+@@ -2411,11 +2421,11 @@
        ExtraOpts.push_back("--hash-style=both");
    }
  
@@ -74,9 +71,8 @@
      ExtraOpts.push_back("--no-add-needed");
  
    if (Distro == DebianSqueeze || Distro == DebianWheezy ||
--      Distro == DebianJessie || IsOpenSuse(Distro) ||
-+      Distro == DebianJessie || IsOpenSuse(Distro) || IsPLD(Distro) ||
+-      Distro == DebianJessie || IsOpenSUSE(Distro) ||
++      Distro == DebianJessie || IsOpenSUSE(Distro) || IsPLD(Distro) ||
        (IsRedhat(Distro) && Distro != RHEL4 && Distro != RHEL5) ||
        (IsUbuntu(Distro) && Distro >= UbuntuKarmic))
      ExtraOpts.push_back("--build-id");
-
