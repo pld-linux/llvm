@@ -1,8 +1,4 @@
 #
-# TODO:
-# - fix include search path to support libdir/gcc/platform/version/include.
-#   current error: /usr/include/wchar.h:39:11: fatal error: 'stdarg.h' file not found# include <stdarg.h>
-#
 # Conditional build:
 %bcond_without	lldb	# LLDB debugger
 %bcond_without	rt	# compiler-rt libraries
