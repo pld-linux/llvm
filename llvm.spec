@@ -4,9 +4,11 @@
 #   current error: /usr/include/wchar.h:39:11: fatal error: 'stdarg.h' file not found# include <stdarg.h>
 #
 # Conditional build:
-%bcond_without	ocaml	# ocaml binding
-%bcond_with	apidocs	# The doxygen docs are HUGE, so they are not built by default.
+%bcond_without	lldb	# LLDB debugger
+%bcond_without	rt	# compiler-rt libraries
+%bcond_without	ocaml	# OCaml binding
 %bcond_without	man	# man pages
+%bcond_with	apidocs	# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests	# run tests
 
 %ifarch s390 s390x sparc64
@@ -26,6 +28,10 @@ Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
 # Source0-md5:	b90697f4de35563ad6c35924defa8dd1
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.gz
 # Source1-md5:	c64fdc567383211c9ac212d6f7b69263
+Source2:	http://llvm.org/releases/3.4/compiler-rt-3.4.src.tar.gz
+# Source2-md5:	7938353e3a3bda85733a165e7ac4bb84
+Source3:	http://llvm.org/releases/3.4/lldb-3.4.src.tar.gz
+# Source3-md5:	7ed60a0463f9fdfa20db7109d4624cee
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
@@ -224,6 +230,38 @@ API documentation for the Clang compiler.
 %description -n clang-apidocs -l pl.UTF-8
 Dokumentacja API kompilatora Clang.
 
+%package -n lldb
+Summary:	Next generation high-performance debugger
+Summary(pl.UTF-8):	Wydajny debugger nowej generacji
+Group:		Development/Debuggers
+Requires:	%{name} = %{version}-%{release}
+
+%description -n lldb
+LLDB is a next generation, high-performance debugger. It is built as a
+set of reusable components which highly leverage existing libraries in
+the larger LLVM Project, such as the Clang expression parser and LLVM
+disassembler.
+
+%description -n lldb -l pl.UTF-8
+LLDB to wydajny debugger nowej generacji. Jest zbudowany w oparciu o
+komponenty wielokrotnego użytku, wykorzystujące istniejące biblioteki
+w projekcie LLVM, takie jak analizator wyrażeń kompilatora Clang oraz
+disasembler LLVM.
+
+%package -n lldb-devel
+Summary:	Header files for LLDB
+Summary(pl.UTF-8):	Pliki nagłówkowe LLDB
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{version}-%{release}
+Requires:	clang-devel = %{version}-%{release}
+Requires:	lldb = %{version}-%{release}
+
+%description -n lldb-devel
+Header files for LLDB.
+
+%description -n lldb-devel -l pl.UTF-8
+Pliki nagłówkowe LLDB.
+
 %package ocaml
 Summary:	OCaml binding for LLVM
 Summary(pl.UTF-8):	Wiązanie OCamla do LLVM-a
@@ -265,8 +303,11 @@ HTML documentation for LLVM's OCaml binding.
 Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
-%setup -q -a1 -n %{name}-%{version}.src
+%setup -q -n %{name}-%{version}.src -a1 -a2 -a3
 mv cfe-%{version}.src tools/clang
+%{?with_rt:mv compiler-rt-3.4 projects/compiler-rt}
+%{?with_lldb:mv lldb-3.4 tools/lldb}
+
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -300,6 +341,7 @@ cd obj
 bash ../%configure \
 	--datadir=%{_datadir}/%{name}-%{version} \
 	--disable-assertions \
+	--enable-cxx11 \
 %ifarch %{ix86}
 	--disable-pic \
 %endif
@@ -396,6 +438,12 @@ rm -rf $RPM_BUILD_ROOT
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
 
+%post	-n clang -p /sbin/ldconfig
+%postun	-n clang -p /sbin/ldconfig
+
+%post	-n lldb -p /sbin/ldconfig
+%postun	-n lldb -p /sbin/ldconfig
+
 %files
 %defattr(644,root,root,755)
 %doc CREDITS.TXT LICENSE.TXT README.txt %{?with_tests:llvm-testlog.txt}
@@ -483,7 +531,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-format
 %attr(755,root,root) %{_bindir}/clang-tblgen
 %attr(755,root,root) %{_libdir}/libclang.so
-%{_libdir}/clang
+%dir %{_libdir}/clang
+%dir %{_libdir}/clang/%{version}
+%{_libdir}/clang/%{version}/include
+%if %{with rt}
+%{_libdir}/clang/%{version}/lib
+%endif
 %{_mandir}/man1/clang.1*
 
 %files -n clang-analyzer
@@ -518,6 +571,19 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-apidocs
 %defattr(644,root,root,755)
 %doc clang-apidoc/*
+%endif
+
+%if %{with lldb}
+%files -n lldb
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/lldb
+%attr(755,root,root) %{_bindir}/lldb-platform
+%attr(755,root,root) %{_libdir}/liblldb.so
+
+%files -n lldb-devel
+%defattr(644,root,root,755)
+%{_libdir}/liblldb*.a
+%{_includedir}/lldb
 %endif
 
 %if %{with ocaml}
