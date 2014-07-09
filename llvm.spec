@@ -15,15 +15,15 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.4.1
+Version:	3.4.2
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
-# Source0-md5:	b90697f4de35563ad6c35924defa8dd1
+# Source0-md5:	a20669f75967440de949ac3b1bad439c
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.gz
-# Source1-md5:	c64fdc567383211c9ac212d6f7b69263
+# Source1-md5:	87945973b7c73038871c5f849a818588
 Source2:	http://llvm.org/releases/3.4/compiler-rt-3.4.src.tar.gz
 # Source2-md5:	7938353e3a3bda85733a165e7ac4bb84
 Source3:	http://llvm.org/releases/3.4/lldb-3.4.src.tar.gz
@@ -32,7 +32,6 @@ Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
-Patch3:		%{name}-destdir.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -307,7 +306,6 @@ mv cfe-%{version}.src tools/clang
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
