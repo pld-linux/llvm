@@ -1,9 +1,10 @@
 #
 # Conditional build:
 %bcond_without	lldb	# LLDB debugger
+%bcond_without	polly	# Polly cache-locality optimization, auto-parallelism and vectorization
 %bcond_without	rt	# compiler-rt libraries
 %bcond_without	ocaml	# OCaml binding
-%bcond_without	man	# man pages
+%bcond_without	doc	# HTML docs and man pages
 %bcond_with	apidocs	# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests	# run tests
 
@@ -28,6 +29,10 @@ Source2:	http://llvm.org/releases/3.4/compiler-rt-3.4.src.tar.gz
 # Source2-md5:	7938353e3a3bda85733a165e7ac4bb84
 Source3:	http://llvm.org/releases/3.4/lldb-3.4.src.tar.gz
 # Source3-md5:	7ed60a0463f9fdfa20db7109d4624cee
+Source4:	http://llvm.org/releases/3.4/polly-3.4.src.tar.gz
+# Source4-md5:	5b2958c9076a584f710423bdca9e6d5d
+Source5:	http://llvm.org/releases/3.4/clang-tools-extra-3.4.src.tar.gz
+# Source5-md5:	fc25c6b90eaf8a9b0702940c7c57183c
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
@@ -51,7 +56,7 @@ BuildRequires:	ocaml-ocamldoc
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	rpm-pythonprov
-%{?with_man:BuildRequires:	sphinx-pdg}
+%{?with_doc:BuildRequires:	sphinx-pdg}
 %if %{with apidocs}
 BuildRequires:	doxygen
 BuildRequires:	graphviz
@@ -60,6 +65,16 @@ BuildRequires:	graphviz
 BuildRequires:	dejagnu
 BuildRequires:	python
 BuildRequires:	tcl-devel
+%endif
+%if %{with polly}
+BuildRequires:	cloog-isl-devel
+BuildRequires:	gmp-devel
+BuildRequires:	isl-devel
+# optional
+#BuildRequires:	libpluto-devel
+#BuildRequires:	openscop-devel
+#BuildRequires:	scoplib-devel
+#cuda-devel
 %endif
 Requires:	%{name}-libs = %{version}-%{release}
 # LLVM is not supported on PPC64
@@ -140,6 +155,39 @@ API documentation for the LLVM compiler infrastructure.
 
 %description apidocs -l pl.UTF-8
 Dokumentacja API infrastruktury kompilatorów LLVM.
+
+%package polly
+Summary:	Polyhedral optimizations for LLVM
+Summary(pl.UTF-8):	Optymalizacje wielościanowe dla LLVM-a
+Group:		Development/Tools
+URL:		http://polly.llvm.org/
+Requires:	%{name} = %{version}-%{release}
+
+%description polly
+Polly is a high-level loop and data-locality optimizer and
+optimization infrastructure for LLVM. It uses an abstract mathematical
+representation based on integer polyhedra to analyze and optimize the
+memory access pattern of a program.
+
+%description polly -l pl.UTF-8
+Polly to wysokopoziomowy optymalizator i infrastruktura LLVM-a do
+optymalizacji pętli i położenia danych. Wykorzystuje abstrakcyjną
+reprezentację matematyczną opartą na wielościanach całkowitoliczbowych
+do analizy i optymalizacji wzorców dostępu do pamięci przez program.
+
+%package polly-devel
+Summary:	Header files for LLVM Polly optimization infrastructure
+Summary(pl.UTF-8):	Pliki nagłówkowe infrastruktury optymalizacji LLVM-a Polly
+Group:		Development/Libraries
+URL:		http://polly.llvm.org/
+Requires:	%{name}-devel = %{version}-%{release}
+Requires:	%{name}-polly = %{version}-%{release}
+
+%description polly-devel
+Header files for LLVM Polly optimization infrastructure.
+
+%description polly-devel -l pl.UTF-8
+Pliki nagłówkowe infrastruktury optymalizacji LLVM-a Polly.
 
 %package -n clang
 Summary:	A C language family frontend for LLVM
@@ -225,6 +273,19 @@ API documentation for the Clang compiler.
 %description -n clang-apidocs -l pl.UTF-8
 Dokumentacja API kompilatora Clang.
 
+%package -n clang-tools-extra
+Summary:	Extra tools for Clang
+Summary(pl.UTF-8):	Dodatkowe narzędzia do kompilatora Clang
+Group:		Development/Tools
+URL:		http://clang.llvm.org/docs/ClangTools.html
+Requires:	clang = %{version}-%{release}
+
+%description -n clang-tools-extra
+Extra tools for Clang.
+
+%description -n clang-tools-extra -l pl.UTF-8
+Dodatkowe narzędzia do kompilatora Clang.
+
 %package -n lldb
 Summary:	Next generation high-performance debugger
 Summary(pl.UTF-8):	Wydajny debugger nowej generacji
@@ -298,10 +359,12 @@ HTML documentation for LLVM's OCaml binding.
 Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
-%setup -q -n %{name}-%{version}.src -a1 -a2 -a3
+%setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5
 mv cfe-%{version}.src tools/clang
 %{?with_rt:mv compiler-rt-3.4 projects/compiler-rt}
 %{?with_lldb:mv lldb-3.4 tools/lldb}
+%{?with_polly:mv polly-3.4 tools/polly}
+mv clang-tools-extra-3.4 tools/clang/tools/extra
 
 %patch0 -p1
 %patch1 -p1
@@ -363,8 +426,9 @@ bash ../%configure \
 
 cd ..
 
-%if %{with man}
+%if %{with doc}
 %{__make} -C docs -f Makefile.sphinx man
+%{__make} -C tools/clang/tools/extra/docs html
 %endif
 
 %install
@@ -386,11 +450,13 @@ done
 %py_ocomp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
 %py_postclean %{_libdir}/clang-analyzer/scan-view
 
-%if %{with man}
+%if %{with doc}
 install -d $RPM_BUILD_ROOT%{_mandir}/man1
 cp -p docs/_build/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
-# these tools are not installed
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build}.1
+# these tools are not installed (llvm-prof has been removed before LLVM 3.4)
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build,llvm-prof}.1
+# make links
+echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 %endif
 
 # Move documentation back to build directory
@@ -415,10 +481,6 @@ done
 
 # Get rid of erroneously installed example files.
 %{__rm} -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
-
-echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
-# llvm-prof has been removed before LLVM 3.4
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/llvm-prof.1
 
 # remove documentation makefiles:
 # they require the build directory to work
@@ -467,6 +529,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/macho-dump
 %attr(755,root,root) %{_bindir}/opt
+%if %{with doc}
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/lit.1*
 %{_mandir}/man1/llc.1*
@@ -486,6 +549,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-symbolizer.1*
 %{_mandir}/man1/opt.1*
 %{_mandir}/man1/tblgen.1*
+%endif
 
 %files libs
 %defattr(644,root,root,755)
@@ -503,7 +567,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_includedir}/llvm
 %{_includedir}/llvm-c
+%if %{with doc}
 %{_mandir}/man1/llvm-config.1*
+%endif
 
 %files doc
 %defattr(644,root,root,755)
@@ -513,6 +579,18 @@ rm -rf $RPM_BUILD_ROOT
 %files apidocs
 %defattr(644,root,root,755)
 %doc apidoc/*
+%endif
+
+%if %{with polly}
+%files polly
+%defattr(644,root,root,755)
+%doc tools/polly/{CREDITS.txt,LICENSE.txt,README}
+%attr(755,root,root) %{_libdir}/LLVMPolly.so
+
+%files polly-devel
+%defattr(644,root,root,755)
+%{_libdir}/libpolly*.a
+%{_includedir}/polly
 %endif
 
 %files -n clang
@@ -566,6 +644,15 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc clang-apidoc/*
 %endif
+
+%files -n clang-tools-extra
+%defattr(644,root,root,755)
+%doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt,docs/_build/html/{*.html,*.js,_static}}
+%attr(755,root,root) %{_bindir}/clang-apply-replacements
+%attr(755,root,root) %{_bindir}/clang-modernize
+%attr(755,root,root) %{_bindir}/clang-tidy
+%attr(755,root,root) %{_bindir}/pp-trace
+%{_libdir}/libmodernizeCore.a
 
 %if %{with lldb}
 %files -n lldb
