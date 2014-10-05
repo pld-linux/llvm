@@ -1,0 +1,11 @@
+--- llvm-3.5.0.src/tools/lldb/Makefile.orig	2014-03-12 11:35:00.000000000 +0100
++++ llvm-3.5.0.src/tools/lldb/Makefile	2014-10-04 08:18:52.270545688 +0200
+@@ -41,6 +41,8 @@
+ # Disable python and curses on mingw build
+ ifeq ($(HOST_OS),MingW)
+ CXXFLAGS += -DLLDB_DISABLE_PYTHON -DLLDB_DISABLE_CURSES
++else
++CPP.Flags += -I/usr/include/ncurses
+ endif
+ 
+ ifeq (,$(findstring -DLLDB_DISABLE_PYTHON,$(CXXFLAGS)))

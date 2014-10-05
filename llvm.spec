@@ -1,3 +1,4 @@
+# TODO: dragonegg, lld, openmp?
 #
 # Conditional build:
 %bcond_without	lldb	# LLDB debugger
@@ -16,27 +17,29 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.4.2
+Version:	3.5.0
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.gz
-# Source0-md5:	a20669f75967440de949ac3b1bad439c
-Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.gz
-# Source1-md5:	87945973b7c73038871c5f849a818588
-Source2:	http://llvm.org/releases/3.4/compiler-rt-3.4.src.tar.gz
-# Source2-md5:	7938353e3a3bda85733a165e7ac4bb84
-Source3:	http://llvm.org/releases/3.4/lldb-3.4.src.tar.gz
-# Source3-md5:	7ed60a0463f9fdfa20db7109d4624cee
-Source4:	http://llvm.org/releases/3.4/polly-3.4.src.tar.gz
-# Source4-md5:	5b2958c9076a584f710423bdca9e6d5d
-Source5:	http://llvm.org/releases/3.4/clang-tools-extra-3.4.src.tar.gz
-# Source5-md5:	fc25c6b90eaf8a9b0702940c7c57183c
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
+# Source0-md5:	d6987305a1a0e58e128c1374cd3b8fef
+Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+# Source1-md5:	27718dd13c7df83e15f997116bbb4aef
+Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
+# Source2-md5:	02624d2a9144278c3808c00dbbab56c8
+Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
+# Source3-md5:	9597d5376309805ac586adfbd1e992f4
+Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
+# Source4-md5:	2ee0167c7ed7c85026cdb18ad6f4ade8
+Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
+# Source5-md5:	6e2830316638ec0de9534b98361dfbec
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
+Patch3:		%{name}-polly-update.patch
+Patch4:		%{name}-lldb.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -57,6 +60,8 @@ BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	rpm-pythonprov
 %{?with_doc:BuildRequires:	sphinx-pdg}
+BuildRequires:	tar >= 1:1.22
+BuildRequires:	xz
 %if %{with apidocs}
 BuildRequires:	doxygen
 BuildRequires:	graphviz
@@ -66,14 +71,21 @@ BuildRequires:	dejagnu
 BuildRequires:	python
 BuildRequires:	tcl-devel
 %endif
+%if %{with lldb}
+BuildRequires:	libedit-devel
+BuildRequires:	libxml2-devel >= 2
+BuildRequires:	ncurses-ext-devel
+BuildRequires:	python-devel >= 2
+%endif
 %if %{with polly}
 BuildRequires:	cloog-isl-devel
+# >= 0.18.2-2
 BuildRequires:	gmp-devel
-BuildRequires:	isl-devel
+BuildRequires:	isl-devel >= 0.13
+# optional
+BuildRequires:	scoplib-devel >= 0.2.1-2
 # optional
 #BuildRequires:	libpluto-devel
-#BuildRequires:	openscop-devel
-#BuildRequires:	scoplib-devel
 #cuda-devel
 %endif
 Requires:	%{name}-libs = %{version}-%{release}
@@ -361,14 +373,16 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 %prep
 %setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5
 mv cfe-%{version}.src tools/clang
-%{?with_rt:mv compiler-rt-3.4 projects/compiler-rt}
-%{?with_lldb:mv lldb-3.4 tools/lldb}
-%{?with_polly:mv polly-3.4 tools/polly}
-mv clang-tools-extra-3.4 tools/clang/tools/extra
+%{?with_rt:mv compiler-rt-%{version}.src projects/compiler-rt}
+%{?with_lldb:mv lldb-%{version}.src tools/lldb}
+%{?with_polly:mv polly-%{version}.src tools/polly}
+mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -453,8 +467,8 @@ done
 %if %{with doc}
 install -d $RPM_BUILD_ROOT%{_mandir}/man1
 cp -p docs/_build/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
-# these tools are not installed (llvm-prof has been removed before LLVM 3.4)
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build,llvm-prof}.1
+# these tools are not installed
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build}.1
 # make links
 echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 %endif
@@ -481,6 +495,8 @@ done
 
 # Get rid of erroneously installed example files.
 %{__rm} -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
+# parts of test suite
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/{FileCheck,count,not}
 
 # remove documentation makefiles:
 # they require the build directory to work
@@ -520,6 +536,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-mcmarkup
 %attr(755,root,root) %{_bindir}/llvm-nm
 %attr(755,root,root) %{_bindir}/llvm-objdump
+%attr(755,root,root) %{_bindir}/llvm-profdata
 %attr(755,root,root) %{_bindir}/llvm-ranlib
 %attr(755,root,root) %{_bindir}/llvm-readobj
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
@@ -540,9 +557,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-cov.1*
 %{_mandir}/man1/llvm-diff.1*
 %{_mandir}/man1/llvm-dis.1*
+%{_mandir}/man1/llvm-dwarfdump.1*
 %{_mandir}/man1/llvm-extract.1*
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-nm.1*
+%{_mandir}/man1/llvm-profdata.1*
 %{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvm-readobj.1*
 %{_mandir}/man1/llvm-stress.1*
@@ -554,7 +573,7 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLLVM-3.4.so
+%attr(755,root,root) %{_libdir}/libLLVM-3.5.so
 
 %files devel
 %defattr(644,root,root,755)
@@ -567,6 +586,8 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_includedir}/llvm
 %{_includedir}/llvm-c
+%dir %{_datadir}/llvm
+%{_datadir}/llvm/cmake
 %if %{with doc}
 %{_mandir}/man1/llvm-config.1*
 %endif
@@ -589,7 +610,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files polly-devel
 %defattr(644,root,root,755)
-%{_libdir}/libpolly*.a
 %{_includedir}/polly
 %endif
 
@@ -650,6 +670,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt,docs/_build/html/{*.html,*.js,_static}}
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
 %attr(755,root,root) %{_bindir}/clang-modernize
+%attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/pp-trace
 %{_libdir}/libmodernizeCore.a
@@ -658,8 +679,13 @@ rm -rf $RPM_BUILD_ROOT
 %files -n lldb
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/lldb
+%attr(755,root,root) %{_bindir}/lldb-gdbserver
+%attr(755,root,root) %{_bindir}/lldb-mi
 %attr(755,root,root) %{_bindir}/lldb-platform
 %attr(755,root,root) %{_libdir}/liblldb.so
+%dir %{py_sitedir}/lldb
+%attr(755,root,root) %{py_sitedir}/lldb/_lldb.so
+%attr(755,root,root) %{py_sitedir}/readline.so
 
 %files -n lldb-devel
 %defattr(644,root,root,755)

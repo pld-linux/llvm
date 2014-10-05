@@ -1,6 +1,6 @@
---- llvm-3.1.src/tools/llvm-config/llvm-config.cpp.orig	2012-05-16 00:06:08.000000000 +0200
-+++ llvm-3.1.src/tools/llvm-config/llvm-config.cpp	2012-10-12 17:44:41.041037043 +0200
-@@ -234,11 +234,11 @@
+--- llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp.orig	2014-03-29 02:08:53.000000000 +0100
++++ llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp	2014-10-01 20:43:44.679547719 +0200
+@@ -247,12 +247,12 @@
        break;
      case CMakeStyle:
        ActiveBinDir = ActiveObjRoot + "/bin";
@@ -8,13 +8,14 @@
 +      ActiveLibDir = LLVM_LIBDIR;
        break;
      case CMakeBuildModeStyle:
-       ActiveBinDir = ActiveObjRoot + "/bin/" + LLVM_BUILDMODE;
--      ActiveLibDir = ActiveObjRoot + "/lib/" + LLVM_BUILDMODE;
-+      ActiveLibDir = LLVM_LIBDIR "/" LLVM_BUILDMODE;
+       ActivePrefix = ActiveObjRoot;
+       ActiveBinDir = ActiveObjRoot + "/bin/" + build_mode;
+-      ActiveLibDir = ActiveObjRoot + "/lib/" + build_mode;
++      ActiveLibDir = std::string(LLVM_LIBDIR "/") + build_mode;
        break;
      }
  
-@@ -249,7 +249,7 @@
+@@ -263,7 +263,7 @@
      ActivePrefix = CurrentExecPrefix;
      ActiveIncludeDir = ActivePrefix + "/include";
      ActiveBinDir = ActivePrefix + "/bin";
@@ -54,59 +55,53 @@
  AC_DEFINE_UNQUOTED(LLVM_CONFIGTIME, "$LLVM_CONFIGTIME",
                     [Time at which LLVM was configured])
  AC_DEFINE_UNQUOTED(LLVM_HOST_TRIPLE, "$host",
---- llvm-3.4.1.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2014-05-21 18:42:38.311372419 +0200
-+++ llvm-3.4.1.src/tools/clang/lib/Driver/ToolChains.cpp	2014-05-22 21:00:55.159398641 +0200
-@@ -2358,19 +2358,6 @@ static StringRef getMultilibDir(const ll
+--- llvm-3.5.0.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2014-08-27 22:07:31.000000000 +0200
++++ llvm-3.5.0.src/tools/clang/lib/Driver/ToolChains.cpp	2014-10-01 20:56:40.312848502 +0200
+@@ -2999,19 +2999,6 @@
      return Triple.isArch32Bit() ? "lib" : "lib64";
    }
  
--  // It happens that only x86 and PPC use the 'lib32' variant of multilib, and
+-  // It happens that only x86 and PPC use the 'lib32' variant of oslibdir, and
 -  // using that variant while targeting other architectures causes problems
 -  // because the libraries are laid out in shared system roots that can't cope
--  // with a 'lib32' multilib search path being considered. So we only enable
+-  // with a 'lib32' library search path being considered. So we only enable
 -  // them when we know we may need it.
 -  //
 -  // FIXME: This is a bit of a hack. We should really unify this code for
--  // reasoning about multilib spellings with the lib dir spellings in the
+-  // reasoning about oslibdir spellings with the lib dir spellings in the
 -  // GCCInstallationDetector, but that is a more significant refactoring.
 -  if (Triple.getArch() == llvm::Triple::x86 ||
 -      Triple.getArch() == llvm::Triple::ppc)
 -    return "lib32";
 -
-   return Triple.isArch32Bit() ? "lib" : "lib64";
- }
- 
-@@ -2504,14 +2491,14 @@ Linux::Linux(const Driver &D, const llvm
-     }
-   }
-   addPathIfExists(SysRoot + "/lib/" + MultiarchTriple, Paths);
--  addPathIfExists(SysRoot + "/lib/../" + Multilib, Paths);
-+  addPathIfExists(SysRoot + "/" + Multilib, Paths);
-   addPathIfExists(SysRoot + "/usr/lib/" + MultiarchTriple, Paths);
--  addPathIfExists(SysRoot + "/usr/lib/../" + Multilib, Paths);
-+  addPathIfExists(SysRoot + "/usr/" + Multilib, Paths);
- 
+   if (Triple.getArch() == llvm::Triple::x86_64 &&
+       Triple.getEnvironment() == llvm::Triple::GNUX32)
+     return "libx32";
+@@ -3160,7 +3147,7 @@
    // Try walking via the GCC triple path in case of biarch or multiarch GCC
    // installations with strange symlinks.
    if (GCCInstallation.isValid()) {
 -    addPathIfExists(SysRoot + "/usr/lib/" + GCCInstallation.getTriple().str() +
-+    addPathIfExists(SysRoot + "/usr/" + Multilib + "/" + GCCInstallation.getTriple().str() +
-                     "/../../" + Multilib, Paths);
++    addPathIfExists(SysRoot + "/usr/" + OSLibDir + "/" + GCCInstallation.getTriple().str() +
+                     "/../../" + OSLibDir, Paths);
  
-     // Add the non-multilib suffixed paths (if potentially different).
-@@ -2531,8 +2518,8 @@ Linux::Linux(const Driver &D, const llvm
-     if (StringRef(LibPath).startswith(SysRoot))
-       addPathIfExists(LibPath, Paths);
-   }
+     // Add the 'other' biarch variant path
+@@ -3190,10 +3177,10 @@
+   // FIXME: It's not clear whether we should use the driver's installed
+   // directory ('Dir' below) or the ResourceDir.
+   if (StringRef(D.Dir).startswith(SysRoot))
+-    addPathIfExists(D.Dir + "/../lib", Paths);
++    addPathIfExists(D.Dir + "/../" + OSLibDir, Paths);
+ 
 -  addPathIfExists(SysRoot + "/lib", Paths);
 -  addPathIfExists(SysRoot + "/usr/lib", Paths);
-+  addPathIfExists(SysRoot + "/" + Multilib, Paths);
-+  addPathIfExists(SysRoot + "/usr/" + Multilib, Paths);
++  addPathIfExists(SysRoot + "/" + OSLibDir, Paths);
++  addPathIfExists(SysRoot + "/usr/" + OSLibDir, Paths);
  }
  
- bool FreeBSD::HasNativeLLVMSupport() const {
---- llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp.orig	2012-11-21 08:56:23.000000000 +0100
-+++ llvm-3.2.src/tools/clang/lib/Driver/Tools.cpp	2013-01-26 18:43:56.952167604 +0100
+ bool Linux::HasNativeLLVMSupport() const {
+--- llvm-3.5.0.src/tools/clang/lib/Driver/Tools.cpp.orig	2014-08-07 06:51:51.000000000 +0200
++++ llvm-3.5.0.src/tools/clang/lib/Driver/Tools.cpp	2014-10-01 21:04:32.002828710 +0200
 @@ -26,6 +26,7 @@
  #include "llvm/ADT/StringExtras.h"
  #include "llvm/ADT/StringSwitch.h"
@@ -115,16 +110,30 @@
  #include "llvm/Option/Arg.h"
  #include "llvm/Option/ArgList.h"
  #include "llvm/Option/Option.h"
-@@ -218,7 +218,7 @@ static void addProfileRT(const ToolChain
-   // libprofile_rt.so. We used to use the -l:libprofile_rt.a syntax, but that is
-   // not supported by old linkers.
-   std::string ProfileRT =
--    std::string(TC.getDriver().Dir) + "/../lib/libprofile_rt.a";
-+    LLVM_LIBDIR "/libprofile_rt.a";
+@@ -1425,7 +1426,7 @@
+   // as gold requires -plugin to come before any -plugin-opt that -Wl might
+   // forward.
+   CmdArgs.push_back("-plugin");
+-  std::string Plugin = ToolChain.getDriver().Dir + "/../lib/LLVMgold.so";
++  std::string Plugin = LLVM_LIBDIR "/LLVMgold.so";
+   CmdArgs.push_back(Args.MakeArgString(Plugin));
  
-   CmdArgs.push_back(Args.MakeArgString(ProfileRT));
+   // Try to pass driver level flags relevant to LTO code generation down to
+@@ -2037,12 +2038,7 @@
+ 
+ static SmallString<128> getCompilerRTLibDir(const ToolChain &TC) {
+   // The runtimes are located in the OS-specific resource directory.
+-  SmallString<128> Res(TC.getDriver().ResourceDir);
+-  const llvm::Triple &Triple = TC.getTriple();
+-  // TC.getOS() yield "freebsd10.0" whereas "freebsd" is expected.
+-  StringRef OSLibName = (Triple.getOS() == llvm::Triple::FreeBSD) ?
+-    "freebsd" : TC.getOS();
+-  llvm::sys::path::append(Res, "lib", OSLibName);
++  SmallString<128> Res(LLVM_LIBDIR);
+   return Res;
  }
-@@ -4881,9 +4881,9 @@ void solaris::Link::ConstructJob(Compila
+ 
+@@ -5899,9 +5895,9 @@
                                    const ArgList &Args,
                                    const char *LinkingOutput) const {
    // FIXME: Find a real GCC, don't hard-code versions here
@@ -135,13 +144,4 @@
 +  std::string LibPath = LLVM_LIBDIR "/";
    llvm::Triple::ArchType Arch = T.getArch();
    switch (Arch) {
-         case llvm::Triple::x86:
-@@ -6049,7 +6049,7 @@ void linuxtools::Link::ConstructJob(Comp
-   // forward.
-   if (D.IsUsingLTO(Args) || Args.hasArg(options::OPT_use_gold_plugin)) {
-     CmdArgs.push_back("-plugin");
--    std::string Plugin = ToolChain.getDriver().Dir + "/../lib/LLVMgold.so";
-+    std::string Plugin = LLVM_LIBDIR "/LLVMgold.so";
-     CmdArgs.push_back(Args.MakeArgString(Plugin));
-   }
- 
+   case llvm::Triple::x86:
