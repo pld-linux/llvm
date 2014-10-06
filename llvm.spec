@@ -83,9 +83,8 @@ BuildRequires:	cloog-isl-devel
 BuildRequires:	gmp-devel
 BuildRequires:	isl-devel >= 0.13
 # optional
+BuildRequires:	pluto-devel
 BuildRequires:	scoplib-devel >= 0.2.1-2
-# optional
-#BuildRequires:	libpluto-devel
 #cuda-devel
 %endif
 Requires:	%{name}-libs = %{version}-%{release}
@@ -381,8 +380,8 @@ mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%patch4 -p1
+%{?with_polly:%patch3 -p1}
+%{?with_lldb:%patch4 -p1}
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -403,6 +402,14 @@ cd autoconf
 %{__autoconf} -o ../configure configure.ac
 cd ..
 %{__autoheader} -I autoconf -I autoconf/m4 autoconf/configure.ac
+%if %{with polly}
+cd tools/polly/autoconf
+%{__aclocal} -I m4 -I ../../../autoconf/m4
+%{__autoconf} -o ../configure configure.ac
+cd ..
+%{__autoheader} -I autoconf -I autoconf/m4 -I ../../../autoconf/m4 autoconf/configure.ac
+cd ../..
+%endif
 
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801

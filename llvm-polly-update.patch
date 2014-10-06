@@ -39,3 +39,14 @@
    }
  }
  
+--- llvm-3.5.0.src/tools/polly/autoconf/configure.ac.orig	2014-04-11 11:47:45.000000000 +0200
++++ llvm-3.5.0.src/tools/polly/autoconf/configure.ac	2014-10-06 16:37:55.052037462 +0200
+@@ -93,7 +93,7 @@
+ 
+ dnl Check that we have libpluto.
+ saved_CXXFLAGS=$CXXFLAGS
+-CXXFLAGS="$CXXFLAGS $gmp_inc $isl_inc"
++CXXFLAGS="$CXXFLAGS $gmp_inc $isl_inc -std=c++0x"
+ find_lib_and_headers([pluto], [pluto/libpluto.h], [pluto])
+ CXXFLAGS=$saved_CXXFLAGS
+ AS_IF([test "x$pluto_found" = "xyes"],
