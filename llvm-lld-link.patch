@@ -1,0 +1,10 @@
+--- llvm-3.5.0.src/tools/lld/unittests/CoreTests/Makefile.orig	2014-06-04 11:54:07.000000000 +0200
++++ llvm-3.5.0.src/tools/lld/unittests/CoreTests/Makefile	2014-10-09 21:31:24.823754108 +0200
+@@ -9,6 +9,6 @@
+ 
+ LLD_LEVEL = ../..
+ TESTNAME = CoreTest
+-USEDLIBS = gtest.a LLVMOption.a LLVMSupport.a
++LINK_COMPONENTS = support option
+ 
+ include $(LLD_LEVEL)/unittests/Makefile

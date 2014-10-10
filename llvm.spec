@@ -1,4 +1,3 @@
-# TODO: dragonegg, lld, openmp?
 #
 # Conditional build:
 %bcond_without	lldb	# LLDB debugger
@@ -34,12 +33,15 @@ Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
 # Source4-md5:	2ee0167c7ed7c85026cdb18ad6f4ade8
 Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
 # Source5-md5:	6e2830316638ec0de9534b98361dfbec
+Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
+# Source6-md5:	946404d534a51f1806d1ee955885d927
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
 Patch3:		%{name}-polly-update.patch
 Patch4:		%{name}-lldb.patch
+Patch5:		%{name}-lld-link.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -297,10 +299,38 @@ Extra tools for Clang.
 %description -n clang-tools-extra -l pl.UTF-8
 Dodatkowe narzędzia do kompilatora Clang.
 
+%package -n lld
+Summary:	The LLVM linker
+Summary(pl.UTF-8):	Konsolidator z projektu LLVM
+Group:		Development/Libraries
+URL:		http://lld.llvm.org/
+Requires:	%{name} = %{version}-%{release}
+
+%description -n lld
+lld is a new set of modular code for creating linker tools.
+
+%description -n lld -l pl.UTF-8
+lld to nowy zbiór modularnego kodu do tworzenia narzędzi
+konsolidujących.
+
+%package -n lld-devel
+Summary:	Development files for LLD linker tools
+Summary(pl.UTF-8):	Pliki programistyczne narzędzi konsolidujących LLD
+Group:		Development/Tools
+URL:		http://lld.llvm.org/
+Requires:	%{name}-devel = %{version}-%{release}
+
+%description -n lld-devel
+Development files for LLD linker tools.
+
+%description -n lld-devel -l pl.UTF-8
+Pliki programistyczne narzędzi konsolidujących LLD.
+
 %package -n lldb
 Summary:	Next generation high-performance debugger
 Summary(pl.UTF-8):	Wydajny debugger nowej generacji
 Group:		Development/Debuggers
+URL:		http://lldb.llvm.org/
 Requires:	%{name} = %{version}-%{release}
 
 %description -n lldb
@@ -316,18 +346,19 @@ w projekcie LLVM, takie jak analizator wyrażeń kompilatora Clang oraz
 disasembler LLVM.
 
 %package -n lldb-devel
-Summary:	Header files for LLDB
-Summary(pl.UTF-8):	Pliki nagłówkowe LLDB
+Summary:	Development files for LLDB debugger
+Summary(pl.UTF-8):	Pliki programistyczne debuggera LLDB
 Group:		Development/Libraries
+URL:		http://lldb.llvm.org/
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	clang-devel = %{version}-%{release}
 Requires:	lldb = %{version}-%{release}
 
 %description -n lldb-devel
-Header files for LLDB.
+Development files for LLDB debugger.
 
 %description -n lldb-devel -l pl.UTF-8
-Pliki nagłówkowe LLDB.
+Pliki programistyczne debuggera LLDB.
 
 %package ocaml
 Summary:	OCaml binding for LLVM
@@ -370,18 +401,20 @@ HTML documentation for LLVM's OCaml binding.
 Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
-%setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5
+%setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6
 mv cfe-%{version}.src tools/clang
 %{?with_rt:mv compiler-rt-%{version}.src projects/compiler-rt}
 %{?with_lldb:mv lldb-%{version}.src tools/lldb}
 %{?with_polly:mv polly-%{version}.src tools/polly}
 mv clang-tools-extra-%{version}.src tools/clang/tools/extra
+mv lld-%{version}.src tools/lld
 
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %{?with_polly:%patch3 -p1}
 %{?with_lldb:%patch4 -p1}
+%patch5 -p1
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -504,6 +537,7 @@ done
 %{__rm} -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
 # parts of test suite
 %{__rm} $RPM_BUILD_ROOT%{_bindir}/{FileCheck,count,not}
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/linker-script-test
 
 # remove documentation makefiles:
 # they require the build directory to work
@@ -681,6 +715,25 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/pp-trace
 %{_libdir}/libmodernizeCore.a
+
+%files -n lld
+%defattr(644,root,root,755)
+%doc tools/lld/{LICENSE.TXT,README.md}
+%attr(755,root,root) %{_bindir}/lld
+
+%files -n lld-devel
+%defattr(644,root,root,755)
+%{_libdir}/liblldCore.a
+%{_libdir}/liblldDriver.a
+%{_libdir}/liblldELF.a
+%{_libdir}/liblldMachO.a
+%{_libdir}/liblldNative.a
+%{_libdir}/liblldPECOFF.a
+%{_libdir}/liblldPasses.a
+%{_libdir}/liblldReaderWriter.a
+%{_libdir}/liblldYAML.a
+%{_libdir}/liblld*ELFTarget.a
+%{_includedir}/lld
 
 %if %{with lldb}
 %files -n lldb
