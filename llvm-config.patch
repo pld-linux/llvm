@@ -145,3 +145,14 @@
    llvm::Triple::ArchType Arch = T.getArch();
    switch (Arch) {
    case llvm::Triple::x86:
+--- llvm-3.5.0.src/tools/clang/runtime/compiler-rt/Makefile.orig	2014-05-22 23:13:30.000000000 +0200
++++ llvm-3.5.0.src/tools/clang/runtime/compiler-rt/Makefile	2014-10-18 22:10:17.008329250 +0200
+@@ -20,7 +20,7 @@
+ 	$(PROJ_OBJ_DIR)/$(CLANG_LEVEL)/include/clang/Basic/Version.inc))
+ 
+ ResourceDir := $(PROJ_OBJ_ROOT)/$(BuildMode)/lib/clang/$(CLANG_VERSION)
+-PROJ_resources := $(DESTDIR)$(PROJ_prefix)/lib/clang/$(CLANG_VERSION)
++PROJ_resources := $(DESTDIR)$(PROJ_libdir)/clang/$(CLANG_VERSION)
+ 
+ ResourceLibDir := $(ResourceDir)/lib
+ ResourceIncludeDir := $(ResourceDir)/include

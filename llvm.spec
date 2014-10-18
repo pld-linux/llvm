@@ -427,9 +427,14 @@ grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env perl,#!%{__perl},
 }'
 
-install -d obj
-
 %build
+install -d obj
+%if "%{_lib}" != "lib"
+# workaround for clang relative search paths building
+install -d obj/Release
+ln -snf lib obj/Release/%{_lib}
+%endif
+
 cd autoconf
 %{__aclocal} -I m4
 %{__autoconf} -o ../configure configure.ac
@@ -449,6 +454,7 @@ cd ../..
 #
 # bash specific 'test a < b'
 cd obj
+CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 bash ../%configure \
 	--datadir=%{_datadir}/%{name}-%{version} \
 	--disable-assertions \
