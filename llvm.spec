@@ -41,7 +41,8 @@ Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
 Patch3:		%{name}-polly-update.patch
 Patch4:		%{name}-lldb.patch
-Patch5:		%{name}-lld-link.patch
+Patch5:		%{name}-lldb-atomic.patch
+Patch6:		%{name}-lld-link.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -74,6 +75,9 @@ BuildRequires:	python
 BuildRequires:	tcl-devel
 %endif
 %if %{with lldb}
+%ifarch i386 i486
+BuildRequires:	libatomic-devel
+%endif
 BuildRequires:	libedit-devel
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-ext-devel
@@ -413,8 +417,13 @@ mv lld-%{version}.src tools/lld
 %patch1 -p1
 %patch2 -p1
 %{?with_polly:%patch3 -p1}
-%{?with_lldb:%patch4 -p1}
+%if %{with lldb}
+%patch4 -p1
+%ifarch i386 i486
 %patch5 -p1
+%endif
+%endif
+%patch6 -p1
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
