@@ -16,30 +16,28 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.5.1
-Release:	1
+Version:	3.6.0
+Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	2d3d8004f38852aa679e5945b8ce0b14
+# Source0-md5:	f1e14e949f8df3047c59816c55278cec
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	93f9532f8f7e6f1d8e5c1116907051cb
+# Source1-md5:	e3012065543dc6ab8a9842b09616b78d
 Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	d626cfb8a9712cb92b820798ab5bc1f8
+# Source2-md5:	cc36dbcafe43406083e98bc9e74f8054
 Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	cc5ea8a414c62c33e760517f8929a204
+# Source3-md5:	a1ea02b3126152f3dd9aeee8ebb5afa5
 Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	b02e005a54e0911ccd8b7f1ca039cb51
+# Source4-md5:	73d3d3b024da1e542ed5ecd8c936bd08
 Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	f13f31ed3038acadc6fa63fef812a246
+# Source5-md5:	85a170713a0b15a728b0cfd7b63c546c
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	173be02b7ff4e5e31fbb0a591a03d7a3
-Patch0:		%{name}-config.patch
+# Source6-md5:	482dc6f72f6e9ff80bc520987c5b4f7e
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
-Patch3:		%{name}-polly-update.patch
 Patch4:		%{name}-lldb.patch
 Patch5:		%{name}-lldb-atomic.patch
 Patch6:		%{name}-lld-link.patch
@@ -54,11 +52,18 @@ BuildRequires:	gcc >= 5:3.4
 %if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
 BuildRequires:	__cc >= 3.4
 %endif
+%ifarch x32
+BuildRequires:	glibc-devel(x86_64)
+%endif
 BuildRequires:	groff
 BuildRequires:	libltdl-devel
 BuildRequires:	libtool >= 2:1.5.22
 BuildRequires:	libstdc++-devel >= 5:3.4
+%if %{with ocaml}
 BuildRequires:	ocaml-ocamldoc
+BuildRequires:	ocaml-findlib
+BuildRequires:	ocaml-ounit
+%endif
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	rpm-pythonprov
@@ -87,7 +92,7 @@ BuildRequires:	python-devel >= 2
 BuildRequires:	cloog-isl-devel
 # >= 0.18.2-2
 BuildRequires:	gmp-devel
-BuildRequires:	isl-devel >= 0.13
+BuildRequires:	isl-devel >= 0.14
 # optional
 BuildRequires:	pluto-devel
 BuildRequires:	scoplib-devel >= 0.2.1-2
@@ -413,10 +418,8 @@ mv cfe-%{version}.src tools/clang
 mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 mv lld-%{version}.src tools/lld
 
-%patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%{?with_polly:%patch3 -p1}
 %if %{with lldb}
 %patch4 -p1
 %ifarch i386 i486
@@ -463,7 +466,14 @@ cd ../..
 #
 # bash specific 'test a < b'
 cd obj
-CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
+CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64 \
+%ifarch %{x8664}
+-DLLVM_LIBDIR_SUFFIX=64"
+%endif
+%ifarch x32
+-DLLVM_LIBDIR_SUFFIX=x32"
+%endif
+
 bash ../%configure \
 	--datadir=%{_datadir}/%{name}-%{version} \
 	--disable-assertions \
@@ -532,7 +542,9 @@ echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 rm -rf moredocs
 mv $RPM_BUILD_ROOT/moredocs .
 %{__rm} -v moredocs/*.tar.gz
+%if %{with ocaml}
 %{__rm} -v moredocs/ocamldoc/html/*.tar.gz
+%endif
 
 # and separate the apidoc
 %if %{with apidocs}
