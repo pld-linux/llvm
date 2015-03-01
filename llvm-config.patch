@@ -9,8 +9,8 @@
 +eval LLVM_INFODIR="${datadir}/info";
 +eval LLVM_MANDIR="${datadir}/man";
 +eval LLVM_LIBDIR="${libdir}";
-+eval LLVM_LIBDIR_SUFFIX="`echo ${libdir} | sed 's,.*/lib(.*)(/.*|$),\1,'`";
-+eval CLANG_LIBDIR_SUFFIX="`echo ${libdir} | sed 's,.*/lib(.*)(/.*|$),\1,'`";
++eval LLVM_LIBDIR_SUFFIX="`echo ${libdir} | sed 's,.*/lib\(.*\)\(/.*\|$\),\1,'`";
++eval CLANG_LIBDIR_SUFFIX="`echo ${libdir} | sed 's,.*/lib\(.*\)\(/.*\|$\),\1,'`";
  LLVM_CONFIGTIME=`date`
  AC_SUBST(LLVM_PREFIX)
  AC_SUBST(LLVM_BINDIR)
@@ -91,8 +91,8 @@
 -  SmallString<128> Res(TC.getDriver().ResourceDir);
 -  const llvm::Triple &Triple = TC.getTriple();
 -  // TC.getOS() yield "freebsd10.0" whereas "freebsd" is expected.
--  StringRef OSLibName = (Triple.getOS() == llvm::Triple::FreeBSD) ?
--    "freebsd" : TC.getOS();
+-  StringRef OSLibName =
+-      (Triple.getOS() == llvm::Triple::FreeBSD) ? "freebsd" : TC.getOS();
 -  llvm::sys::path::append(Res, "lib", OSLibName);
 +  SmallString<128> Res(LLVM_LIBDIR);
    return Res;

@@ -469,13 +469,7 @@ cd ../..
 #
 # bash specific 'test a < b'
 cd obj
-CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64 \
-%ifarch %{x8664}
--DLLVM_LIBDIR_SUFFIX=64"
-%endif
-%ifarch x32
--DLLVM_LIBDIR_SUFFIX=x32"
-%endif
+CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
 bash ../%configure \
 	--datadir=%{_datadir}/%{name}-%{version} \
