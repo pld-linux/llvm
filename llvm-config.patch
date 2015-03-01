@@ -1,3 +1,35 @@
+--- llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp.orig	2014-03-29 02:08:53.000000000 +0100
++++ llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp	2014-10-01 20:43:44.679547719 +0200
+@@ -247,17 +247,17 @@
+       ActivePrefix = ActiveObjRoot;
+       ActiveBinDir = ActiveObjRoot + "/" + build_mode + "/bin";
+       ActiveLibDir =
+-          ActiveObjRoot + "/" + build_mode + "/lib" + LLVM_LIBDIR_SUFFIX;
++          ActiveObjRoot + std::string("/") + build_mode + std::string("/lib" LLVM_LIBDIR_SUFFIX);
+       break;
+     case CMakeStyle:
+       ActiveBinDir = ActiveObjRoot + "/bin";
+-      ActiveLibDir = ActiveObjRoot + "/lib" + LLVM_LIBDIR_SUFFIX;
++      ActiveLibDir = ActiveObjRoot + std::string("/lib" LLVM_LIBDIR_SUFFIX);
+       break;
+     case CMakeBuildModeStyle:
+       ActivePrefix = ActiveObjRoot;
+       ActiveBinDir = ActiveObjRoot + "/bin/" + build_mode;
+       ActiveLibDir =
+-          ActiveObjRoot + "/lib" + LLVM_LIBDIR_SUFFIX + "/" + build_mode;
++          ActiveObjRoot + std::string("/lib" LLVM_LIBDIR_SUFFIX "/") + build_mode;
+       break;
+     }
+ 
+@@ -263,7 +263,7 @@
+     ActivePrefix = CurrentExecPrefix;
+     ActiveIncludeDir = ActivePrefix + "/include";
+     ActiveBinDir = ActivePrefix + "/bin";
+-    ActiveLibDir = ActivePrefix + "/lib" + LLVM_LIBDIR_SUFFIX;
++    ActiveLibDir = ActivePrefix + std::string("/lib" LLVM_LIBDIR_SUFFIX);
+     ActiveIncludeOption = "-I" + ActiveIncludeDir;
+   }
+ 
 --- llvm-3.4.1.src/autoconf/configure.ac.orig	2014-05-21 18:37:05.321379360 +0200
 +++ llvm-3.4.1.src/autoconf/configure.ac	2014-05-21 18:40:49.568041358 +0200
 @@ -1813,8 +1813,11 @@
@@ -37,6 +69,17 @@
  AC_DEFINE_UNQUOTED(LLVM_CONFIGTIME, "$LLVM_CONFIGTIME",
                     [Time at which LLVM was configured])
  AC_DEFINE_UNQUOTED(LLVM_HOST_TRIPLE, "$host",
+@@ -2029,10 +2029,6 @@
+   clang_src_root="$srcdir/tools/clang"
+ fi
+ if test -f ${clang_src_root}/README.txt; then
+-  dnl Clang supports build systems which use the multilib libdir suffix.
+-  dnl The autoconf system doesn't support this so stub out that variable.
+-  AC_DEFINE_UNQUOTED(CLANG_LIBDIR_SUFFIX,"",
+-                     [Multilib suffix for libdir.])
+ 
+   dnl Use variables to stay under 80 columns.
+   configh="include/clang/Config/config.h"
 --- llvm-3.5.0.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2014-08-27 22:07:31.000000000 +0200
 +++ llvm-3.5.0.src/tools/clang/lib/Driver/ToolChains.cpp	2014-10-01 20:56:40.312848502 +0200
 @@ -2999,19 +2999,6 @@
@@ -84,6 +127,23 @@
  bool Linux::HasNativeLLVMSupport() const {
 --- llvm-3.5.0.src/tools/clang/lib/Driver/Tools.cpp.orig	2014-08-07 06:51:51.000000000 +0200
 +++ llvm-3.5.0.src/tools/clang/lib/Driver/Tools.cpp	2014-10-01 21:04:32.002828710 +0200
+@@ -26,6 +26,7 @@
+ #include "llvm/ADT/StringExtras.h"
+ #include "llvm/ADT/StringSwitch.h"
+ #include "llvm/ADT/Twine.h"
++#include "llvm/Config/config.h"
+ #include "llvm/Option/Arg.h"
+ #include "llvm/Option/ArgList.h"
+ #include "llvm/Option/Option.h"
+@@ -1425,7 +1426,7 @@
+   // as gold requires -plugin to come before any -plugin-opt that -Wl might
+   // forward.
+   CmdArgs.push_back("-plugin");
+-  std::string Plugin = ToolChain.getDriver().Dir + "/../lib" CLANG_LIBDIR_SUFFIX "/LLVMgold.so";
++  std::string Plugin = ToolChain.getDriver().Dir + std::string("/../lib" CLANG_LIBDIR_SUFFIX "/LLVMgold.so");
+   CmdArgs.push_back(Args.MakeArgString(Plugin));
+ 
+   // Try to pass driver level flags relevant to LTO code generation down to
 @@ -2037,12 +2038,7 @@
  
  static SmallString<128> getCompilerRTLibDir(const ToolChain &TC) {
@@ -121,3 +181,62 @@
  
  ResourceLibDir := $(ResourceDir)/lib
  ResourceIncludeDir := $(ResourceDir)/include
+--- llvm-3.6.0.src/cmake/modules/Makefile~	2015-01-05 21:24:36.000000000 +0000
++++ llvm-3.6.0.src/cmake/modules/Makefile	2015-03-01 13:56:38.156631157 +0000
+@@ -73,7 +73,7 @@
+ 	  -e 's/@LLVM_ENABLE_PIC@/'"$(ENABLE_PIC)"'/' \
+ 	  -e 's/@LLVM_ON_UNIX@/'"$(LLVM_ON_UNIX)"'/' \
+ 	  -e 's/@LLVM_ON_WIN32@/'"$(LLVM_ON_WIN32)"'/' \
+-	  -e 's/@LLVM_LIBDIR_SUFFIX@//' \
++	  -e 's/@LLVM_LIBDIR_SUFFIX@/$(LLVM_LIBDIR_SUFFIX)/' \
+ 	  -e 's/@LLVM_CONFIG_INCLUDE_DIRS@/'"$(subst /,\/,$(PROJ_includedir))"'/' \
+ 	  -e 's/@LLVM_CONFIG_LIBRARY_DIRS@/'"$(subst /,\/,$(PROJ_libdir))"'/' \
+ 	  -e 's/@LLVM_CONFIG_CMAKE_DIR@/'"$(subst /,\/,$(PROJ_cmake))"'/' \
+--- llvm-3.6.0.src/tools/llvm-config/Makefile~	2014-12-29 11:16:25.000000000 +0000
++++ llvm-3.6.0.src/tools/llvm-config/Makefile	2015-03-01 13:57:58.293294997 +0000
+@@ -59,7 +59,7 @@
+ 	  >> temp.sed
+ 	$(Verb) $(ECHO) 's/@LLVM_BUILDMODE@/$(subst /,\/,$(BuildMode))/' \
+ 	  >> temp.sed
+-	$(Verb) $(ECHO) 's/@LLVM_LIBDIR_SUFFIX@//' \
++	$(Verb) $(ECHO) 's/@LLVM_LIBDIR_SUFFIX@/$(subst /,\/,$(LLVM_LIBDIR_SUFFIX))/' \
+ 	  >> temp.sed
+ 	$(Verb) $(ECHO) 's/@LLVM_SYSTEM_LIBS@/$(subst /,\/,$(LLVM_SYSTEM_LIBS))/' \
+ 	  >> temp.sed
+--- llvm-3.6.0.src/Makefile.config.in~	2015-03-01 13:59:58.000000000 +0000
++++ llvm-3.6.0.src/Makefile.config.in	2015-03-01 14:18:47.196584274 +0000
+@@ -123,6 +123,8 @@
+ ARCH=@ARCH@
+ TARGET_NATIVE_ARCH := $(ARCH)
+ LLVM_NATIVE_ARCH := @LLVM_NATIVE_ARCH@
++LLVM_LIBDIR_SUFFIX := @LLVM_LIBDIR_SUFFIX@
++CLANG_LIBDIR_SUFFIX := @LLVM_LIBDIR_SUFFIX@
+ 
+ # Indicates, whether we're cross-compiling LLVM or not
+ LLVM_CROSS_COMPILING=@LLVM_CROSS_COMPILING@
+--- llvm-3.6.0.src/include/llvm/Config/config.h.in~	2015-03-01 15:17:14.000000000 +0000
++++ llvm-3.6.0.src/include/llvm/Config/config.h.in	2015-03-01 15:54:08.119715796 +0000
+@@ -1,7 +1,7 @@
+ /* include/llvm/Config/config.h.in.  Generated from autoconf/configure.ac by autoheader.  */
+ 
+-#ifndef CONFIG_H
+-#define CONFIG_H
++#ifndef LLVM_CONFIG_H
++#define LLVM_CONFIG_H
+ 
+ /* Bug report URL. */
+ #undef BUG_REPORT_URL
+--- llvm-3.6.0.src/tools/clang/include/clang/Config/config.h.in~	2014-12-29 12:09:08.000000000 +0000
++++ llvm-3.6.0.src/tools/clang/include/clang/Config/config.h.in	2015-03-01 15:55:28.736379620 +0000
+@@ -1,9 +1,9 @@
+ /* This generated file is for internal use. Do not include it from headers. */
+ 
+-#ifdef CONFIG_H
++#ifdef CLANG_CONFIG_H
+ #error config.h can only be included once
+ #else
+-#define CONFIG_H
++#define CLANG_CONFIG_H
+ 
+ /* Bug report URL. */
+ #undef BUG_REPORT_URL
