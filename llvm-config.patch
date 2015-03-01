@@ -1,32 +1,6 @@
---- llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp.orig	2014-03-29 02:08:53.000000000 +0100
-+++ llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp	2014-10-01 20:43:44.679547719 +0200
-@@ -247,12 +247,12 @@
-       break;
-     case CMakeStyle:
-       ActiveBinDir = ActiveObjRoot + "/bin";
--      ActiveLibDir = ActiveObjRoot + "/lib";
-+      ActiveLibDir = LLVM_LIBDIR;
-       break;
-     case CMakeBuildModeStyle:
-       ActivePrefix = ActiveObjRoot;
-       ActiveBinDir = ActiveObjRoot + "/bin/" + build_mode;
--      ActiveLibDir = ActiveObjRoot + "/lib/" + build_mode;
-+      ActiveLibDir = std::string(LLVM_LIBDIR "/") + build_mode;
-       break;
-     }
- 
-@@ -263,7 +263,7 @@
-     ActivePrefix = CurrentExecPrefix;
-     ActiveIncludeDir = ActivePrefix + "/include";
-     ActiveBinDir = ActivePrefix + "/bin";
--    ActiveLibDir = ActivePrefix + "/lib";
-+    ActiveLibDir = LLVM_LIBDIR;
-     ActiveIncludeOption = "-I" + ActiveIncludeDir;
-   }
- 
 --- llvm-3.4.1.src/autoconf/configure.ac.orig	2014-05-21 18:37:05.321379360 +0200
 +++ llvm-3.4.1.src/autoconf/configure.ac	2014-05-21 18:40:49.568041358 +0200
-@@ -1813,8 +1813,9 @@
+@@ -1813,8 +1813,11 @@
  eval LLVM_DOCSDIR="${prefix}/share/doc/llvm";
  eval LLVM_ETCDIR="${prefix}/etc/llvm";
  eval LLVM_INCLUDEDIR="${prefix}/include";
@@ -35,22 +9,30 @@
 +eval LLVM_INFODIR="${datadir}/info";
 +eval LLVM_MANDIR="${datadir}/man";
 +eval LLVM_LIBDIR="${libdir}";
++eval LLVM_LIBDIR_SUFFIX="`echo ${libdir} | sed 's,.*/lib(.*)(/.*|$),\1,'`";
++eval CLANG_LIBDIR_SUFFIX="`echo ${libdir} | sed 's,.*/lib(.*)(/.*|$),\1,'`";
  LLVM_CONFIGTIME=`date`
  AC_SUBST(LLVM_PREFIX)
  AC_SUBST(LLVM_BINDIR)
-@@ -1824,6 +1825,7 @@
+@@ -1824,6 +1825,9 @@
  AC_SUBST(LLVM_INCLUDEDIR)
  AC_SUBST(LLVM_INFODIR)
  AC_SUBST(LLVM_MANDIR)
 +AC_SUBST(LLVM_LIBDIR)
++AC_SUBST(LLVM_LIBDIR_SUFFIX)
++AC_SUBST(CLANG_LIBDIR_SUFFIX)
  AC_SUBST(LLVM_CONFIGTIME)
  
  dnl Disable embedding timestamps in the build directory, with ENABLE_TIMESTAMPS.
-@@ -1851,6 +1851,8 @@
+@@ -1851,6 +1851,12 @@
                     [Installation directory for .info files])
  AC_DEFINE_UNQUOTED(LLVM_MANDIR, "$LLVM_MANDIR",
                     [Installation directory for man pages])
 +AC_DEFINE_UNQUOTED(LLVM_LIBDIR, "$LLVM_LIBDIR",
++                   [Installation directory for libraries])
++AC_DEFINE_UNQUOTED(LLVM_LIBDIR_SUFFIX, "$LLVM_LIBDIR_SUFFIX",
++                   [Installation directory for libraries])
++AC_DEFINE_UNQUOTED(CLANG_LIBDIR_SUFFIX, "$CLANG_LIBDIR_SUFFIX",
 +                   [Installation directory for libraries])
  AC_DEFINE_UNQUOTED(LLVM_CONFIGTIME, "$LLVM_CONFIGTIME",
                     [Time at which LLVM was configured])
@@ -102,23 +84,6 @@
  bool Linux::HasNativeLLVMSupport() const {
 --- llvm-3.5.0.src/tools/clang/lib/Driver/Tools.cpp.orig	2014-08-07 06:51:51.000000000 +0200
 +++ llvm-3.5.0.src/tools/clang/lib/Driver/Tools.cpp	2014-10-01 21:04:32.002828710 +0200
-@@ -26,6 +26,7 @@
- #include "llvm/ADT/StringExtras.h"
- #include "llvm/ADT/StringSwitch.h"
- #include "llvm/ADT/Twine.h"
-+#include "llvm/Config/config.h"
- #include "llvm/Option/Arg.h"
- #include "llvm/Option/ArgList.h"
- #include "llvm/Option/Option.h"
-@@ -1425,7 +1426,7 @@
-   // as gold requires -plugin to come before any -plugin-opt that -Wl might
-   // forward.
-   CmdArgs.push_back("-plugin");
--  std::string Plugin = ToolChain.getDriver().Dir + "/../lib/LLVMgold.so";
-+  std::string Plugin = LLVM_LIBDIR "/LLVMgold.so";
-   CmdArgs.push_back(Args.MakeArgString(Plugin));
- 
-   // Try to pass driver level flags relevant to LTO code generation down to
 @@ -2037,12 +2038,7 @@
  
  static SmallString<128> getCompilerRTLibDir(const ToolChain &TC) {

@@ -35,6 +35,7 @@ Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.ta
 # Source5-md5:	85a170713a0b15a728b0cfd7b63c546c
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
 # Source6-md5:	482dc6f72f6e9ff80bc520987c5b4f7e
+Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
@@ -419,6 +420,7 @@ mv cfe-%{version}.src tools/clang
 mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 mv lld-%{version}.src tools/lld
 
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %if %{with lldb}
