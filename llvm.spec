@@ -60,8 +60,9 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libtool >= 2:1.5.22
 BuildRequires:	libstdc++-devel >= 5:3.4
 %if %{with ocaml}
-BuildRequires:	ocaml-ocamldoc
+BuildRequires:	ocaml-ctypes
 BuildRequires:	ocaml-findlib
+BuildRequires:	ocaml-ocamldoc
 BuildRequires:	ocaml-ounit
 %endif
 BuildRequires:	perl-base >= 1:5.6
