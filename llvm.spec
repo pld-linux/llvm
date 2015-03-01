@@ -8,8 +8,8 @@
 %bcond_with	apidocs	# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests	# run tests
 
-%ifarch s390 s390x sparc64
-# No ocaml on these arches
+%ifarch s390 s390x sparc64 x32
+# No ocaml on these arches or no native ocaml (required for ocaml-ctypes)
 %undefine	with_ocaml
 %endif
 
