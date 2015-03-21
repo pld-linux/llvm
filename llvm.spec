@@ -8,8 +8,8 @@
 %bcond_with	apidocs	# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests	# run tests
 
-%ifarch s390 s390x sparc64 x32
-# No ocaml on these arches or no native ocaml (required for ocaml-ctypes)
+# No ocaml on other arches or no native ocaml (required for ocaml-ctypes)
+%ifnarch %{ix86} %{x8664} arm aarch64 ppc sparc sparcv9 
 %undefine	with_ocaml
 %endif
 
@@ -39,6 +39,7 @@ Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
+Patch3:		%{name}-use-ocamlfind-for-ocamldoc.patch
 Patch4:		%{name}-lldb.patch
 Patch5:		%{name}-lldb-atomic.patch
 Patch6:		%{name}-lld-link.patch
@@ -61,7 +62,7 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libtool >= 2:1.5.22
 BuildRequires:	libstdc++-devel >= 5:3.4
 %if %{with ocaml}
-BuildRequires:	ocaml-ctypes
+BuildRequires:	ocaml-ctypes-devel
 BuildRequires:	ocaml-findlib
 BuildRequires:	ocaml-ocamldoc
 BuildRequires:	ocaml-ounit
@@ -423,6 +424,7 @@ mv lld-%{version}.src tools/lld
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 %if %{with lldb}
 %patch4 -p1
 %ifarch i386 i486
@@ -511,6 +513,7 @@ cd ..
 rm -rf $RPM_BUILD_ROOT
 %{__make} -C obj -j1 install \
 	PROJ_docsdir=/moredocs \
+	VERBOSE=1 \
 	DESTDIR=$RPM_BUILD_ROOT
 
 # Static analyzer not installed by default:
@@ -525,6 +528,8 @@ done
 %py_comp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
 %py_ocomp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
 %py_postclean %{_libdir}/clang-analyzer/scan-view
+# not this OS
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-build/*.bat
 
 %if %{with doc}
 install -d $RPM_BUILD_ROOT%{_mandir}/man1
@@ -594,6 +599,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-cov
 %attr(755,root,root) %{_bindir}/llvm-diff
 %attr(755,root,root) %{_bindir}/llvm-dis
+%attr(755,root,root) %{_bindir}/llvm-dsymutil
 %attr(755,root,root) %{_bindir}/llvm-dwarfdump
 %attr(755,root,root) %{_bindir}/llvm-extract
 %attr(755,root,root) %{_bindir}/llvm-link
@@ -609,8 +615,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-stress
 %attr(755,root,root) %{_bindir}/llvm-symbolizer
 %attr(755,root,root) %{_bindir}/llvm-tblgen
+%attr(755,root,root) %{_bindir}/llvm-vtabledump
 %attr(755,root,root) %{_bindir}/macho-dump
+%attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
+%attr(755,root,root) %{_bindir}/verify-uselistorder
+%attr(755,root,root) %{_bindir}/yaml2obj
 %if %{with doc}
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/lit.1*
@@ -638,7 +648,7 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLLVM-3.5.so
+%attr(755,root,root) %{_libdir}/libLLVM-3.6.so
 
 %files devel
 %defattr(644,root,root,755)
@@ -736,6 +746,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
 %attr(755,root,root) %{_bindir}/clang-modernize
 %attr(755,root,root) %{_bindir}/clang-query
+%attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/pp-trace
 %{_libdir}/libmodernizeCore.a
@@ -747,6 +758,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n lld-devel
 %defattr(644,root,root,755)
+%{_libdir}/liblldConfig.a
 %{_libdir}/liblldCore.a
 %{_libdir}/liblldDriver.a
 %{_libdir}/liblldELF.a
@@ -787,7 +799,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files ocaml-devel
 %defattr(644,root,root,755)
-%{_libdir}/libllvm*.a
 %{_libdir}/ocaml/libLLVM*.a
 %{_libdir}/ocaml/libllvm*.a
 %{_libdir}/ocaml/llvm*.a
