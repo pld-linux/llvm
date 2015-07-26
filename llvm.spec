@@ -16,25 +16,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.6.0
+Version:	3.6.2
 Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	f1e14e949f8df3047c59816c55278cec
+# Source0-md5:	0c1ee3597d75280dee603bae9cbf5cc2
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	e3012065543dc6ab8a9842b09616b78d
+# Source1-md5:	ff862793682f714bb7862325b9c06e20
 Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	cc36dbcafe43406083e98bc9e74f8054
+# Source2-md5:	e3bc4eb7ba8c39a6fe90d6c988927f3c
 Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	a1ea02b3126152f3dd9aeee8ebb5afa5
+# Source3-md5:	51e5eb552f777b950bb0ff326e60d5f0
 Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	73d3d3b024da1e542ed5ecd8c936bd08
+# Source4-md5:	09dd91d06cc0832095379d00206bc3a1
 Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	85a170713a0b15a728b0cfd7b63c546c
+# Source5-md5:	3ebc1dc41659fcec3db1b47d81575e06
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	482dc6f72f6e9ff80bc520987c5b4f7e
+# Source6-md5:	7143cc4fa88851a9f9b9a03621fbb387
 Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
@@ -421,7 +421,7 @@ mv cfe-%{version}.src tools/clang
 mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 mv lld-%{version}.src tools/lld
 
-%patch0 -p1
+#%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -433,11 +433,11 @@ mv lld-%{version}.src tools/lld
 %endif
 %patch6 -p1
 
-# configure does not properly specify libdir
-%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
-# clang resources
-%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' tools/clang/lib/Headers/Makefile
-%{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
+## configure does not properly specify libdir
+#%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
+## clang resources
+#%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' tools/clang/lib/Headers/Makefile
+#%{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
