@@ -3,7 +3,7 @@
 %bcond_without	lldb	# LLDB debugger
 %bcond_without	polly	# Polly cache-locality optimization, auto-parallelism and vectorization
 %bcond_without	rt	# compiler-rt libraries
-%bcond_without	ocaml	# OCaml binding
+%bcond_with	ocaml	# OCaml binding
 %bcond_without	doc	# HTML docs and man pages
 %bcond_with	apidocs	# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests	# run tests
