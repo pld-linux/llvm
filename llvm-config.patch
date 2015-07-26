@@ -1,35 +1,3 @@
---- llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp.orig	2014-03-29 02:08:53.000000000 +0100
-+++ llvm-3.5.0.src/tools/llvm-config/llvm-config.cpp	2014-10-01 20:43:44.679547719 +0200
-@@ -247,17 +247,17 @@
-       ActivePrefix = ActiveObjRoot;
-       ActiveBinDir = ActiveObjRoot + "/" + build_mode + "/bin";
-       ActiveLibDir =
--          ActiveObjRoot + "/" + build_mode + "/lib" + LLVM_LIBDIR_SUFFIX;
-+          ActiveObjRoot + std::string("/") + build_mode + std::string("/lib" LLVM_LIBDIR_SUFFIX);
-       break;
-     case CMakeStyle:
-       ActiveBinDir = ActiveObjRoot + "/bin";
--      ActiveLibDir = ActiveObjRoot + "/lib" + LLVM_LIBDIR_SUFFIX;
-+      ActiveLibDir = ActiveObjRoot + std::string("/lib" LLVM_LIBDIR_SUFFIX);
-       break;
-     case CMakeBuildModeStyle:
-       ActivePrefix = ActiveObjRoot;
-       ActiveBinDir = ActiveObjRoot + "/bin/" + build_mode;
-       ActiveLibDir =
--          ActiveObjRoot + "/lib" + LLVM_LIBDIR_SUFFIX + "/" + build_mode;
-+          ActiveObjRoot + std::string("/lib" LLVM_LIBDIR_SUFFIX "/") + build_mode;
-       break;
-     }
- 
-@@ -263,7 +263,7 @@
-     ActivePrefix = CurrentExecPrefix;
-     ActiveIncludeDir = ActivePrefix + "/include";
-     ActiveBinDir = ActivePrefix + "/bin";
--    ActiveLibDir = ActivePrefix + "/lib" + LLVM_LIBDIR_SUFFIX;
-+    ActiveLibDir = ActivePrefix + std::string("/lib" LLVM_LIBDIR_SUFFIX);
-     ActiveIncludeOption = "-I" + ActiveIncludeDir;
-   }
- 
 --- llvm-3.4.1.src/autoconf/configure.ac.orig	2014-05-21 18:37:05.321379360 +0200
 +++ llvm-3.4.1.src/autoconf/configure.ac	2014-05-21 18:40:49.568041358 +0200
 @@ -1813,8 +1813,11 @@
@@ -135,15 +103,6 @@
  #include "llvm/Option/Arg.h"
  #include "llvm/Option/ArgList.h"
  #include "llvm/Option/Option.h"
-@@ -1425,7 +1426,7 @@
-   // as gold requires -plugin to come before any -plugin-opt that -Wl might
-   // forward.
-   CmdArgs.push_back("-plugin");
--  std::string Plugin = ToolChain.getDriver().Dir + "/../lib" CLANG_LIBDIR_SUFFIX "/LLVMgold.so";
-+  std::string Plugin = ToolChain.getDriver().Dir + std::string("/../lib" CLANG_LIBDIR_SUFFIX "/LLVMgold.so");
-   CmdArgs.push_back(Args.MakeArgString(Plugin));
- 
-   // Try to pass driver level flags relevant to LTO code generation down to
 @@ -2037,12 +2038,7 @@
  
  static SmallString<128> getCompilerRTLibDir(const ToolChain &TC) {
