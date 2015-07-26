@@ -17,7 +17,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.6.2
-Release:	0.1
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -43,6 +43,7 @@ Patch3:		%{name}-use-ocamlfind-for-ocamldoc.patch
 Patch4:		%{name}-lldb.patch
 Patch5:		%{name}-lldb-atomic.patch
 Patch6:		%{name}-lld-link.patch
+Patch7:		x32-gcc-toolchain.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -432,6 +433,7 @@ mv lld-%{version}.src tools/lld
 %endif
 %endif
 %patch6 -p1
+%patch7 -p1
 
 # configure does not properly specify libdir
 %{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in

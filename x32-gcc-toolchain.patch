@@ -1,0 +1,38 @@
+--- llvm-3.6.2.src/tools/clang/lib/Driver/ToolChains.cpp~	2015-07-26 12:48:18.000000000 +0200
++++ llvm-3.6.2.src/tools/clang/lib/Driver/ToolChains.cpp	2015-07-26 17:44:56.883613971 +0200
+@@ -1312,6 +1312,10 @@
+     "x86_64-linux-android", "x86_64-unknown-linux"
+   };
+   static const char *const X32LibDirs[] = { "/libx32" };
++  static const char *const X32Triples[] = {
++    "x86_64-pld-linux-gnux32", "amd64-pld-linux-gnux32",
++    "x86_64-linux-gnux32", "x86_64-unknown-linux-gnux32", "x86_64-pc-linux-gnux32"
++  };
+   static const char *const X86LibDirs[] = { "/lib32", "/lib" };
+   static const char *const X86Triples[] = {
+     "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
+@@ -1407,15 +1407,19 @@
+     }
+     break;
+   case llvm::Triple::x86_64:
+-    LibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
+-    TripleAliases.append(begin(X86_64Triples), end(X86_64Triples));
+-    // x32 is always available when x86_64 is available, so adding it as
+-    // secondary arch with x86_64 triples
+     if (TargetTriple.getEnvironment() == llvm::Triple::GNUX32) {
+-      BiarchLibDirs.append(begin(X32LibDirs), end(X32LibDirs));
++      LibDirs.append(begin(X32LibDirs), end(X32LibDirs));
++      TripleAliases.append(begin(X32Triples), end(X32Triples));
++      BiarchLibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
++      BiarchLibDirs.append(begin(X86LibDirs), end(X86LibDirs));
+       BiarchTripleAliases.append(begin(X86_64Triples), end(X86_64Triples));
++      BiarchTripleAliases.append(begin(X86Triples), end(X86Triples));
+     } else {
++      LibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
++      TripleAliases.append(begin(X86_64Triples), end(X86_64Triples));
++      BiarchLibDirs.append(begin(X32LibDirs), end(X32LibDirs));
+       BiarchLibDirs.append(begin(X86LibDirs), end(X86LibDirs));
++      BiarchTripleAliases.append(begin(X32Triples), end(X32Triples));
+       BiarchTripleAliases.append(begin(X86Triples), end(X86Triples));
+     }
+     break;
