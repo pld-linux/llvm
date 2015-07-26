@@ -433,11 +433,13 @@ mv lld-%{version}.src tools/lld
 %endif
 %patch6 -p1
 
-## configure does not properly specify libdir
-#%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
-## clang resources
-#%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' tools/clang/lib/Headers/Makefile
-#%{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
+# configure does not properly specify libdir
+%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
+# clang resources
+%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' \
+	tools/clang/lib/Headers/Makefile \
+	tools/clang/runtime/compiler-rt/Makefile
+%{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
@@ -654,7 +656,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
 %{_libdir}/libLLVM*.a
-%ifarch %{x8664}
+%ifarch %{x8664} x32
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
 %attr(755,root,root) %{_libdir}/libLTO.so
 %{_libdir}/libLTO.a
