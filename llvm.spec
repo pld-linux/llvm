@@ -17,7 +17,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.6.2
-Release:	1.1
+Release:	2
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -35,7 +35,6 @@ Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.ta
 # Source5-md5:	3ebc1dc41659fcec3db1b47d81575e06
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
 # Source6-md5:	7143cc4fa88851a9f9b9a03621fbb387
-Patch0:		%{name}-config.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
@@ -422,7 +421,6 @@ mv cfe-%{version}.src tools/clang
 mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 mv lld-%{version}.src tools/lld
 
-%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -442,6 +440,13 @@ mv lld-%{version}.src tools/lld
 	tools/clang/lib/Headers/Makefile \
 	tools/clang/runtime/compiler-rt/Makefile
 %{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
+
+%ifarch x32
+%{__sed} -i 's|@LLVM_LIBDIR_SUFFIX@|x32|' tools/llvm-config/BuildVariables.inc.in
+%endif
+%ifarch %{x8664}
+%{__sed} -i 's|@LLVM_LIBDIR_SUFFIX@|64|' tools/llvm-config/BuildVariables.inc.in
+%endif
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
