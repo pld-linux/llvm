@@ -17,7 +17,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.6.2
-Release:	2
+Release:	3
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -113,6 +113,11 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
 %define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
+
+# clang doesn't know it, and leaving it here would pollute llvm-config
+%define		filterout_c	-fvar-tracking-assignments
+%define		filterout_cxx	-fvar-tracking-assignments
+%define		filterout_ccpp	-fvar-tracking-assignments
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
