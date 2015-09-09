@@ -16,32 +16,32 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.6.2
-Release:	3
+Version:	3.7.0
+Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	0c1ee3597d75280dee603bae9cbf5cc2
+# Source0-md5:	b98b9495e5655a672d6cb83e1a180f8e
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	ff862793682f714bb7862325b9c06e20
+# Source1-md5:	8f9d27335e7331cf0a4711e952f21f01
 Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	e3bc4eb7ba8c39a6fe90d6c988927f3c
+# Source2-md5:	383c10affd513026f08936b5525523f5
 Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	51e5eb552f777b950bb0ff326e60d5f0
+# Source3-md5:	e5931740400d1dc3e7db4c7ba2ceff68
 Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	09dd91d06cc0832095379d00206bc3a1
+# Source4-md5:	32f93ffc9cc7e042df22089761558f8b
 Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	3ebc1dc41659fcec3db1b47d81575e06
+# Source5-md5:	d5a87dacb65d981a427a536f6964642e
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	7143cc4fa88851a9f9b9a03621fbb387
+# Source6-md5:	91bd593a67293d84dad0bf11845546c2
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
-Patch3:		%{name}-use-ocamlfind-for-ocamldoc.patch
+Patch3:		build-lld.patch
 Patch4:		%{name}-lldb.patch
 Patch5:		%{name}-lldb-atomic.patch
-Patch6:		%{name}-lld-link.patch
+Patch6:		libdir.patch
 Patch7:		x32-gcc-toolchain.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
@@ -439,11 +439,11 @@ mv lld-%{version}.src tools/lld
 %patch7 -p1
 
 # configure does not properly specify libdir
-%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
+#%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
 # clang resources
-%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' \
-	tools/clang/lib/Headers/Makefile \
-	tools/clang/runtime/compiler-rt/Makefile
+#%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' \
+#	tools/clang/lib/Headers/Makefile \
+#	tools/clang/runtime/compiler-rt/Makefile
 %{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
 
 %ifarch x32
@@ -459,52 +459,59 @@ grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 }'
 
 %build
-install -d obj
-%if "%{_lib}" != "lib"
-# workaround for clang relative search paths building
-install -d obj/Release
-ln -snf lib obj/Release/%{_lib}
-%endif
+install -d build
+#%if "%{_lib}" != "lib"
+## workaround for clang relative search paths building
+#install -d build/Release
+#ln -snf lib build/Release/%{_lib}
+#%endif
 
-cd autoconf
-%{__aclocal} -I m4
-%{__autoconf} -o ../configure configure.ac
-cd ..
-%{__autoheader} -I autoconf -I autoconf/m4 autoconf/configure.ac
-%if %{with polly}
-cd tools/polly/autoconf
-%{__aclocal} -I m4 -I ../../../autoconf/m4
-%{__autoconf} -o ../configure configure.ac
-cd ..
-%{__autoheader} -I autoconf -I autoconf/m4 -I ../../../autoconf/m4 autoconf/configure.ac
-cd ../..
-%endif
+#cd autoconf
+#%{__aclocal} -I m4
+#%{__autoconf} -o ../configure configure.ac
+#cd ..
+#%{__autoheader} -I autoconf -I autoconf/m4 autoconf/configure.ac
+#%if %{with polly}
+#cd tools/polly/autoconf
+#%{__aclocal} -I m4 -I ../../../autoconf/m4
+#%{__autoconf} -o ../configure configure.ac
+#cd ..
+#%{__autoheader} -I autoconf -I autoconf/m4 -I ../../../autoconf/m4 autoconf/configure.ac
+#cd ../..
+#%endif
 
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
 #
 # bash specific 'test a < b'
-cd obj
+cd build
 CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
-bash ../%configure \
-	--datadir=%{_datadir}/%{name}-%{version} \
-	--disable-assertions \
-	--enable-cxx11 \
+%{cmake} ../ \
+%ifarch %{x8664}
+	-DLLVM_LIBDIR_SUFFIX:STRING=64 \
+%endif
+%ifarch x32
+	-DLLVM_LIBDIR_SUFFIX:STRING=x32 \
+%endif
 %ifarch %{ix86}
-	--disable-pic \
+	-DLLVM_ENABLE_PIC:BOOL=OFF \
 %endif
-	--disable-static \
-	--enable-bindings=%{?with_ocaml:ocaml}%{!?with_ocaml:none} \
-	--enable-debug-runtime \
 %if %{with apidocs}
-	--enable-doxygen \
+	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
 %endif
-	--enable-experimental-targets=R600 \
-	--enable-jit \
-	--enable-optimized \
-	--enable-shared \
-	--with-pic
+%if %{with doc}
+	-DLLVM_ENABLE_SPHINX:BOOL=ON \
+%endif
+	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
+	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
+	-DLLVM_BINDINGS_LIST:LIST="go%{?with_ocaml:;ocaml};python" \
+	-DBUILD_SHARED_LIBS:BOOL=ON
+
+#bash ../%%configure \
+#	--datadir=%{_datadir}/%{name}-%{version} \
+#	--enable-jit \
+#	--enable-optimized
 
 %{__make} \
 	VERBOSE=1 \
@@ -516,16 +523,20 @@ bash ../%configure \
 %{__make} -C tools/clang test 2>&1 | tee clang-testlog.txt
 %endif
 
-cd ..
-
 %if %{with doc}
-%{__make} -C docs -f Makefile.sphinx man
-%{__make} -C tools/clang/tools/extra/docs html
+%{__make} -C docs docs-llvm-html
+%{__make} -C docs docs-llvm-man
+%{__make} -C docs ocaml_doc
+%{__make} -C tools/clang/docs docs-clang-html
+%{__make} -C tools/clang/docs docs-clang-man
+%{__make} -C tools/lld/docs docs-lld-html
+%{__make} -C tools/lldb/docs lldb-python-doc
+%{__make} -C tools/lldb/docs lldb-cpp-doc
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%{__make} -C obj -j1 install \
+%{__make} -C build install \
 	PROJ_docsdir=/moredocs \
 	VERBOSE=1 \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -538,6 +549,7 @@ for f in scan-{build,view}; do
 	ln -s %{_libdir}/clang-analyzer/$f/$f $RPM_BUILD_ROOT%{_bindir}/$f
 	cp -pr tools/clang/tools/$f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer
 done
+install -d $RPM_BUILD_ROOT%{_mandir}/man1
 %{__mv} $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-build/scan-build.1 $RPM_BUILD_ROOT%{_mandir}/man1
 %py_comp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
 %py_ocomp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
@@ -546,7 +558,6 @@ done
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-build/*.bat
 
 %if %{with doc}
-install -d $RPM_BUILD_ROOT%{_mandir}/man1
 cp -p docs/_build/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 # these tools are not installed
 %{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build}.1
@@ -580,7 +591,6 @@ done
 %{__rm} -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
 # parts of test suite
 %{__rm} $RPM_BUILD_ROOT%{_bindir}/{FileCheck,count,not}
-%{__rm} $RPM_BUILD_ROOT%{_bindir}/linker-script-test
 
 # remove documentation makefiles:
 # they require the build directory to work
@@ -629,7 +639,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-stress
 %attr(755,root,root) %{_bindir}/llvm-symbolizer
 %attr(755,root,root) %{_bindir}/llvm-tblgen
-%attr(755,root,root) %{_bindir}/llvm-vtabledump
+%attr(755,root,root) %{_bindir}/llvm-cxxdump
+%attr(755,root,root) %{_bindir}/llvm-pdbdump
 %attr(755,root,root) %{_bindir}/macho-dump
 %attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
@@ -662,7 +673,7 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLLVM-3.6.so
+%attr(755,root,root) %{_libdir}/libLLVM-3.7.so
 
 %files devel
 %defattr(644,root,root,755)
@@ -718,7 +729,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with rt}
 %{_libdir}/clang/%{version}/lib
 %endif
-%{_mandir}/man1/clang.1*
+#%{_mandir}/man1/clang.1*
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
@@ -746,7 +757,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-doc
 %defattr(644,root,root,755)
-%doc tools/clang/docs/*.{css,html,png,txt}
+%doc tools/clang/docs/*.{html,png,txt}
 
 %if %{with apidocs}
 %files -n clang-apidocs
@@ -789,11 +800,11 @@ rm -rf $RPM_BUILD_ROOT
 %files -n lldb
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/lldb
-%attr(755,root,root) %{_bindir}/lldb-gdbserver
+%attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-mi
-%attr(755,root,root) %{_bindir}/lldb-platform
 %attr(755,root,root) %{_libdir}/liblldb.so
 %dir %{py_sitedir}/lldb
+%attr(755,root,root) %{py_sitedir}/lldb/argdumper
 %attr(755,root,root) %{py_sitedir}/lldb/_lldb.so
 %attr(755,root,root) %{py_sitedir}/readline.so
 

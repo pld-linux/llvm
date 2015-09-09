@@ -2,45 +2,45 @@
 +++ llvm-3.5.0.src/tools/clang/lib/Driver/ToolChains.cpp	2014-10-01 21:29:07.449433463 +0200
 @@ -1333,6 +1333,7 @@
  
-   static const char *const X86_64LibDirs[] = { "/lib64", "/lib" };
+   static const char *const X86_64LibDirs[] = {"/lib64", "/lib"};
    static const char *const X86_64Triples[] = {
-+    "x86_64-pld-linux", "amd64-pld-linux",
-     "x86_64-linux-gnu", "x86_64-unknown-linux-gnu", "x86_64-pc-linux-gnu",
-     "x86_64-redhat-linux6E", "x86_64-redhat-linux", "x86_64-suse-linux",
-     "x86_64-manbo-linux-gnu", "x86_64-linux-gnu", "x86_64-slackware-linux",
++      "x86_64-pld-linux", "amd64-pld-linux",
+       "x86_64-linux-gnu",       "x86_64-unknown-linux-gnu",
+       "x86_64-pc-linux-gnu",    "x86_64-redhat-linux6E",
+       "x86_64-redhat-linux",    "x86_64-suse-linux",
 @@ -1341,6 +1342,7 @@
-   static const char *const X32LibDirs[] = { "/libx32" };
-   static const char *const X86LibDirs[] = { "/lib32", "/lib" };
+   static const char *const X32LibDirs[] = {"/libx32"};
+   static const char *const X86LibDirs[] = {"/lib32", "/lib"};
    static const char *const X86Triples[] = {
-+    "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
-     "i686-linux-gnu", "i686-pc-linux-gnu", "i486-linux-gnu", "i386-linux-gnu",
-     "i386-redhat-linux6E", "i686-redhat-linux", "i586-redhat-linux",
-     "i386-redhat-linux", "i586-suse-linux", "i486-slackware-linux",
++      "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
+       "i686-linux-gnu",       "i686-pc-linux-gnu",     "i486-linux-gnu",
+       "i386-linux-gnu",       "i386-redhat-linux6E",   "i686-redhat-linux",
+       "i586-redhat-linux",    "i386-redhat-linux",     "i586-suse-linux",
 @@ -1370,6 +1372,7 @@
  
-   static const char *const PPCLibDirs[] = { "/lib32", "/lib" };
+   static const char *const PPCLibDirs[] = {"/lib32", "/lib"};
    static const char *const PPCTriples[] = {
-+    "powerpc-pld-linux",
-     "powerpc-linux-gnu", "powerpc-unknown-linux-gnu", "powerpc-linux-gnuspe",
-     "powerpc-suse-linux", "powerpc-montavista-linuxspe"
-   };
++      "powerpc-pld-linux",
+       "powerpc-linux-gnu", "powerpc-unknown-linux-gnu", "powerpc-linux-gnuspe",
+       "powerpc-suse-linux", "powerpc-montavista-linuxspe"};
+   static const char *const PPC64LibDirs[] = {"/lib64", "/lib"};
 @@ -1385,14 +1388,14 @@
                                                  "ppc64le-redhat-linux" };
  
-   static const char *const SPARCv8LibDirs[] = { "/lib32", "/lib" };
--  static const char *const SPARCv8Triples[] = { "sparc-linux-gnu",
-+  static const char *const SPARCv8Triples[] = { "sparc-pld-linux", "sparc-linux-gnu",
-                                                 "sparcv8-linux-gnu" };
-   static const char *const SPARCv9LibDirs[] = { "/lib64", "/lib" };
--  static const char *const SPARCv9Triples[] = { "sparc64-linux-gnu",
-+  static const char *const SPARCv9Triples[] = { "sparc64-pld-linux", "sparc64-linux-gnu",
-                                                 "sparcv9-linux-gnu" };
+   static const char *const SPARCv8LibDirs[] = {"/lib32", "/lib"};
+-  static const char *const SPARCv8Triples[] = {"sparc-linux-gnu",
++  static const char *const SPARCv8Triples[] = {"sparc-pld-linux", "sparc-linux-gnu",
+                                                "sparcv8-linux-gnu"};
+   static const char *const SPARCv9LibDirs[] = {"/lib64", "/lib"};
+-  static const char *const SPARCv9Triples[] = {"sparc64-linux-gnu",
++  static const char *const SPARCv9Triples[] = {"sparc64-pld-linux", "sparc64-linux-gnu",
+                                                "sparcv9-linux-gnu"};
  
-   static const char *const SystemZLibDirs[] = { "/lib64", "/lib" };
+   static const char *const SystemZLibDirs[] = {"/lib64", "/lib"};
 -  static const char *const SystemZTriples[] = {
-+  static const char *const SystemZTriples[] = { "s390x-pld-linux",
-     "s390x-linux-gnu", "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu",
-     "s390x-suse-linux", "s390x-redhat-linux"
++  static const char *const SystemZTriples[] = {"s390x-pld-linux",
+       "s390x-linux-gnu", "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu",
+       "s390x-suse-linux", "s390x-redhat-linux"
    };
 @@ -2778,6 +2781,7 @@
  
@@ -89,7 +89,7 @@
          (IsUbuntu(Distro) && Distro >= UbuntuMaverick))
        ExtraOpts.push_back("--hash-style=gnu");
  
-@@ -3058,11 +3069,11 @@
+@@ -3058,10 +3069,10 @@
        ExtraOpts.push_back("--hash-style=both");
    }
  
@@ -97,9 +97,8 @@
 +  if (IsRedhat(Distro) || IsPLD(Distro))
      ExtraOpts.push_back("--no-add-needed");
  
-   if (Distro == DebianSqueeze || Distro == DebianWheezy ||
--      Distro == DebianJessie || IsOpenSUSE(Distro) ||
-+      Distro == DebianJessie || IsOpenSUSE(Distro) || IsPLD(Distro) ||
+-  if ((IsDebian(Distro) && Distro >= DebianSqueeze) || IsOpenSUSE(Distro) ||
++  if ((IsDebian(Distro) && Distro >= DebianSqueeze) || IsOpenSUSE(Distro) || IsPLD(Distro) ||
        (IsRedhat(Distro) && Distro != RHEL4 && Distro != RHEL5) ||
        (IsUbuntu(Distro) && Distro >= UbuntuKarmic))
      ExtraOpts.push_back("--build-id");

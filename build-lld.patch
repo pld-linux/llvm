@@ -1,0 +1,13 @@
+--- llvm-3.7.0.src/tools/Makefile.old	2014-12-12 18:31:24.000000000 +0100
++++ llvm-3.7.0.src/tools/Makefile	2015-06-08 06:04:13.000000000 +0200
+@@ -19,8 +19,9 @@
+   OPTIONAL_PARALLEL_DIRS := clang
+ endif
+ 
+-# Build LLDB if present. Note LLDB must be built last as it depends on
++# Build LLD and LLDB if present. Note LLDB must be built last as it depends on
+ # the wider LLVM infrastructure (including Clang).
++OPTIONAL_PARALLEL_DIRS += lld
+ OPTIONAL_DIRS := lldb
+ 
+ # NOTE: The tools are organized into five groups of four consisting of one

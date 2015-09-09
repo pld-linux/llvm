@@ -1,16 +1,15 @@
 --- llvm-3.6.2.src/tools/clang/lib/Driver/ToolChains.cpp~	2015-07-26 12:48:18.000000000 +0200
 +++ llvm-3.6.2.src/tools/clang/lib/Driver/ToolChains.cpp	2015-07-26 17:44:56.883613971 +0200
-@@ -1312,6 +1312,10 @@
-     "x86_64-linux-android", "x86_64-unknown-linux"
-   };
-   static const char *const X32LibDirs[] = { "/libx32" };
+@@ -1312,6 +1312,9 @@
+       "x86_64-slackware-linux", "x86_64-linux-android",
+       "x86_64-unknown-linux"};
+   static const char *const X32LibDirs[] = {"/libx32"};
 +  static const char *const X32Triples[] = {
-+    "x86_64-pld-linux-gnux32", "amd64-pld-linux-gnux32",
-+    "x86_64-linux-gnux32", "x86_64-unknown-linux-gnux32", "x86_64-pc-linux-gnux32"
-+  };
-   static const char *const X86LibDirs[] = { "/lib32", "/lib" };
++      "x86_64-pld-linux-gnux32", "amd64-pld-linux-gnux32",
++      "x86_64-linux-gnux32", "x86_64-unknown-linux-gnux32", "x86_64-pc-linux-gnux32"};
+   static const char *const X86LibDirs[] = {"/lib32", "/lib"};
    static const char *const X86Triples[] = {
-     "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
+       "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
 @@ -1407,15 +1407,19 @@
      }
      break;
