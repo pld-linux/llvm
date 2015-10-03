@@ -41,6 +41,7 @@ Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.ta
 # Source5-md5:	d5a87dacb65d981a427a536f6964642e
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
 # Source6-md5:	91bd593a67293d84dad0bf11845546c2
+Patch0:		%{name}-lld-link.patch
 # Data files should be installed with timestamps preserved
 Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
@@ -435,6 +436,7 @@ mv cfe-%{version}.src tools/clang
 mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 mv lld-%{version}.src tools/lld
 
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -454,13 +456,6 @@ mv lld-%{version}.src tools/lld
 #	tools/clang/lib/Headers/Makefile \
 #	tools/clang/runtime/compiler-rt/Makefile
 %{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
-
-%ifarch x32
-%{__sed} -i 's|@LLVM_LIBDIR_SUFFIX@|x32|' tools/llvm-config/BuildVariables.inc.in
-%endif
-%ifarch %{x8664}
-%{__sed} -i 's|@LLVM_LIBDIR_SUFFIX@|64|' tools/llvm-config/BuildVariables.inc.in
-%endif
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
@@ -491,8 +486,6 @@ install -d build
 
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
-#
-# bash specific 'test a < b'
 cd build
 CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
@@ -639,6 +632,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-extract
 %attr(755,root,root) %{_bindir}/llvm-lib
 %attr(755,root,root) %{_bindir}/llvm-link
+%ifarch %{x8664} x32
+%attr(755,root,root) %{_bindir}/llvm-lto
+%endif
 %attr(755,root,root) %{_bindir}/llvm-mc
 %attr(755,root,root) %{_bindir}/llvm-mcmarkup
 %attr(755,root,root) %{_bindir}/llvm-nm
@@ -686,6 +682,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libLLVM*.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/libLLVM*.so.3.7
+%ifarch %{x8664} x32
+%attr(755,root,root) %{_libdir}/libLTO.so.%{version}
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.3.7
+%endif
 
 %files devel
 %defattr(644,root,root,755)
@@ -694,7 +694,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
 %ifarch %{x8664} x32
 %attr(755,root,root) %{_libdir}/libLTO.so
-%{_libdir}/libLTO.a
 %endif
 %{_includedir}/llvm
 %{_includedir}/llvm-c
@@ -743,8 +742,13 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with rt}
 %{_libdir}/clang/%{version}/lib
 %{_libdir}/clang/%{version}/asan_blacklist.txt
+%ifarch %{x8664} x32
+%{_libdir}/clang/%{version}/dfsan_abilist.txt
+%{_libdir}/clang/%{version}/msan_blacklist.txt
 %endif
-#%{_mandir}/man1/clang.1*
+%endif
+%dir %{_datadir}/clang
+%{_datadir}/clang/clang-format-diff.py
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
@@ -767,7 +771,9 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libclang*.so
+%ifarch %{ix86} # ???
 %{_libdir}/libclang.a
+%endif
 %{_includedir}/clang
 %{_includedir}/clang-c
 
