@@ -69,7 +69,7 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libtool >= 2:1.5.22
 BuildRequires:	libstdc++-devel >= 5:3.4
 %if %{with ocaml}
-BuildRequires:	ocaml-ctypes-devel
+BuildRequires:	ocaml-ctypes-devel >= 0.4
 BuildRequires:	ocaml-findlib
 BuildRequires:	ocaml-ocamldoc
 BuildRequires:	ocaml-ounit
@@ -90,6 +90,7 @@ BuildRequires:	python
 BuildRequires:	tcl-devel
 %endif
 %if %{with lldb}
+BuildRequires:	epydoc
 %ifarch i386 i486
 BuildRequires:	libatomic-devel
 %endif
@@ -97,6 +98,7 @@ BuildRequires:	libedit-devel
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python-devel >= 2
+BuildRequires:	swig-python
 %endif
 %if %{with polly}
 BuildRequires:	cloog-isl-devel
@@ -528,7 +530,9 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %if %{with doc}
 %{__make} -C docs docs-llvm-html
 %{__make} -C docs docs-llvm-man
+%if %{with ocaml}
 %{__make} -C docs ocaml_doc
+%endif
 %{__make} -C tools/clang/docs docs-clang-html
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
@@ -740,9 +744,11 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang/%{version}
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
+%ifarch %{ix86} %{x8664}
 %{_libdir}/clang/%{version}/lib
 %{_libdir}/clang/%{version}/asan_blacklist.txt
-%ifarch %{x8664} x32
+%endif
+%ifarch %{x8664}
 %{_libdir}/clang/%{version}/dfsan_abilist.txt
 %{_libdir}/clang/%{version}/msan_blacklist.txt
 %endif
