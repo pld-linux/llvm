@@ -42,12 +42,7 @@ Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.ta
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
 # Source6-md5:	91bd593a67293d84dad0bf11845546c2
 Patch0:		%{name}-lld-link.patch
-# Data files should be installed with timestamps preserved
-Patch1:		%{name}-2.6-timestamp.patch
 Patch2:		%{name}-pld.patch
-Patch3:		build-lld.patch
-Patch4:		%{name}-lldb.patch
-Patch5:		%{name}-lldb-atomic.patch
 Patch6:		libdir.patch
 Patch7:		x32-gcc-toolchain.patch
 Patch8:		gcc5.patch
@@ -440,15 +435,7 @@ mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 mv lld-%{version}.src tools/lld
 
 %patch0 -p1
-%patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%if %{with lldb}
-%patch4 -p1
-%ifarch i386 i486
-%patch5 -p1
-%endif
-%endif
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
