@@ -50,6 +50,7 @@ Patch4:		%{name}-lldb.patch
 Patch5:		%{name}-lldb-atomic.patch
 Patch6:		libdir.patch
 Patch7:		x32-gcc-toolchain.patch
+Patch8:		gcc5.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -122,6 +123,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
 %define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
+
+# once_callable and once_call symbols defined in lldb-server binary
+%define		skip_post_check_so	liblld.*.so.*
 
 # clang doesn't know it, and leaving it here would pollute llvm-config
 %define		filterout_c	-fvar-tracking-assignments
@@ -450,6 +454,7 @@ mv lld-%{version}.src tools/lld
 %endif
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 # configure does not properly specify libdir
 #%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
@@ -747,6 +752,8 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86} %{x8664}
 %{_libdir}/clang/%{version}/lib
 %{_libdir}/clang/%{version}/asan_blacklist.txt
+%{_libdir}/clang/%{version}/dfsan_abilist.txt
+%{_libdir}/clang/%{version}/msan_blacklist.txt
 %endif
 %ifarch %{x8664}
 %{_libdir}/clang/%{version}/dfsan_abilist.txt
