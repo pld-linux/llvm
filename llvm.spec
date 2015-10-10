@@ -42,10 +42,10 @@ Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.ta
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
 # Source6-md5:	91bd593a67293d84dad0bf11845546c2
 Patch0:		%{name}-lld-link.patch
-Patch2:		%{name}-pld.patch
-Patch6:		libdir.patch
-Patch7:		x32-gcc-toolchain.patch
-Patch8:		gcc5.patch
+Patch1:		%{name}-pld.patch
+Patch2:		libdir.patch
+Patch3:		x32-gcc-toolchain.patch
+Patch4:		gcc5.patch
 URL:		http://llvm.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9.6
@@ -435,10 +435,10 @@ mv clang-tools-extra-%{version}.src tools/clang/tools/extra
 mv lld-%{version}.src tools/lld
 
 %patch0 -p1
+%patch1 -p1
 %patch2 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
+%patch3 -p1
+%patch4 -p1
 
 # configure does not properly specify libdir
 #%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
