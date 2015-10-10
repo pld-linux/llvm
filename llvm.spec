@@ -124,9 +124,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
 %define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
 
-# once_callable and once_call symbols defined in lldb-server binary
-%define		skip_post_check_so	liblld.*.so.*
-
 # clang doesn't know it, and leaving it here would pollute llvm-config
 %define		filterout_c	-fvar-tracking-assignments
 %define		filterout_cxx	-fvar-tracking-assignments
