@@ -47,10 +47,9 @@ Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		gcc5.patch
 URL:		http://llvm.org/
-BuildRequires:	autoconf >= 2.60
-BuildRequires:	automake >= 1:1.9.6
 BuildRequires:	bash
 BuildRequires:	bison
+BuildRequires:	cmake
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
@@ -62,7 +61,6 @@ BuildRequires:	glibc-devel(x86_64)
 %endif
 BuildRequires:	groff
 BuildRequires:	libltdl-devel
-BuildRequires:	libtool >= 2:1.5.22
 BuildRequires:	libstdc++-devel >= 5:3.4
 %if %{with ocaml}
 BuildRequires:	ocaml-ctypes-devel >= 0.4
@@ -440,12 +438,6 @@ mv lld-%{version}.src tools/lld
 %patch3 -p1
 %patch4 -p1
 
-# configure does not properly specify libdir
-#%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
-# clang resources
-#%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' \
-#	tools/clang/lib/Headers/Makefile \
-#	tools/clang/runtime/compiler-rt/Makefile
 %{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
@@ -455,25 +447,6 @@ grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 
 %build
 install -d build
-#%if "%{_lib}" != "lib"
-## workaround for clang relative search paths building
-#install -d build/Release
-#ln -snf lib build/Release/%{_lib}
-#%endif
-
-#cd autoconf
-#%{__aclocal} -I m4
-#%{__autoconf} -o ../configure configure.ac
-#cd ..
-#%{__autoheader} -I autoconf -I autoconf/m4 autoconf/configure.ac
-#%if %{with polly}
-#cd tools/polly/autoconf
-#%{__aclocal} -I m4 -I ../../../autoconf/m4
-#%{__autoconf} -o ../configure configure.ac
-#cd ..
-#%{__autoheader} -I autoconf -I autoconf/m4 -I ../../../autoconf/m4 autoconf/configure.ac
-#cd ../..
-#%endif
 
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
@@ -500,11 +473,6 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
 	-DLLVM_BINDINGS_LIST:LIST="go%{?with_ocaml:;ocaml};python" \
 	-DBUILD_SHARED_LIBS:BOOL=ON
-
-#bash ../%%configure \
-#	--datadir=%{_datadir}/%{name}-%{version} \
-#	--enable-jit \
-#	--enable-optimized
 
 %{__make} \
 	VERBOSE=1 \
