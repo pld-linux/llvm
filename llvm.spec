@@ -46,6 +46,7 @@ Patch1:		%{name}-pld.patch
 Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		gcc5.patch
+Patch5:		debuginfo-fix.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -437,6 +438,7 @@ mv lld-%{version}.src tools/lld
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
 
@@ -704,8 +706,6 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86} %{x8664}
 %{_libdir}/clang/%{version}/lib
 %{_libdir}/clang/%{version}/asan_blacklist.txt
-%{_libdir}/clang/%{version}/dfsan_abilist.txt
-%{_libdir}/clang/%{version}/msan_blacklist.txt
 %endif
 %ifarch %{x8664}
 %{_libdir}/clang/%{version}/dfsan_abilist.txt
