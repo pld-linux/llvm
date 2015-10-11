@@ -473,7 +473,7 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %endif
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
 	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
-	-DLLVM_BINDINGS_LIST:LIST="go%{?with_ocaml:;ocaml};python" \
+	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
 	-DBUILD_SHARED_LIBS:BOOL=ON
 
 %{__make} \
