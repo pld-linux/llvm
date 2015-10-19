@@ -251,6 +251,37 @@ LLVM do języków C, C++, Objective C i Objective C++. Narzędzia są
 budowane jako biblioteki i zaprojektowane z myślą o swobodnym łączeniu
 i rozszerzaniu.
 
+%package -n clang-multilib
+Summary:	A C language family frontend for LLVM - 32-bit support
+Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C - obsługa binariów 32-bitowych
+License:	NCSA
+Group:		Development/Languages
+Requires:	clang = %{version}-%{release}
+
+%description -n clang-multilib
+clang: noun 1. A loud, resonant, metallic sound. 2. The strident call
+of a crane or goose. 3. C-language family front-end toolkit.
+
+The goal of the Clang project is to create a new C, C++, Objective C
+and Objective C++ front-end for the LLVM compiler. Its tools are built
+as libraries and designed to be loosely-coupled and extendable.
+
+This package contains the C compiler support for producing 32-bit
+programs on 64-bit host.
+
+%description -n clang-multilib -l pl.UTF-8
+clang (z angielskiego): 1. głośny, rezonujący, metaliczny dźwięk; 2.
+piskliwy odgłos żurawia lub gęsi; 3. narzędzia frontendowe dla języków
+z rodziny C.
+
+Celem projektu Clang jest utworzenie nowego frontendu dla kompilatora
+LLVM do języków C, C++, Objective C i Objective C++. Narzędzia są
+budowane jako biblioteki i zaprojektowane z myślą o swobodnym łączeniu
+i rozszerzaniu.
+
+Ten pakiet zawiera rozszerzenie kompilatora C o obsługę tworzenia
+programów 32-bitowych na maszynie 64-bitowej.
+
 %package -n clang-analyzer
 Summary:	A source code analysis framework
 Summary(pl.UTF-8):	Szkielet do analizy kodu źródłowego
@@ -704,16 +735,34 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
 %ifarch %{ix86} %{x8664}
-%{_libdir}/clang/%{version}/lib
 %{_libdir}/clang/%{version}/asan_blacklist.txt
+%dir %{_libdir}/clang/%{version}/lib
+%dir %{_libdir}/clang/%{version}/lib/linux
+%endif
+%ifarch %{ix86}
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.a
+%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.so
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.so.syms
 %endif
 %ifarch %{x8664}
 %{_libdir}/clang/%{version}/dfsan_abilist.txt
 %{_libdir}/clang/%{version}/msan_blacklist.txt
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a
+%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so.syms
 %endif
 %endif
 %dir %{_datadir}/clang
 %{_datadir}/clang/clang-format-diff.py
+
+%if %{with rt}
+%ifarch %{x8664}
+%files -n clang-multilib
+%defattr(644,root,root,755)
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i386.a
+%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i386.so
+%endif
+%endif
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
