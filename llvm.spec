@@ -742,14 +742,14 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86}
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.a
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.so
-%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.so.syms
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.a.syms
 %endif
 %ifarch %{x8664}
 %{_libdir}/clang/%{version}/dfsan_abilist.txt
 %{_libdir}/clang/%{version}/msan_blacklist.txt
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
-%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so.syms
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
 %endif
 %dir %{_datadir}/clang
