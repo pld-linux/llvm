@@ -489,15 +489,13 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %ifarch x32
 	-DLLVM_LIBDIR_SUFFIX:STRING=x32 \
 %endif
-%ifarch %{ix86}
-	-DLLVM_ENABLE_PIC:BOOL=OFF \
-%endif
 %if %{with apidocs}
 	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
 %endif
 %if %{with doc}
 	-DLLVM_ENABLE_SPHINX:BOOL=ON \
 %endif
+	-DLLVM_ENABLE_PIC:BOOL=ON \
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
 	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
 	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
