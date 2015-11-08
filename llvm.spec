@@ -23,7 +23,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.7.0
-Release:	4
+Release:	5
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -724,7 +724,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-cl
 %attr(755,root,root) %{_bindir}/clang-format
 %attr(755,root,root) %{_bindir}/git-clang-format
+%ifnarch %{ix86}
 %attr(755,root,root) %{_libdir}/libclang.so.3.7
+%endif
 %attr(755,root,root) %{_libdir}/libclang[A-Z]*.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.3.7
 %dir %{_libdir}/clang
