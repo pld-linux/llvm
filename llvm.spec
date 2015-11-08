@@ -23,7 +23,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.7.0
-Release:	6
+Release:	7
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -141,16 +141,16 @@ roku 2000 przez Uniwersytet w Illinois i Apple. Aktualnie obsługuje
 kompilację programów w C i C++ przy użyciu frontendu clang.
 
 %package libs
-Summary:	LLVM shared library
-Summary(pl.UTF-8):	Biblioteka współdzielona LLVM-a
+Summary:	LLVM shared libraries
+Summary(pl.UTF-8):	Biblioteki współdzielone LLVM-a
 Group:		Libraries
 Conflicts:	llvm < 3.2
 
 %description libs
-LLVM shared library.
+LLVM shared libraries.
 
 %description libs -l pl.UTF-8
-Biblioteka współdzielona LLVM-a.
+Biblioteki współdzielone LLVM-a.
 
 %package devel
 Summary:	Static libraries and header files for LLVM
@@ -231,6 +231,7 @@ Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C
 License:	NCSA
 Group:		Development/Languages
 Requires:	%{name} = %{version}-%{release}
+Requires:	clang-libs = %{version}-%{release}
 
 %description -n clang
 clang: noun 1. A loud, resonant, metallic sound. 2. The strident call
@@ -249,6 +250,17 @@ Celem projektu Clang jest utworzenie nowego frontendu dla kompilatora
 LLVM do języków C, C++, Objective C i Objective C++. Narzędzia są
 budowane jako biblioteki i zaprojektowane z myślą o swobodnym łączeniu
 i rozszerzaniu.
+
+%package -n clang-libs
+Summary:	Clang shared libraries
+Summary(pl.UTF-8):	Biblioteki współdzielone Clanga
+Group:		Libraries
+
+%description -n clang-libs
+Clang shared libraries.
+
+%description -n clang-libs -l pl.UTF-8
+Biblioteki współdzielone Clanga.
 
 %package -n clang-multilib
 Summary:	A C language family frontend for LLVM - 32-bit support
@@ -620,9 +632,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-extract
 %attr(755,root,root) %{_bindir}/llvm-lib
 %attr(755,root,root) %{_bindir}/llvm-link
-%ifarch %{x8664} x32
 %attr(755,root,root) %{_bindir}/llvm-lto
-%endif
 %attr(755,root,root) %{_bindir}/llvm-mc
 %attr(755,root,root) %{_bindir}/llvm-mcmarkup
 %attr(755,root,root) %{_bindir}/llvm-nm
@@ -670,19 +680,15 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libLLVM*.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/libLLVM*.so.3.7
-%ifarch %{x8664} x32
 %attr(755,root,root) %{_libdir}/libLTO.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/libLTO.so.3.7
-%endif
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
 %attr(755,root,root) %{_libdir}/libLLVM*.so
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
-%ifarch %{x8664} x32
 %attr(755,root,root) %{_libdir}/libLTO.so
-%endif
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %dir %{_datadir}/llvm
@@ -722,9 +728,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-cl
 %attr(755,root,root) %{_bindir}/clang-format
 %attr(755,root,root) %{_bindir}/git-clang-format
-%attr(755,root,root) %{_libdir}/libclang.so.3.7
-%attr(755,root,root) %{_libdir}/libclang[A-Z]*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.3.7
 %dir %{_libdir}/clang
 %dir %{_libdir}/clang/%{version}
 %{_libdir}/clang/%{version}/include
@@ -748,6 +751,12 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %dir %{_datadir}/clang
 %{_datadir}/clang/clang-format-diff.py
+
+%files -n clang-libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libclang.so.3.7
+%attr(755,root,root) %{_libdir}/libclang[A-Z]*.so.%{version}
+%attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.3.7
 
 %if %{with rt}
 %ifarch %{x8664}
