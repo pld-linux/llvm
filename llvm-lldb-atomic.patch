@@ -1,0 +1,11 @@
+--- llvm-3.7.0.src/tools/lldb/lib/Makefile.orig	2014-07-21 19:24:05.000000000 +0200
++++ llvm-3.7.0.src/tools/lldb/lib/Makefile	2014-10-19 22:11:21.104592254 +0200
+@@ -173,7 +173,7 @@
+     # Don't allow unresolved symbols.
+     LLVMLibsOptions += -Wl,--no-undefined
+     # Link in python
+-    LLVMLibsOptions += $(PYTHON_BUILD_FLAGS) -lrt -ledit -lncurses -lpanel -lpthread
++    LLVMLibsOptions += $(PYTHON_BUILD_FLAGS) -lrt -ledit -lncurses -lpanel -lpthread -latomic
+     LLVMLibsOptions += -Wl,--soname,lib$(LIBRARYNAME)$(SHLIBEXT)
+ endif
+ 

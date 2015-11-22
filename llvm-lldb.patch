@@ -1,0 +1,27 @@
+--- llvm-3.5.0.src/tools/lldb/Makefile.orig	2014-03-12 11:35:00.000000000 +0100
++++ llvm-3.5.0.src/tools/lldb/Makefile	2014-10-04 08:18:52.270545688 +0200
+@@ -41,6 +41,8 @@
+ # Disable python and curses on mingw build
+ ifeq ($(HOST_OS),MingW)
+ CXXFLAGS += -DLLDB_DISABLE_PYTHON -DLLDB_DISABLE_CURSES
++else
++CPP.Flags += -I/usr/include/ncurses
+ endif
+ 
+ ifeq (,$(findstring -DLLDB_DISABLE_PYTHON,$(CXXFLAGS)))
+--- llvm-3.5.0.src/tools/lldb/scripts/Python/modules/readline/Makefile.orig	2014-02-26 16:05:48.000000000 +0100
++++ llvm-3.5.0.src/tools/lldb/scripts/Python/modules/readline/Makefile	2014-10-18 20:28:35.057301669 +0200
+@@ -91,9 +91,9 @@
+ # Target to move the shared library from the build python lib dir to
+ # the install python lib dir.
+ install-local:: $(LLDB_PYTHON_MODULE_DIR)/$(LIBRARYNAME)$(SHLIBEXT)
+-	$(Echo) Installing $(BuildMode) $(LLDB_PYTHON_MODULE_DIR)/$(LIBRARYNAME)$(SHLIBEXT) to $(DESTDIR)$(prefix)/lib/$(LLDB_PYTHON_MODULE_REL_DIR)
+-	$(Verb) $(MKDIR) "$(DESTDIR)$(prefix)/lib/$(LLDB_PYTHON_MODULE_REL_DIR)"
+-	$(Verb) $(ProgInstall) "$(LLDB_PYTHON_MODULE_DIR)/$(LIBRARYNAME)$(SHLIBEXT)" "$(DESTDIR)$(prefix)/lib/$(LLDB_PYTHON_MODULE_REL_DIR)"
+-	$(Verb) $(RM) "$(DESTDIR)$(prefix)/lib/$(LIBRARYNAME)$(SHLIBEXT)"
++	$(Echo) Installing $(BuildMode) $(LLDB_PYTHON_MODULE_DIR)/$(LIBRARYNAME)$(SHLIBEXT) to $(DESTDIR)$(PROJ_libdir)/$(LLDB_PYTHON_MODULE_REL_DIR)
++	$(Verb) $(MKDIR) "$(DESTDIR)$(PROJ_libdir)/$(LLDB_PYTHON_MODULE_REL_DIR)"
++	$(Verb) $(ProgInstall) "$(LLDB_PYTHON_MODULE_DIR)/$(LIBRARYNAME)$(SHLIBEXT)" "$(DESTDIR)$(PROJ_libdir)/$(LLDB_PYTHON_MODULE_REL_DIR)"
++	$(Verb) $(RM) "$(DESTDIR)$(PROJ_libdir)/$(LIBRARYNAME)$(SHLIBEXT)"
+ 
+ endif  # if !defined(LLDB_DISABLE_PYTHON)

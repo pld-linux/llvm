@@ -23,7 +23,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.7.0
-Release:	7
+Release:	0.autotools
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -46,10 +46,14 @@ Patch1:		%{name}-pld.patch
 Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch5:		debuginfo-fix.patch
+Patch6:		llvm-2.6-timestamp.patch
+Patch7:		%{name}-lldb.patch
+Patch8:		%{name}-lldb-atomic.patch
 URL:		http://llvm.org/
+BuildRequires:	autoconf >= 2.60
+BuildRequires:	automake >= 1:1.9.6
 BuildRequires:	bash
 BuildRequires:	bison
-BuildRequires:	cmake
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
@@ -61,6 +65,7 @@ BuildRequires:	glibc-devel(x86_64)
 %endif
 BuildRequires:	groff
 BuildRequires:	libltdl-devel
+BuildRequires:	libtool >= 2:1.5.22
 BuildRequires:	libstdc++-devel >= 5:3.4
 %if %{with ocaml}
 BuildRequires:	ocaml-ctypes-devel >= 0.4
@@ -141,16 +146,16 @@ roku 2000 przez Uniwersytet w Illinois i Apple. Aktualnie obsługuje
 kompilację programów w C i C++ przy użyciu frontendu clang.
 
 %package libs
-Summary:	LLVM shared libraries
-Summary(pl.UTF-8):	Biblioteki współdzielone LLVM-a
+Summary:	LLVM shared library
+Summary(pl.UTF-8):	Biblioteka współdzielona LLVM-a
 Group:		Libraries
 Conflicts:	llvm < 3.2
 
 %description libs
-LLVM shared libraries.
+LLVM shared library.
 
 %description libs -l pl.UTF-8
-Biblioteki współdzielone LLVM-a.
+Biblioteka współdzielona LLVM-a.
 
 %package devel
 Summary:	Static libraries and header files for LLVM
@@ -231,7 +236,6 @@ Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C
 License:	NCSA
 Group:		Development/Languages
 Requires:	%{name} = %{version}-%{release}
-Requires:	clang-libs = %{version}-%{release}
 
 %description -n clang
 clang: noun 1. A loud, resonant, metallic sound. 2. The strident call
@@ -250,17 +254,6 @@ Celem projektu Clang jest utworzenie nowego frontendu dla kompilatora
 LLVM do języków C, C++, Objective C i Objective C++. Narzędzia są
 budowane jako biblioteki i zaprojektowane z myślą o swobodnym łączeniu
 i rozszerzaniu.
-
-%package -n clang-libs
-Summary:	Clang shared libraries
-Summary(pl.UTF-8):	Biblioteki współdzielone Clanga
-Group:		Libraries
-
-%description -n clang-libs
-Clang shared libraries.
-
-%description -n clang-libs -l pl.UTF-8
-Biblioteki współdzielone Clanga.
 
 %package -n clang-multilib
 Summary:	A C language family frontend for LLVM - 32-bit support
@@ -480,6 +473,21 @@ mv lld-%{version}.src tools/lld
 %patch2 -p1
 %patch3 -p1
 %patch5 -p1
+%patch6 -p1
+%if %{with lldb}
+%patch7 -p1
+%ifarch i386 i486
+%patch8 -p1
+%endif
+%endif
+
+# configure does not properly specify libdir
+%{__sed} -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config.in
+# clang resources
+%{__sed} -i 's|(PROJ_prefix)/lib/|(PROJ_prefix)/%{_lib}/|g' \
+	tools/clang/lib/Headers/Makefile \
+	tools/clang/runtime/compiler-rt/Makefile
+%{__sed} -i 's|"lib"|"%{_lib}"|' tools/clang/lib/Driver/Driver.cpp
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
@@ -487,31 +495,47 @@ grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 }'
 
 %build
-install -d build
+cd autoconf
+%{__aclocal} -I m4
+%{__autoconf} -o ../configure configure.ac
+cd ..
+%{__autoheader} -I autoconf -I autoconf/m4 autoconf/configure.ac
+%if %{with polly}
+cd tools/polly/autoconf
+%{__aclocal} -I m4 -I ../../../autoconf/m4
+%{__autoconf} -o ../configure configure.ac
+cd ..
+%{__autoheader} -I autoconf -I autoconf/m4 -I ../../../autoconf/m4 autoconf/configure.ac
+cd ../..
+%endif
 
-# Disabling assertions now, rec. by pure and needed for OpenGTL
-# TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
+install -d build
+%if "%{_lib}" != "lib"
+# workaround for clang relative search paths building
+install -d build/Release
+ln -snf lib build/Release/%{_lib}
+%endif
 cd build
 CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
-%{cmake} ../ \
-%ifarch %{x8664}
-	-DLLVM_LIBDIR_SUFFIX:STRING=64 \
-%endif
-%ifarch x32
-	-DLLVM_LIBDIR_SUFFIX:STRING=x32 \
-%endif
+# bash specific 'test a < b' in configure
+
+# Disabling assertions now, rec. by pure and needed for OpenGTL
+# TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
+
+bash ../%configure \
+	--datadir=%{_datadir}/%{name}-%{version} \
+	--disable-assertions \
+	--enable-cxx11 \
+	--disable-static \
+	--enable-bindings=%{?with_ocaml:ocaml}%{!?with_ocaml:none} \
+	--enable-debug-runtime \
 %if %{with apidocs}
-	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
+	--enable-doxygen \
 %endif
-%if %{with doc}
-	-DLLVM_ENABLE_SPHINX:BOOL=ON \
-%endif
-	-DLLVM_ENABLE_PIC:BOOL=ON \
-	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
-	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
-	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
-	-DBUILD_SHARED_LIBS:BOOL=ON
+	--enable-jit \
+	--enable-optimized \
+	--enable-shared
 
 %{__make} \
 	VERBOSE=1 \
@@ -523,23 +547,18 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %{__make} -C tools/clang test 2>&1 | tee clang-testlog.txt
 %endif
 
+cd ..
+
 %if %{with doc}
-%{__make} -C docs docs-llvm-html
-%{__make} -C docs docs-llvm-man
-%if %{with ocaml}
-%{__make} -C docs ocaml_doc
-%endif
-%{__make} -C tools/clang/docs docs-clang-html
-%{__make} -C tools/clang/docs docs-clang-man
-%{__make} -C tools/lld/docs docs-lld-html
-%{__make} -C tools/lldb/docs lldb-python-doc
-%{__make} -C tools/lldb/docs lldb-cpp-doc
-%{__make} -C ../tools/clang/tools/extra/docs html
+%{__make} -C docs -f Makefile.sphinx man
+%{__make} -C tools/clang/tools/extra/docs html
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%{__make} -C build install \
+%{__make} -C build -j1 install \
+	PROJ_docsdir=/moredocs \
+	VERBOSE=1 \
 	DESTDIR=$RPM_BUILD_ROOT
 
 # only some .pyc files are created by make install
@@ -562,12 +581,8 @@ install -d $RPM_BUILD_ROOT%{_mandir}/man1
 # not this OS
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-build/*.bat
 
-# not installed by cmake buildsystem
-install build/bin/clang-query $RPM_BUILD_ROOT%{_bindir}
-install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
-
 %if %{with doc}
-cp -p build/docs/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
+cp -p docs/_build/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 # these tools are not installed
 %{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build}.1
 # make links
@@ -575,15 +590,20 @@ echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 %endif
 
 # Move documentation back to build directory
+rm -rf moredocs
+mv $RPM_BUILD_ROOT/moredocs .
+%{__rm} -v moredocs/*.tar.gz
 %if %{with ocaml}
-rm -rf ocamldocs
-mv $RPM_BUILD_ROOT%{_prefix}/docs/ocaml/html/html ocamldocs
+%{__rm} -v moredocs/ocamldoc/html/*.tar.gz
 %endif
 
 # and separate the apidoc
 %if %{with apidocs}
-rm -rf clang-apidoc
-cp -a build/tools/clang/docs/html clang-apidoc
+#rm -rf clang-apidoc
+#cp -a build/tools/clang/docs/html clang-apidoc
+rm -rf apidoc clang-apidoc
+mv moredocs/html/doxygen apidoc
+cp -a tools/clang/docs/doxygen/html clang-apidoc
 %endif
 
 # And prepare Clang documentation
@@ -594,11 +614,15 @@ for f in LICENSE.TXT NOTES.txt README.txt; do
 done
 
 # Get rid of erroneously installed example files.
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/LLVMHello.so
-# test?
-%{__rm} $RPM_BUILD_ROOT%{_bindir}/llvm-c-test
-# not this OS
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
+%{__rm} -v $RPM_BUILD_ROOT%{_libdir}/*LLVMHello.*
+# parts of test suite
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/{FileCheck,count,not}
+
+# remove documentation makefiles:
+# they require the build directory to work
+rm -rf moredocs/examples
+cp -a examples moredocs/examples
+find moredocs/examples -name Makefile | xargs -0r rm -f
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -621,6 +645,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/bugpoint
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
+%attr(755,root,root) %{_bindir}/lli-child-target
 %attr(755,root,root) %{_bindir}/llvm-ar
 %attr(755,root,root) %{_bindir}/llvm-as
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
@@ -630,9 +655,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-dsymutil
 %attr(755,root,root) %{_bindir}/llvm-dwarfdump
 %attr(755,root,root) %{_bindir}/llvm-extract
-%attr(755,root,root) %{_bindir}/llvm-lib
 %attr(755,root,root) %{_bindir}/llvm-link
-%attr(755,root,root) %{_bindir}/llvm-lto
 %attr(755,root,root) %{_bindir}/llvm-mc
 %attr(755,root,root) %{_bindir}/llvm-mcmarkup
 %attr(755,root,root) %{_bindir}/llvm-nm
@@ -678,17 +701,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libLLVM*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLLVM*.so.3.7
-%attr(755,root,root) %{_libdir}/libLTO.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.3.7
+%attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
+%attr(755,root,root) %ghost %{_libdir}/libLLVM-3.7.so
+%attr(755,root,root) %{_libdir}/libLTO.so
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
-%attr(755,root,root) %{_libdir}/libLLVM*.so
+%{_libdir}/libLLVM*.a
+%{_libdir}/libLTO.a
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
-%attr(755,root,root) %{_libdir}/libLTO.so
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %dir %{_datadir}/llvm
@@ -711,7 +733,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/polly/{CREDITS.txt,LICENSE.txt,README}
 %attr(755,root,root) %{_libdir}/LLVMPolly.so
-%attr(755,root,root) %{_libdir}/libPolly.so
 
 %files polly-devel
 %defattr(644,root,root,755)
@@ -721,49 +742,34 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang
 %defattr(644,root,root,755)
 %doc clang-docs/{LICENSE.TXT,NOTES.txt,README.txt} %{?with_tests:clang-testlog.txt}
+%attr(755,root,root) %{_bindir}/c-index-test
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
-%attr(755,root,root) %{_bindir}/clang-3.7
 %attr(755,root,root) %{_bindir}/clang-check
-%attr(755,root,root) %{_bindir}/clang-cl
 %attr(755,root,root) %{_bindir}/clang-format
-%attr(755,root,root) %{_bindir}/git-clang-format
+%attr(755,root,root) %{_bindir}/clang-tblgen
+%attr(755,root,root) %{_libdir}/libclang.so
 %dir %{_libdir}/clang
 %dir %{_libdir}/clang/%{version}
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
 %ifarch %{ix86} %{x8664}
-%{_libdir}/clang/%{version}/asan_blacklist.txt
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
 %endif
 %ifarch %{ix86}
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.a
-%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.so
 %endif
 %ifarch %{x8664}
-%{_libdir}/clang/%{version}/dfsan_abilist.txt
-%{_libdir}/clang/%{version}/msan_blacklist.txt
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a
-%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
-%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
 %endif
-%dir %{_datadir}/clang
-%{_datadir}/clang/clang-format-diff.py
-
-%files -n clang-libs
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.3.7
-%attr(755,root,root) %{_libdir}/libclang[A-Z]*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.3.7
 
 %if %{with rt}
-%ifarch %{x8664}
+%ifarch x32
 %files -n clang-multilib
 %defattr(644,root,root,755)
-%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i386.a
-%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i386.so
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a
 %endif
 %endif
 
@@ -787,7 +793,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang*.so
+%{_libdir}/libclang*.a
 %{_includedir}/clang
 %{_includedir}/clang-c
 
@@ -810,35 +816,28 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/pp-trace
-%attr(755,root,root) %{_libdir}/libmodernizeCore.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libmodernizeCore.so.3.7
 # -devel?
-%attr(755,root,root) %{_libdir}/libmodernizeCore.so
+%attr(755,root,root) %{_libdir}/libmodernizeCore.a
 
-%files -n lld
-%defattr(644,root,root,755)
-%doc tools/lld/{LICENSE.TXT,README.md}
-%attr(755,root,root) %{_bindir}/lld
-%attr(755,root,root) %{_libdir}/liblld[ACDEHMPRXY]*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblld[ACDEHMPRXY]*.so.3.7
+#%files -n lld
+#%defattr(644,root,root,755)
+#%doc tools/lld/{LICENSE.TXT,README.md}
+#%attr(755,root,root) %{_bindir}/lld
+#%attr(755,root,root) %{_libdir}/liblld[ACDEHMPRXY]*.so.%{version}
+#%attr(755,root,root) %ghost %{_libdir}/liblld[ACDEHMPRXY]*.so.3.7
 
-%files -n lld-devel
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/liblld[ACDEHMPRXY]*.so
-%{_includedir}/lld
+#%files -n lld-devel
+#%defattr(644,root,root,755)
+#%attr(755,root,root) %{_libdir}/liblld[ACDEHMPRXY]*.so
+#%{_includedir}/lld
 
 %if %{with lldb}
 %files -n lldb
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/argdumper
 %attr(755,root,root) %{_bindir}/lldb
-%attr(755,root,root) %{_bindir}/lldb-%{version}
 %attr(755,root,root) %{_bindir}/lldb-mi
-%attr(755,root,root) %{_bindir}/lldb-mi-%{version}
 %attr(755,root,root) %{_bindir}/lldb-server
-%attr(755,root,root) %{_bindir}/lldb-server-%{version}
-%attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.3.7
+%attr(755,root,root) %{_libdir}/liblldb.so
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/argdumper
 %{py_sitedir}/lldb/formatters
@@ -851,7 +850,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n lldb-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/liblldb.so
 %{_libdir}/liblldb*.a
 %{_includedir}/lldb
 %endif
@@ -866,11 +864,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files ocaml-devel
 %defattr(644,root,root,755)
+%{_libdir}/ocaml/libLLVM*.a
 %{_libdir}/ocaml/libllvm*.a
 %{_libdir}/ocaml/llvm*.a
 %{_libdir}/ocaml/llvm*.cmx*
+%{_libdir}/ocaml/llvm*.mli
 
 %files ocaml-doc
 %defattr(644,root,root,755)
-%doc ocamldocs/*
+%doc moredocs/ocamldoc/html/*
 %endif
