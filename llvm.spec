@@ -6,13 +6,14 @@
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 #
 # Conditional build:
-%bcond_without	lldb	# LLDB debugger
-%bcond_without	polly	# Polly cache-locality optimization, auto-parallelism and vectorization
-%bcond_without	rt	# compiler-rt libraries
-%bcond_without	ocaml	# OCaml binding
-%bcond_without	doc	# HTML docs and man pages
-%bcond_with	apidocs	# doxygen docs (HUGE, so they are not built by default)
-%bcond_with	tests	# run tests
+%bcond_without	lldb		# LLDB debugger
+%bcond_without	polly		# Polly cache-locality optimization, auto-parallelism and vectorization
+%bcond_without	rt		# compiler-rt libraries
+%bcond_without	multilib	# compiler-rt multilib libraries
+%bcond_without	ocaml		# OCaml binding
+%bcond_without	doc		# HTML docs and man pages
+%bcond_with	apidocs		# doxygen docs (HUGE, so they are not built by default)
+%bcond_with	tests		# run tests
 
 # No ocaml on other arches or no native ocaml (required for ocaml-ctypes)
 %ifnarch %{ix86} %{x8664} arm aarch64 ppc sparc sparcv9 
@@ -82,6 +83,12 @@ BuildRequires:	graphviz
 BuildRequires:	dejagnu
 BuildRequires:	python
 BuildRequires:	tcl-devel
+%endif
+%if %{with rt} && %{with multilib}
+%ifarch %{x8664}
+BuildRequires:	gcc-c++-multilib-32
+BuildRequires:	libstdc++-multilib-32-devel
+%endif
 %endif
 %if %{with lldb}
 BuildRequires:	epydoc
@@ -758,7 +765,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libclang[A-Z]*.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.3.7
 
-%if %{with rt}
+%if %{with rt} && %{with multilib}
 %ifarch %{x8664}
 %files -n clang-multilib
 %defattr(644,root,root,755)
