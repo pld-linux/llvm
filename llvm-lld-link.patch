@@ -35,14 +35,6 @@
    )
  
  include_directories(.)
---- llvm-3.7.0.src/tools/lld/lib/ReaderWriter/PECOFF/CMakeLists.txt.orig	2015-02-20 23:10:28.000000000 +0100
-+++ llvm-3.7.0.src/tools/lld/lib/ReaderWriter/PECOFF/CMakeLists.txt	2015-10-01 21:51:35.921762208 +0200
-@@ -13,4 +13,5 @@
-     lldCore
-     LLVMObject
-     LLVMSupport
-+    pthread
-   )
 --- llvm-3.7.0.src/tools/lld/lib/ReaderWriter/ELF/CMakeLists.txt.orig	2015-05-22 18:01:12.000000000 +0200
 +++ llvm-3.7.0.src/tools/lld/lib/ReaderWriter/ELF/CMakeLists.txt	2015-10-02 15:51:47.415199842 +0200
 @@ -17,6 +17,7 @@

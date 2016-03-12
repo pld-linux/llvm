@@ -51,14 +51,14 @@
    DebianSqueeze,
    DebianWheezy,
 @@ -2820,6 +2824,10 @@
-   return Distro >= UbuntuHardy && Distro <= UbuntuTrusty;
+   return Distro >= UbuntuHardy && Distro <= UbuntuXenial;
  }
  
 +static bool IsPLD(enum Distro Distro) {
 +  return Distro == PLDLinux;
 +}
 +
- static Distro DetectDistro(llvm::Triple::ArchType Arch) {
+ static Distro DetectDistro(const Driver &D, llvm::Triple::ArchType Arch) {
    llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> File =
        llvm::MemoryBuffer::getFile("/etc/lsb-release");
 @@ -2888,6 +2896,9 @@
