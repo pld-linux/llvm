@@ -23,30 +23,29 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.7.0
-Release:	8
+Version:	3.7.1
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	b98b9495e5655a672d6cb83e1a180f8e
+# Source0-md5:	bf8b3a2c79e61212c5409041dfdbd319
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	8f9d27335e7331cf0a4711e952f21f01
+# Source1-md5:	0acd026b5529164197563d135a8fd83e
 Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	383c10affd513026f08936b5525523f5
+# Source2-md5:	1c6975daf30bb3b0473b53c3a1a6ff01
 Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	e5931740400d1dc3e7db4c7ba2ceff68
+# Source3-md5:	a106d8a0d21fc84d76953822fbaf3398
 Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	32f93ffc9cc7e042df22089761558f8b
+# Source4-md5:	3a2a7367002740881637f4d47bca4dc3
 Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	d5a87dacb65d981a427a536f6964642e
+# Source5-md5:	5d49ff745037f061a7c86aeb6a24c3d2
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	91bd593a67293d84dad0bf11845546c2
+# Source6-md5:	6c3794e30fbe118a601fb694627f34f8
 Patch0:		%{name}-lld-link.patch
 Patch1:		%{name}-pld.patch
 Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
-Patch5:		debuginfo-fix.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -486,7 +485,6 @@ mv lld-%{version}.src tools/lld
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch5 -p1
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
@@ -819,6 +817,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/pp-trace
 %attr(755,root,root) %{_libdir}/libmodernizeCore.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/libmodernizeCore.so.3.7
+%{_datadir}/clang/clang-tidy-diff.py
+%{_datadir}/clang/run-clang-tidy.py
 # -devel?
 %attr(755,root,root) %{_libdir}/libmodernizeCore.so
 
