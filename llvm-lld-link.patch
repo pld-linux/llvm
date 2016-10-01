@@ -45,3 +45,15 @@
    )
  
  include_directories(.)
+--- llvm-3.8.0.src/tools/lld/COFF/CMakeLists.txt~	2016-10-01 20:57:37.000000000 +0300
++++ llvm-3.8.0.src/tools/lld/COFF/CMakeLists.txt	2016-10-01 20:57:44.393387882 +0300
+@@ -17,6 +17,9 @@
+   Symbols.cpp
+   Writer.cpp
+ 
++  LINK_LIBS
++    pthread
++
+   LINK_COMPONENTS
+   ${LLVM_TARGETS_TO_BUILD}
+   Core
