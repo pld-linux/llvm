@@ -1,0 +1,16 @@
+allow CMAKE_BUILD_TYPE=PLD
+
+--- llvm-3.8.0.src/CMakeLists.txt~	2016-01-13 21:03:44.000000000 +0200
++++ llvm-3.8.0.src/CMakeLists.txt	2016-10-01 15:54:42.749630541 +0300
+@@ -174,11 +174,6 @@
+ 
+ string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+ 
+-if (CMAKE_BUILD_TYPE AND
+-    NOT uppercase_CMAKE_BUILD_TYPE MATCHES "^(DEBUG|RELEASE|RELWITHDEBINFO|MINSIZEREL)$")
+-  message(FATAL_ERROR "Invalid value for CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+-endif()
+-
+ set(LLVM_LIBDIR_SUFFIX "" CACHE STRING "Define suffix of library directory name (32/64)" )
+ 
+ # They are used as destination of target generators.
