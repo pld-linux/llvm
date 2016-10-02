@@ -124,9 +124,11 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
 %define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
 
-# clang doesn't know it, and leaving it here would pollute llvm-config
+# clang doesn't know -fvar-tracking-assignments, and leaving it here would pollute llvm-config
+# -Werror=format-security is for swig
+# TODO: add - -Werror=format-security to tools/lldb/scripts/LLDBWrapPython.cpp
 %define		filterout_c	-fvar-tracking-assignments
-%define		filterout_cxx	-fvar-tracking-assignments
+%define		filterout_cxx	-fvar-tracking-assignments -Werror=format-security
 %define		filterout_ccpp	-fvar-tracking-assignments
 
 # std::__once_call, std::__once_callable non-function symbols
