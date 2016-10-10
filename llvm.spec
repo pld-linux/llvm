@@ -16,7 +16,7 @@
 %bcond_with	tests		# run tests
 
 # No ocaml on other arches or no native ocaml (required for ocaml-ctypes)
-%ifnarch %{ix86} %{x8664} arm aarch64 ppc sparc sparcv9 
+%ifnarch %{ix86} %{x8664} arm aarch64 ppc sparc sparcv9
 %undefine	with_ocaml
 %endif
 
@@ -120,6 +120,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%define		abi	3.8
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -684,9 +685,9 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libLLVM*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLLVM*.so.3.7
+%attr(755,root,root) %ghost %{_libdir}/libLLVM*.so.%{abi}
 %attr(755,root,root) %{_libdir}/libLTO.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.3.7
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.%{abi}
 
 %files devel
 %defattr(644,root,root,755)
@@ -728,7 +729,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc clang-docs/{LICENSE.TXT,NOTES.txt,README.txt} %{?with_tests:clang-testlog.txt}
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
-%attr(755,root,root) %{_bindir}/clang-3.7
+%attr(755,root,root) %{_bindir}/clang-%{abi}
 %attr(755,root,root) %{_bindir}/clang-check
 %attr(755,root,root) %{_bindir}/clang-cl
 %attr(755,root,root) %{_bindir}/clang-format
@@ -759,9 +760,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.3.7
+%attr(755,root,root) %{_libdir}/libclang.so.%{abi}
 %attr(755,root,root) %{_libdir}/libclang[A-Z]*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.3.7
+%attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.%{abi}
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664}
@@ -818,7 +819,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/pp-trace
 %attr(755,root,root) %{_libdir}/libmodernizeCore.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libmodernizeCore.so.3.7
+%attr(755,root,root) %ghost %{_libdir}/libmodernizeCore.so.%{abi}
 # -devel?
 %attr(755,root,root) %{_libdir}/libmodernizeCore.so
 
@@ -827,7 +828,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc tools/lld/{LICENSE.TXT,README.md}
 %attr(755,root,root) %{_bindir}/lld
 %attr(755,root,root) %{_libdir}/liblld[ACDEHMPRXY]*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblld[ACDEHMPRXY]*.so.3.7
+%attr(755,root,root) %ghost %{_libdir}/liblld[ACDEHMPRXY]*.so.%{abi}
 
 %files -n lld-devel
 %defattr(644,root,root,755)
@@ -845,7 +846,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-server-%{version}
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.3.7
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.%{abi}
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/argdumper
 %{py_sitedir}/lldb/formatters
