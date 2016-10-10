@@ -111,6 +111,9 @@ BuildRequires:	pluto-devel
 BuildRequires:	scoplib-devel >= 0.2.1-2
 #cuda-devel
 %endif
+%if %{with ocaml}
+BuildConflicts:	llvm-ocaml
+%endif
 Requires:	%{name}-libs = %{version}-%{release}
 # LLVM is not supported on PPC64
 # http://llvm.org/bugs/show_bug.cgi?id=3729
@@ -557,24 +560,16 @@ rm -rf $RPM_BUILD_ROOT
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
 
-# Static analyzer not installed by default:
+# Adjust static analyzer installation
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
-install -d $RPM_BUILD_ROOT%{_libdir}/clang-analyzer
-# create launchers
-for f in scan-{build,view}; do
-	ln -s %{_libdir}/clang-analyzer/$f/$f $RPM_BUILD_ROOT%{_bindir}/$f
-	cp -pr tools/clang/tools/$f $RPM_BUILD_ROOT%{_libdir}/clang-analyzer
-done
-install -d $RPM_BUILD_ROOT%{_mandir}/man1
-%{__mv} $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-build/scan-build.1 $RPM_BUILD_ROOT%{_mandir}/man1
-%py_comp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
-%py_ocomp $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-view
-%py_postclean %{_libdir}/clang-analyzer/scan-view
-# not this OS
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/clang-analyzer/scan-build/*.bat
+install -d $RPM_BUILD_ROOT%{_libdir}/scan-build
+%{__mv} $RPM_BUILD_ROOT%{_prefix}/libexec/c??-analyzer $RPM_BUILD_ROOT%{_libdir}/scan-build
+%{__sed} -i -e 's,/\.\./libexec/,../%{_lib}/scan-build/,' $RPM_BUILD_ROOT%{_bindir}/scan-build
+%py_comp $RPM_BUILD_ROOT%{_datadir}/scan-view
+%py_ocomp $RPM_BUILD_ROOT%{_datadir}/scan-view
+%py_postclean %{_datadir}/scan-view
 
 # not installed by cmake buildsystem
-install build/bin/clang-query $RPM_BUILD_ROOT%{_bindir}
 install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
 
 %if %{with doc}
@@ -588,7 +583,7 @@ echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 # Move documentation back to build directory
 %if %{with ocaml}
 rm -rf ocamldocs
-mv $RPM_BUILD_ROOT%{_prefix}/docs/ocaml/html/html ocamldocs
+%{__mv} $RPM_BUILD_ROOT%{_prefix}/docs/ocaml/html/html ocamldocs
 %endif
 
 # and separate the apidoc
@@ -658,7 +653,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/llvm-cxxdump
 %attr(755,root,root) %{_bindir}/llvm-pdbdump
-%attr(755,root,root) %{_bindir}/macho-dump
 %attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_bindir}/verify-uselistorder
@@ -782,6 +776,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/scan-build
 %attr(755,root,root) %{_bindir}/scan-view
+%{_datadir}/scan-build
+%{_datadir}/scan-view
 %{_mandir}/man1/scan-build.1*
 %dir %{_libdir}/clang-analyzer
 
