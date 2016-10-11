@@ -136,7 +136,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		filterout_ccpp	-fvar-tracking-assignments
 
 # std::__once_call, std::__once_callable non-function symbols
-%define		skip_post_check_so	liblldAArch64ELFTarget.so.* liblldARMELFTarget.so.* liblldHexagonELFTarget.so.* liblldMipsELFTarget.so.* liblldb.so.*
+%define		skip_post_check_so	liblldb.so.*
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -525,7 +525,9 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
 	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
 	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
-	-DBUILD_SHARED_LIBS:BOOL=ON \
+	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
+	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	../
 
 %{__make} \
@@ -684,17 +686,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libLLVM*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLLVM*.so.%{abi}
-%attr(755,root,root) %{_libdir}/libLTO.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.%{abi}
+%attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
+# non-soname symlink
+%attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
+%attr(755,root,root) %{_libdir}/libLTO.so
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
-%attr(755,root,root) %{_libdir}/libLLVM*.so
+%attr(755,root,root) %{_libdir}/libLLVM.so
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
-%attr(755,root,root) %{_libdir}/libLTO.so
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %dir %{_datadir}/llvm
@@ -717,10 +718,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/polly/{CREDITS.txt,LICENSE.txt,README}
 %attr(755,root,root) %{_libdir}/LLVMPolly.so
-%attr(755,root,root) %{_libdir}/libPolly.so
 
 %files polly-devel
 %defattr(644,root,root,755)
+%{_libdir}/libPolly.a
+%{_libdir}/libPollyISL.a
 %{_includedir}/polly
 %endif
 
@@ -761,8 +763,6 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libclang.so.%{abi}
-%attr(755,root,root) %{_libdir}/libclang[A-Z]*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libclang[A-Z]*.so.%{abi}
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664}
@@ -795,7 +795,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang*.so
+%attr(755,root,root) %{_libdir}/libclang.so
+%{_libdir}/libclang*.a
 %{_includedir}/clang
 %{_includedir}/clang-c
 
@@ -813,26 +814,19 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt} tools/clang/tools/extra/docs/_build/html/{*.html,*.js,_static}
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
-%attr(755,root,root) %{_bindir}/clang-modernize
 %attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/pp-trace
-%attr(755,root,root) %{_libdir}/libmodernizeCore.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libmodernizeCore.so.%{abi}
-# -devel?
-%attr(755,root,root) %{_libdir}/libmodernizeCore.so
 
 %files -n lld
 %defattr(644,root,root,755)
 %doc tools/lld/{LICENSE.TXT,README.md}
 %attr(755,root,root) %{_bindir}/lld
-%attr(755,root,root) %{_libdir}/liblld[ACDEHMPRXY]*.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblld[ACDEHMPRXY]*.so.%{abi}
 
 %files -n lld-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/liblld[ACDEHMPRXY]*.so
+%{_libdir}/liblld[ACDEHMRXY]*.a
 %{_includedir}/lld
 
 %if %{with lldb}
@@ -846,7 +840,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-server-%{version}
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.%{abi}
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/argdumper
 %{py_sitedir}/lldb/formatters
