@@ -780,18 +780,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scan-build
 %{_datadir}/scan-view
 %{_mandir}/man1/scan-build.1*
-%dir %{_libdir}/clang-analyzer
-
-%dir %{_libdir}/clang-analyzer/scan-build
-%{_libdir}/clang-analyzer/scan-build/*.css
-%{_libdir}/clang-analyzer/scan-build/*.js
-%attr(755,root,root) %{_libdir}/clang-analyzer/scan-build/scan-build
-%attr(755,root,root) %{_libdir}/clang-analyzer/scan-build/*-analyzer
-
-%dir %{_libdir}/clang-analyzer/scan-view
-%attr(755,root,root) %{_libdir}/clang-analyzer/scan-view/scan-view
-%{_libdir}/clang-analyzer/scan-view/Resources
-%{_libdir}/clang-analyzer/scan-view/*.py[co]
+%dir %{_libdir}/scan-build
+%attr(755,root,root) %{_libdir}/scan-build/c++-analyzer
+%attr(755,root,root) %{_libdir}/scan-build/ccc-analyzer
 
 %files -n clang-devel
 %defattr(644,root,root,755)
@@ -832,16 +823,16 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with lldb}
 %files -n lldb
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/argdumper
 %attr(755,root,root) %{_bindir}/lldb
 %attr(755,root,root) %{_bindir}/lldb-%{version}
+%attr(755,root,root) %{_bindir}/lldb-argdumper
 %attr(755,root,root) %{_bindir}/lldb-mi
 %attr(755,root,root) %{_bindir}/lldb-mi-%{version}
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-server-%{version}
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
 %dir %{py_sitedir}/lldb
-%attr(755,root,root) %{py_sitedir}/lldb/argdumper
+%attr(755,root,root) %{py_sitedir}/lldb/lldb-argdumper
 %{py_sitedir}/lldb/formatters
 %{py_sitedir}/lldb/runtime
 %{py_sitedir}/lldb/utils
