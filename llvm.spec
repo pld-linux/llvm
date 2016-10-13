@@ -47,10 +47,11 @@ Patch1:		%{name}-pld.patch
 Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
+Patch5:		%{name}-ocaml-shared.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
-BuildRequires:	cmake
+BuildRequires:	cmake >= 2.8.8
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
@@ -411,6 +412,7 @@ Summary(pl.UTF-8):	Wydajny debugger nowej generacji
 Group:		Development/Debuggers
 URL:		http://lldb.llvm.org/
 Requires:	%{name} = %{version}-%{release}
+Requires:	python-six
 
 %description -n lldb
 LLDB is a next generation, high-performance debugger. It is built as a
@@ -481,18 +483,19 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %prep
 %setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6
-mv cfe-%{version}.src tools/clang
+%{__mv} cfe-%{version}.src tools/clang
 %{?with_rt:mv compiler-rt-%{version}.src projects/compiler-rt}
 %{?with_lldb:mv lldb-%{version}.src tools/lldb}
 %{?with_polly:mv polly-%{version}.src tools/polly}
-mv clang-tools-extra-%{version}.src tools/clang/tools/extra
-mv lld-%{version}.src tools/lld
+%{__mv} clang-tools-extra-%{version}.src tools/clang/tools/extra
+%{__mv} lld-%{version}.src tools/lld
 
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
@@ -605,9 +608,11 @@ done
 # Get rid of erroneously installed example files.
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/LLVMHello.so
 # test?
-%{__rm} $RPM_BUILD_ROOT%{_bindir}/llvm-c-test
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/{c-index-test,llvm-c-test}
 # not this OS
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
+# use system six
+%{__rm} $RPM_BUILD_ROOT%{py_sitedir}/six.py*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -617,9 +622,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post	-n clang -p /sbin/ldconfig
 %postun	-n clang -p /sbin/ldconfig
-
-%post	-n clang-tools-extra -p /sbin/ldconfig
-%postun	-n clang-tools-extra -p /sbin/ldconfig
 
 %post	-n lldb -p /sbin/ldconfig
 %postun	-n lldb -p /sbin/ldconfig
@@ -658,6 +660,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-pdbdump
 %attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
+%attr(755,root,root) %{_bindir}/sancov
 %attr(755,root,root) %{_bindir}/verify-uselistorder
 %attr(755,root,root) %{_bindir}/yaml2obj
 %if %{with doc}
@@ -673,6 +676,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-dis.1*
 %{_mandir}/man1/llvm-dwarfdump.1*
 %{_mandir}/man1/llvm-extract.1*
+%{_mandir}/man1/llvm-lib.1*
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-profdata.1*
@@ -696,6 +700,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-config
 %attr(755,root,root) %{_libdir}/libLLVM.so
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
+%{_libdir}/libLLVM*.a
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %dir %{_datadir}/llvm
@@ -741,7 +746,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
 %ifarch %{ix86} %{x8664}
-%{_libdir}/clang/%{version}/asan_blacklist.txt
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
 %endif
@@ -750,11 +754,19 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.so
 %endif
 %ifarch %{x8664}
-%{_libdir}/clang/%{version}/dfsan_abilist.txt
-%{_libdir}/clang/%{version}/msan_blacklist.txt
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
+%endif
+%ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
+%{_libdir}/clang/%{version}/asan_blacklist.txt
+%endif
+%ifarch %{ix86} %{x8664} mips64
+%{_libdir}/clang/%{version}/cfi_blacklist.txt
+%endif
+%ifarch %{x8664} aarch64 mips64
+%{_libdir}/clang/%{version}/dfsan_abilist.txt
+%{_libdir}/clang/%{version}/msan_blacklist.txt
 %endif
 %endif
 %dir %{_datadir}/clang
@@ -790,6 +802,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libclang*.a
 %{_includedir}/clang
 %{_includedir}/clang-c
+%{_datadir}/clang/cmake
 
 %files -n clang-doc
 %defattr(644,root,root,755)
@@ -808,12 +821,17 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-tidy
+%attr(755,root,root) %{_bindir}/modularize
 %attr(755,root,root) %{_bindir}/pp-trace
+%{_datadir}/clang/clang-tidy-diff.py
+%{_datadir}/clang/run-clang-tidy.py
 
 %files -n lld
 %defattr(644,root,root,755)
 %doc tools/lld/{LICENSE.TXT,README.md}
+%attr(755,root,root) %{_bindir}/ld.lld
 %attr(755,root,root) %{_bindir}/lld
+%attr(755,root,root) %{_bindir}/lld-link
 
 %files -n lld-devel
 %defattr(644,root,root,755)
