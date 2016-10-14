@@ -4,6 +4,7 @@
 #	%{_datadir}/clang/clang-format.el - emacs mode
 #	%{_datadir}/clang/clang-format.py - vim plugin
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
+# - system isl in polly?
 #
 # Conditional build:
 %bcond_without	lldb		# LLDB debugger
@@ -51,7 +52,7 @@ Patch5:		%{name}-ocaml-shared.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
-BuildRequires:	cmake >= 2.8.8
+BuildRequires:	cmake >= 2.8.12.2
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
@@ -62,8 +63,10 @@ BuildRequires:	__cc >= 3.4
 BuildRequires:	glibc-devel(x86_64)
 %endif
 BuildRequires:	groff
+BuildRequires:	libedit-devel
 BuildRequires:	libltdl-devel
 BuildRequires:	libstdc++-devel >= 5:3.4
+BuildRequires:	ncurses-devel
 %if %{with ocaml}
 BuildRequires:	ocaml-ctypes-devel >= 0.4
 BuildRequires:	ocaml-findlib
@@ -72,17 +75,18 @@ BuildRequires:	ocaml-ounit
 %endif
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
+BuildRequires:	python >= 1:2.7
 BuildRequires:	rpm-pythonprov
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
+BuildRequires:	zlib-devel
 %if %{with apidocs}
 BuildRequires:	doxygen
 BuildRequires:	graphviz
 %endif
 %if %{with tests}
 BuildRequires:	dejagnu
-BuildRequires:	python
 BuildRequires:	tcl-devel
 %endif
 %if %{with rt} && %{with multilib}
@@ -96,21 +100,16 @@ BuildRequires:	epydoc
 %ifarch i386 i486
 BuildRequires:	libatomic-devel
 %endif
-BuildRequires:	libedit-devel
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python-devel >= 2
 BuildRequires:	swig-python
 %endif
 %if %{with polly}
-BuildRequires:	cloog-isl-devel
-# >= 0.18.2-2
-BuildRequires:	gmp-devel
-BuildRequires:	isl-devel >= 0.14
-# optional
-BuildRequires:	pluto-devel
-BuildRequires:	scoplib-devel >= 0.2.1-2
-#cuda-devel
+#BuildRequires:	gmp-devel or imath-devel (private copy in polly/lib/External/isl/imath)
+# private copy in polly/lib/External/isl
+#BuildRequires:	isl-devel >= 0.15
+#TODO (bcond): cuda-devel (with POLLY_ENABLE_GPGPU_CODEGEN=ON)
 %endif
 %if %{with ocaml}
 BuildConflicts:	llvm-ocaml
@@ -723,7 +722,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with polly}
 %files polly
 %defattr(644,root,root,755)
-%doc tools/polly/{CREDITS.txt,LICENSE.txt,README}
+%doc tools/polly/{CREDITS.txt,LICENSE.txt,README} tools/polly/www/{bugs,changelog,contributors}.html
 %attr(755,root,root) %{_libdir}/LLVMPolly.so
 
 %files polly-devel
