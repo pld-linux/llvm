@@ -746,7 +746,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang/%{version}
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
-%ifarch %{ix86} %{x8664}
+%ifarch %{ix86} %{x8664} x32
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
 %endif
@@ -759,13 +759,13 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
-%ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
+%ifarch %{ix86} %{x8664} x32 %{arm} aarch64 mips mips64 ppc64
 %{_libdir}/clang/%{version}/asan_blacklist.txt
 %endif
-%ifarch %{ix86} %{x8664} mips64
+%ifarch %{ix86} %{x8664} x32 mips64
 %{_libdir}/clang/%{version}/cfi_blacklist.txt
 %endif
-%ifarch %{x8664} aarch64 mips64
+%ifarch %{x8664} x32 aarch64 mips64
 %{_libdir}/clang/%{version}/dfsan_abilist.txt
 %{_libdir}/clang/%{version}/msan_blacklist.txt
 %endif
@@ -778,11 +778,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libclang.so.%{abi}
 
 %if %{with rt} && %{with multilib}
-%ifarch %{x8664}
+%ifarch %{x8664} x32
 %files -n clang-multilib
 %defattr(644,root,root,755)
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i386.a
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i386.so
+%endif
+%ifarch x32
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a
+%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
 %endif
 
