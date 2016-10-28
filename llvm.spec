@@ -445,7 +445,9 @@ Summary:	OCaml binding for LLVM
 Summary(pl.UTF-8):	Wiązanie OCamla do LLVM-a
 Group:		Libraries
 Requires:	%{name} = %{version}-%{release}
+%if %{with ocaml}
 %requires_eq	ocaml-runtime
+%endif
 
 %description ocaml
 OCaml binding for LLVM.
