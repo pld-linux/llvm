@@ -46,6 +46,7 @@ Patch0:		%{name}-lld-link.patch
 Patch1:		%{name}-pld.patch
 Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
+Patch4:		libdir-polly.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -487,6 +488,9 @@ mv lld-%{version}.src tools/lld
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%if %{with polly}
+%patch4 -p1
+%endif
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
