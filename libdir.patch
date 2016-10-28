@@ -1,14 +1,3 @@
---- llvm-3.7.0.src/tools/polly/cmake/polly_macros.cmake~	2015-06-29 21:57:59.000000000 +0200
-+++ llvm-3.7.0.src/tools/polly/cmake/polly_macros.cmake	2015-09-09 21:36:43.080128117 +0200
-@@ -46,7 +46,7 @@
-   endif(MSVC)
-   install(TARGETS ${name}
-     EXPORT LLVMExports
--    LIBRARY DESTINATION lib
-+    LIBRARY DESTINATION lib${LLVM_LIBDIR_SUFFIX}
-     ARCHIVE DESTINATION lib${LLVM_LIBDIR_SUFFIX})
-   set_property(GLOBAL APPEND PROPERTY LLVM_EXPORTS ${name})
- endmacro(add_polly_library)
 --- llvm-3.7.0.src/bindings/ocaml/llvm/CMakeLists.txt.orig	2014-12-30 04:24:07.000000000 +0100
 +++ llvm-3.7.0.src/bindings/ocaml/llvm/CMakeLists.txt	2015-10-03 17:47:47.253164926 +0200
 @@ -8,4 +8,4 @@

@@ -49,6 +49,7 @@ Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
+Patch6:		libdir-polly.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -497,6 +498,9 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%if %{with polly}
+%patch6 -p1
+%endif
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
