@@ -50,7 +50,7 @@ Patch4:		libdir-polly.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
-BuildRequires:	cmake
+BuildRequires:	cmake >= 2.8.12.2
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
