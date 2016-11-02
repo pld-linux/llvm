@@ -575,7 +575,7 @@ rm -rf $RPM_BUILD_ROOT
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
 install -d $RPM_BUILD_ROOT%{_libdir}/scan-build
 %{__mv} $RPM_BUILD_ROOT%{_prefix}/libexec/c??-analyzer $RPM_BUILD_ROOT%{_libdir}/scan-build
-%{__sed} -i -e 's,/\.\./libexec/,../%{_lib}/scan-build/,' $RPM_BUILD_ROOT%{_bindir}/scan-build
+%{__sed} -i -e 's,/\.\./libexec/,/../%{_lib}/scan-build/,' $RPM_BUILD_ROOT%{_bindir}/scan-build
 %py_comp $RPM_BUILD_ROOT%{_datadir}/scan-view
 %py_ocomp $RPM_BUILD_ROOT%{_datadir}/scan-view
 %py_postclean %{_datadir}/scan-view
