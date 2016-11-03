@@ -95,6 +95,12 @@ BuildRequires:	tcl-devel
 BuildRequires:	gcc-c++-multilib-32
 BuildRequires:	libstdc++-multilib-32-devel
 %endif
+%ifarch x32
+BuildRequires: gcc-c++-multilib-32
+BuildRequires: libstdc++-multilib-32-devel
+BuildRequires: gcc-c++-multilib-64
+BuildRequires: libstdc++-multilib-64-devel
+%endif
 %endif
 %if %{with lldb}
 BuildRequires:	epydoc
