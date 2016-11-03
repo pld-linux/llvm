@@ -1,6 +1,7 @@
---- llvm-3.5.0.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2014-10-01 21:07:02.242822402 +0200
-+++ llvm-3.5.0.src/tools/clang/lib/Driver/ToolChains.cpp	2014-10-01 21:29:07.449433463 +0200
-@@ -1333,6 +1333,7 @@
+diff -dur -x '*~' -x '*.orig' -x '*.rej' llvm-3.9.0.src.orig/tools/clang/lib/Driver/ToolChains.cpp llvm-3.9.0.src/tools/clang/lib/Driver/ToolChains.cpp
+--- llvm-3.9.0.src.orig/tools/clang/lib/Driver/ToolChains.cpp	2016-08-18 19:56:48.000000000 +0200
++++ llvm-3.9.0.src/tools/clang/lib/Driver/ToolChains.cpp	2016-11-03 12:18:35.000000000 +0100
+@@ -1498,6 +1498,7 @@
  
    static const char *const X86_64LibDirs[] = {"/lib64", "/lib"};
    static const char *const X86_64Triples[] = {
@@ -8,7 +9,7 @@
        "x86_64-linux-gnu",       "x86_64-unknown-linux-gnu",
        "x86_64-pc-linux-gnu",    "x86_64-redhat-linux6E",
        "x86_64-redhat-linux",    "x86_64-suse-linux",
-@@ -1341,6 +1342,7 @@
+@@ -1507,6 +1508,7 @@
    static const char *const X32LibDirs[] = {"/libx32"};
    static const char *const X86LibDirs[] = {"/lib32", "/lib"};
    static const char *const X86Triples[] = {
@@ -16,7 +17,7 @@
        "i686-linux-gnu",       "i686-pc-linux-gnu",     "i486-linux-gnu",
        "i386-linux-gnu",       "i386-redhat-linux6E",   "i686-redhat-linux",
        "i586-redhat-linux",    "i386-redhat-linux",     "i586-suse-linux",
-@@ -1370,6 +1372,7 @@
+@@ -1532,6 +1534,7 @@
  
    static const char *const PPCLibDirs[] = {"/lib32", "/lib"};
    static const char *const PPCTriples[] = {
@@ -24,8 +25,8 @@
        "powerpc-linux-gnu", "powerpc-unknown-linux-gnu", "powerpc-linux-gnuspe",
        "powerpc-suse-linux", "powerpc-montavista-linuxspe"};
    static const char *const PPC64LibDirs[] = {"/lib64", "/lib"};
-@@ -1385,14 +1388,14 @@
-                                                 "ppc64le-redhat-linux" };
+@@ -1544,14 +1547,14 @@
+       "powerpc64le-suse-linux", "ppc64le-redhat-linux"};
  
    static const char *const SPARCv8LibDirs[] = {"/lib32", "/lib"};
 -  static const char *const SPARCv8Triples[] = {"sparc-linux-gnu",
@@ -40,17 +41,17 @@
 -  static const char *const SystemZTriples[] = {
 +  static const char *const SystemZTriples[] = {"s390x-pld-linux",
        "s390x-linux-gnu", "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu",
-       "s390x-suse-linux", "s390x-redhat-linux"
-   };
-@@ -2778,6 +2781,7 @@
+       "s390x-suse-linux", "s390x-redhat-linux"};
  
- enum Distro {
+@@ -3716,6 +3719,7 @@
+   // in this enum, because some tests are done by integer comparison against
+   // the first and last known member in the family, e.g. IsRedHat().
    ArchLinux,
 +  PLDLinux,
    DebianLenny,
    DebianSqueeze,
    DebianWheezy,
-@@ -2820,6 +2824,10 @@
+@@ -3761,6 +3765,10 @@
    return Distro >= UbuntuHardy && Distro <= UbuntuXenial;
  }
  
@@ -61,8 +62,8 @@
  static Distro DetectDistro(const Driver &D, llvm::Triple::ArchType Arch) {
    llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> File =
        llvm::MemoryBuffer::getFile("/etc/lsb-release");
-@@ -2888,6 +2896,9 @@
-   if (llvm::sys::fs::exists("/etc/arch-release"))
+@@ -3837,6 +3845,9 @@
+   if (D.getVFS().exists("/etc/arch-release"))
      return ArchLinux;
  
 +  if (!llvm::sys::fs::exists("/etc/pld-release"))
@@ -71,16 +72,16 @@
    return UnknownDistro;
  }
  
-@@ -3029,7 +3040,7 @@
+@@ -4012,7 +4023,7 @@
  
-   Distro Distro = DetectDistro(Arch);
+   Distro Distro = DetectDistro(D, Arch);
  
 -  if (IsOpenSUSE(Distro) || IsUbuntu(Distro)) {
 +  if (IsOpenSUSE(Distro) || IsUbuntu(Distro) || IsPLD(Distro)) {
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
-@@ -3049,7 +3060,7 @@
+@@ -4032,7 +4043,7 @@
    // ABI requires a mapping between the GOT and the symbol table.
    // Android loader does not support .gnu.hash.
    if (!IsMips && !IsAndroid) {
@@ -89,16 +90,12 @@
          (IsUbuntu(Distro) && Distro >= UbuntuMaverick))
        ExtraOpts.push_back("--hash-style=gnu");
  
-@@ -3058,10 +3069,10 @@
+@@ -4041,7 +4052,7 @@
        ExtraOpts.push_back("--hash-style=both");
    }
  
--  if (IsRedhat(Distro))
-+  if (IsRedhat(Distro) || IsPLD(Distro))
+-  if (IsRedhat(Distro) && Distro != RHEL5 && Distro != RHEL6)
++  if ((IsRedhat(Distro) && Distro != RHEL5 && Distro != RHEL6) || IsPLD(Distro))
      ExtraOpts.push_back("--no-add-needed");
  
--  if ((IsDebian(Distro) && Distro >= DebianSqueeze) || IsOpenSUSE(Distro) ||
-+  if ((IsDebian(Distro) && Distro >= DebianSqueeze) || IsOpenSUSE(Distro) || IsPLD(Distro) ||
-       (IsRedhat(Distro) && Distro != RHEL4 && Distro != RHEL5) ||
-       (IsUbuntu(Distro) && Distro >= UbuntuKarmic))
-     ExtraOpts.push_back("--build-id");
+ #ifdef ENABLE_LINKER_BUILD_ID

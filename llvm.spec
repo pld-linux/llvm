@@ -24,36 +24,35 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.8.1
+Version:	3.9.0
 Release:	0.1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	538467e6028bbc9259b1e6e015d25845
+# Source0-md5:	f2093e98060532449eb7d2fcfd0bc6c6
 Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	4ff2f8844a786edb0220f490f7896080
+# Source1-md5:	29e1d86bee422ab5345f5e9fb808d2dc
 Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	f140db073d2453f854fbe01cc46f3110
+# Source2-md5:	b7ea34c9d744da16ffc0217b6990d095
 Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	9e4787b71be8e432fffd31e13ac87623
+# Source3-md5:	968d053c3c3d7297983589164c6999e9
 Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	8a40e697a4ba1c8b640b85d074bd6e25
+# Source4-md5:	1cf328cbae25267749b68cfa6f113674
 Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	6e49f285d0b366cc3cab782d8c92d382
+# Source5-md5:	f4f663068c77fc742113211841e94d5e
 Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	68cd069bf99c71ebcfbe01d557c0e14d
+# Source6-md5:	c23c895c0d855a0dc426af686538a95e
 Patch0:		%{name}-lld-link.patch
 Patch1:		%{name}-pld.patch
 Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
-Patch6:		libdir-polly.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
-BuildRequires:	cmake >= 2.8.12.2
+BuildRequires:	cmake >= 3.4.3
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
@@ -504,9 +503,6 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%if %{with polly}
-%patch6 -p1
-%endif
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
@@ -542,6 +538,7 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
+	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	../
 
 %{__make} \

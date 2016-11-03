@@ -1,53 +1,7 @@
---- llvm-3.7.0.src/tools/lld/lib/Core/CMakeLists.txt.orig	2015-01-21 23:54:56.000000000 +0100
-+++ llvm-3.7.0.src/tools/lld/lib/Core/CMakeLists.txt	2015-10-01 20:22:26.497622590 +0200
-@@ -8,5 +8,5 @@ add_llvm_library(lldCore
-   SymbolTable.cpp
-   Writer.cpp
-   LINK_LIBS
--    LLVMSupport
-+    LLVMSupport pthread
-   )
---- llvm-3.7.0.src/tools/lld/lib/Driver/CMakeLists.txt.orig	2015-06-23 21:54:57.000000000 +0200
-+++ llvm-3.7.0.src/tools/lld/lib/Driver/CMakeLists.txt	2015-10-01 20:22:45.881962494 +0200
-@@ -37,6 +37,7 @@ add_llvm_library(lldDriver
-     LLVMObject
-     LLVMOption
-     LLVMSupport
-+    pthread
-   )
- 
- add_dependencies(lldDriver DriverOptionsTableGen)
---- llvm-3.7.0.src/tools/lld/lib/ReaderWriter/CMakeLists.txt.orig	2015-04-10 23:23:51.000000000 +0200
-+++ llvm-3.7.0.src/tools/lld/lib/ReaderWriter/CMakeLists.txt	2015-10-01 20:22:59.195987185 +0200
-@@ -16,4 +16,5 @@ add_llvm_library(lldReaderWriter
-     lldYAML
-     LLVMObject
-     LLVMSupport
-+    pthread
-   )
---- llvm-3.7.0.src/tools/lld/lib/ReaderWriter/MachO/CMakeLists.txt.orig	2015-06-23 22:35:31.000000000 +0200
-+++ llvm-3.7.0.src/tools/lld/lib/ReaderWriter/MachO/CMakeLists.txt	2015-10-01 21:51:16.757434595 +0200
-@@ -22,6 +22,7 @@
-     lldYAML
-     LLVMObject
-     LLVMSupport
-+    pthread
-   )
- 
- include_directories(.)
---- llvm-3.7.0.src/tools/lld/lib/ReaderWriter/ELF/CMakeLists.txt.orig	2015-05-22 18:01:12.000000000 +0200
-+++ llvm-3.7.0.src/tools/lld/lib/ReaderWriter/ELF/CMakeLists.txt	2015-10-02 15:51:47.415199842 +0200
-@@ -17,6 +17,7 @@
-     lldYAML
-     LLVMObject
-     LLVMSupport
-+    pthread
-   )
- 
- include_directories(.)
---- llvm-3.8.0.src/tools/lld/COFF/CMakeLists.txt~	2016-10-01 20:57:37.000000000 +0300
-+++ llvm-3.8.0.src/tools/lld/COFF/CMakeLists.txt	2016-10-01 20:57:44.393387882 +0300
-@@ -17,6 +17,9 @@
+diff -dur -x '*~' -x '*.orig' -x '*.rej' llvm-3.9.0.src.orig/tools/lld/COFF/CMakeLists.txt llvm-3.9.0.src/tools/lld/COFF/CMakeLists.txt
+--- llvm-3.9.0.src.orig/tools/lld/COFF/CMakeLists.txt	2016-07-13 05:19:27.000000000 +0200
++++ llvm-3.9.0.src/tools/lld/COFF/CMakeLists.txt	2016-11-03 12:20:24.000000000 +0100
+@@ -18,6 +18,9 @@
    Symbols.cpp
    Writer.cpp
  
@@ -57,3 +11,33 @@
    LINK_COMPONENTS
    ${LLVM_TARGETS_TO_BUILD}
    Core
+diff -dur -x '*~' -x '*.orig' -x '*.rej' llvm-3.9.0.src.orig/tools/lld/lib/Core/CMakeLists.txt llvm-3.9.0.src/tools/lld/lib/Core/CMakeLists.txt
+--- llvm-3.9.0.src.orig/tools/lld/lib/Core/CMakeLists.txt	2016-01-07 01:14:09.000000000 +0100
++++ llvm-3.9.0.src/tools/lld/lib/Core/CMakeLists.txt	2016-11-03 12:20:10.000000000 +0100
+@@ -12,5 +12,5 @@
+   ${LLD_INCLUDE_DIR}/lld/Core
+ 
+   LINK_LIBS
+-    LLVMSupport
++    LLVMSupport pthread
+   )
+diff -dur -x '*~' -x '*.orig' -x '*.rej' llvm-3.9.0.src.orig/tools/lld/lib/Driver/CMakeLists.txt llvm-3.9.0.src/tools/lld/lib/Driver/CMakeLists.txt
+--- llvm-3.9.0.src.orig/tools/lld/lib/Driver/CMakeLists.txt	2016-03-02 20:08:05.000000000 +0100
++++ llvm-3.9.0.src/tools/lld/lib/Driver/CMakeLists.txt	2016-11-03 12:20:10.000000000 +0100
+@@ -17,6 +17,7 @@
+     LLVMObject
+     LLVMOption
+     LLVMSupport
++    pthread
+   )
+ 
+ add_dependencies(lldDriver DriverOptionsTableGen)
+diff -dur -x '*~' -x '*.orig' -x '*.rej' llvm-3.9.0.src.orig/tools/lld/lib/ReaderWriter/CMakeLists.txt llvm-3.9.0.src/tools/lld/lib/ReaderWriter/CMakeLists.txt
+--- llvm-3.9.0.src.orig/tools/lld/lib/ReaderWriter/CMakeLists.txt	2016-03-02 01:37:50.000000000 +0100
++++ llvm-3.9.0.src/tools/lld/lib/ReaderWriter/CMakeLists.txt	2016-11-03 12:20:10.000000000 +0100
+@@ -16,4 +16,5 @@
+     lldYAML
+     LLVMObject
+     LLVMSupport
++    pthread
+   )
