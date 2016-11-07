@@ -620,6 +620,8 @@ done
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
 # use system six
 %{__rm} $RPM_BUILD_ROOT%{py_sitedir}/six.py*
+# it seems it is used internally by an extra clang tool
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -670,6 +672,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_bindir}/sancov
+%attr(755,root,root) %{_bindir}/sanstats
 %attr(755,root,root) %{_bindir}/verify-uselistorder
 %attr(755,root,root) %{_bindir}/yaml2obj
 %if %{with doc}
@@ -736,6 +739,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/libPolly.a
 %{_libdir}/libPollyISL.a
+%{_libdir}/libPollyPPCG.a
 %{_includedir}/polly
 %endif
 
@@ -831,13 +835,17 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt}
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
+%attr(755,root,root) %{_bindir}/clang-include-fixer
 %attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-tidy
+%attr(755,root,root) %{_bindir}/find-all-symbols
 %attr(755,root,root) %{_bindir}/modularize
 %attr(755,root,root) %{_bindir}/pp-trace
+%{_datadir}/clang/clang-include-fixer.py
 %{_datadir}/clang/clang-tidy-diff.py
 %{_datadir}/clang/run-clang-tidy.py
+%{_datadir}/clang/run-find-all-symbols.py
 
 %files -n lld
 %defattr(644,root,root,755)
