@@ -126,7 +126,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	3.8
+%define		abi	3.9
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -562,7 +562,6 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %{__make} -C tools/lld/docs docs-lld-html
 %{__make} -C tools/lldb/docs lldb-python-doc
 %{__make} -C tools/lldb/docs lldb-cpp-doc
-%{__make} -C ../tools/clang/tools/extra/docs html
 %endif
 
 %install
@@ -713,8 +712,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libLLVM*.a
 %{_includedir}/llvm
 %{_includedir}/llvm-c
-%dir %{_datadir}/llvm
-%{_datadir}/llvm/cmake
+%{_libdir}/cmake/llvm
 %if %{with doc}
 %{_mandir}/man1/llvm-config.1*
 %endif
@@ -817,7 +815,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libclang*.a
 %{_includedir}/clang
 %{_includedir}/clang-c
-%{_datadir}/clang/cmake
+%{_libdir}/cmake/clang
 
 %files -n clang-doc
 %defattr(644,root,root,755)
@@ -831,7 +829,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-tools-extra
 %defattr(644,root,root,755)
-%doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt} tools/clang/tools/extra/docs/_build/html/{*.html,*.js,_static}
+%doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt}
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
 %attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-rename
