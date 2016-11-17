@@ -114,7 +114,7 @@ BuildRequires:	swig-python
 %if %{with polly}
 #BuildRequires:	gmp-devel or imath-devel (private copy in polly/lib/External/isl/imath)
 # private copy in polly/lib/External/isl
-#BuildRequires:	isl-devel >= 0.15
+#BuildRequires:	isl-devel >= 0.17.1
 #TODO (bcond): cuda-devel (with POLLY_ENABLE_GPGPU_CODEGEN=ON)
 %endif
 %if %{with ocaml}
