@@ -25,7 +25,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.9.1
-Release:	1
+Release:	2
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -130,7 +130,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
-# x32 - the same issue as https://llvm.org/bugs/show_bug.cgi?id=27237
+# i686 and x32 - the same issue as https://llvm.org/bugs/show_bug.cgi?id=27237
+%define		specflags_i686	-gsplit-dwarf
 %define		specflags_x32	-gsplit-dwarf
 
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
