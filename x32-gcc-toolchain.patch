@@ -1,5 +1,5 @@
---- llvm-3.6.2.src/tools/clang/lib/Driver/ToolChains.cpp~	2015-07-26 12:48:18.000000000 +0200
-+++ llvm-3.6.2.src/tools/clang/lib/Driver/ToolChains.cpp	2015-07-26 17:44:56.883613971 +0200
+--- llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp~	2015-07-26 12:48:18.000000000 +0200
++++ llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2015-07-26 17:44:56.883613971 +0200
 @@ -1312,6 +1312,9 @@
        "x86_64-slackware-linux", "x86_64-linux-android",
        "x86_64-unknown-linux"};

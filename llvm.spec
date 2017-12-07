@@ -1,4 +1,5 @@
 # TODO:
+# - wait for rust ready for LLVM 5.0
 # - move and package:
 #	%{_datadir}/clang/bash-autocomplete.sh
 #	%{_datadir}/clang/clang-format-sublime.py - sublime plugin
@@ -7,6 +8,7 @@
 #	%{_datadir}/clang/clang-rename.el
 #	%{_datadir}/clang/clang-format.py - clang tools vim integration
 #	%{_datadir}/clang/clang-rename.py
+#	%{_datadir}/opt-viewer
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
 #
@@ -28,25 +30,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	4.0.1
+Version:	5.0.0
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://releases.llvm.org/download.html
 Source0:	http://releases.llvm.org/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	a818e70321b91e2bb2d47e60edd5408f
+# Source0-md5:	5ce9c5ad55243347ea0fdb4c16754be0
 Source1:	http://releases.llvm.org/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	a6c7b3e953f8b93e252af5917df7db97
+# Source1-md5:	699c448c6d6d0edb693c87beb1cc8c6e
 Source2:	http://releases.llvm.org/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	0227ac853ce422125f8bb08f6ad5c995
+# Source2-md5:	da735894133589cbc6052c8ef06b1230
 Source3:	http://releases.llvm.org/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	908bdd777d3b527a914ba360477b8ab3
+# Source3-md5:	8de19973d044ca2cfe325d4625a5cfef
 Source4:	http://releases.llvm.org/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	0d4a3fa2eb446a378bbf01b220851b1f
+# Source4-md5:	dcbd08450e895a42f3986e2fe6524c92
 Source5:	http://releases.llvm.org/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	cfd46027a0ab7eed483dfcc803e86bd9
+# Source5-md5:	0cda05d1a61becb393eb63746963d7f5
 Source6:	http://releases.llvm.org/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	39cd3512cddcfd7d37ef12066c961660
+# Source6-md5:	a39cbecced3263feab9139b47118e062
 Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
@@ -131,7 +133,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	4.0
+%define		abi	5.0
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -661,10 +663,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
 %attr(755,root,root) %{_bindir}/llvm-cat
 %attr(755,root,root) %{_bindir}/llvm-cov
+%attr(755,root,root) %{_bindir}/llvm-cvtres
 %attr(755,root,root) %{_bindir}/llvm-cxxdump
 %attr(755,root,root) %{_bindir}/llvm-cxxfilt
 %attr(755,root,root) %{_bindir}/llvm-diff
 %attr(755,root,root) %{_bindir}/llvm-dis
+%attr(755,root,root) %{_bindir}/llvm-dlltool
 %attr(755,root,root) %{_bindir}/llvm-dsymutil
 %attr(755,root,root) %{_bindir}/llvm-dwarfdump
 %attr(755,root,root) %{_bindir}/llvm-dwp
@@ -676,12 +680,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-mc
 %attr(755,root,root) %{_bindir}/llvm-mcmarkup
 %attr(755,root,root) %{_bindir}/llvm-modextract
+%attr(755,root,root) %{_bindir}/llvm-mt
 %attr(755,root,root) %{_bindir}/llvm-nm
 %attr(755,root,root) %{_bindir}/llvm-objdump
 %attr(755,root,root) %{_bindir}/llvm-opt-report
-%attr(755,root,root) %{_bindir}/llvm-pdbdump
+%attr(755,root,root) %{_bindir}/llvm-pdbutil
 %attr(755,root,root) %{_bindir}/llvm-profdata
 %attr(755,root,root) %{_bindir}/llvm-ranlib
+%attr(755,root,root) %{_bindir}/llvm-readelf
 %attr(755,root,root) %{_bindir}/llvm-readobj
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
 %attr(755,root,root) %{_bindir}/llvm-size
@@ -728,7 +734,7 @@ rm -rf $RPM_BUILD_ROOT
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
 %attr(755,root,root) %{_libdir}/libLTO.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.4
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.5
 
 %files devel
 %defattr(644,root,root,755)
@@ -765,6 +771,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libPollyISL.a
 %{_libdir}/libPollyPPCG.a
 %{_includedir}/polly
+%{_libdir}/cmake/polly
 %endif
 
 %files -n clang
@@ -814,7 +821,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libclang.so.%{abi}
-%attr(755,root,root) %ghost %{_libdir}/libclang.so.4
+%attr(755,root,root) %ghost %{_libdir}/libclang.so.5
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664} x32
@@ -869,6 +876,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-reorder-fields
 %attr(755,root,root) %{_bindir}/clang-tidy
+%attr(755,root,root) %{_bindir}/clangd
 %attr(755,root,root) %{_bindir}/find-all-symbols
 %attr(755,root,root) %{_bindir}/modularize
 %attr(755,root,root) %{_bindir}/pp-trace
@@ -893,14 +901,13 @@ rm -rf $RPM_BUILD_ROOT
 %files -n lldb
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/lldb
-%attr(755,root,root) %{_bindir}/lldb-%{version}
 %attr(755,root,root) %{_bindir}/lldb-argdumper
 %attr(755,root,root) %{_bindir}/lldb-mi
-%attr(755,root,root) %{_bindir}/lldb-mi-%{version}
 %attr(755,root,root) %{_bindir}/lldb-server
-%attr(755,root,root) %{_bindir}/lldb-server-%{version}
+# FIXME: why bindir???
+%attr(755,root,root) %{_bindir}/liblldb-intel-mpxtable.so
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.4
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.5
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/lldb-argdumper
 %{py_sitedir}/lldb/formatters
@@ -921,8 +928,8 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with ocaml}
 %files ocaml
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/ocaml/stublibs/dllllvm*.so
 %dir %{_libdir}/ocaml/llvm
-%attr(755,root,root) %{_libdir}/ocaml/llvm/dllllvm*.so
 %{_libdir}/ocaml/llvm/llvm*.cma
 %{_libdir}/ocaml/llvm/llvm*.cmi
 %{_libdir}/ocaml/META.llvm*

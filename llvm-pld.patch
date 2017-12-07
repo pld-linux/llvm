@@ -1,6 +1,6 @@
---- llvm-4.0.1.src/tools/clang/lib/Driver/ToolChains.cpp.orig	2017-05-31 12:01:14.000000000 +0200
-+++ llvm-4.0.1.src/tools/clang/lib/Driver/ToolChains.cpp	2017-12-10 08:33:21.873800345 +0100
-@@ -1549,6 +1549,7 @@
+--- llvm-5.0.0.src.orig/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2016-08-18 19:56:48.000000000 +0200
++++ llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2016-11-03 12:18:35.000000000 +0100
+@@ -1498,6 +1498,7 @@
  
    static const char *const X86_64LibDirs[] = {"/lib64", "/lib"};
    static const char *const X86_64Triples[] = {
@@ -42,35 +42,8 @@
        "s390x-linux-gnu", "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu",
        "s390x-suse-linux", "s390x-redhat-linux"};
  
-@@ -4112,7 +4115,7 @@
- 
-   Distro Distro(D.getVFS());
- 
--  if (Distro.IsOpenSUSE() || Distro.IsUbuntu()) {
-+  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsPLD()) {
-     ExtraOpts.push_back("-z");
-     ExtraOpts.push_back("relro");
-   }
-@@ -4132,7 +4135,7 @@
-   // ABI requires a mapping between the GOT and the symbol table.
-   // Android loader does not support .gnu.hash.
-   if (!IsMips && !IsAndroid) {
--    if (Distro.IsRedhat() || Distro.IsOpenSUSE() ||
-+    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsPLD() ||
-         (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick))
-       ExtraOpts.push_back("--hash-style=gnu");
- 
-@@ -4141,7 +4144,7 @@
-       ExtraOpts.push_back("--hash-style=both");
-   }
- 
--  if (Distro.IsRedhat() && Distro != Distro::RHEL5 && Distro != Distro::RHEL6)
-+  if ((Distro.IsRedhat() && Distro != Distro::RHEL5 && Distro != Distro::RHEL6) || Distro.IsPLD())
-     ExtraOpts.push_back("--no-add-needed");
- 
- #ifdef ENABLE_LINKER_BUILD_ID
---- llvm-4.0.1.src/tools/clang/include/clang/Driver/Distro.h.orig	2016-11-28 22:11:14.000000000 +0100
-+++ llvm-4.0.1.src/tools/clang/include/clang/Driver/Distro.h	2017-12-10 08:31:15.017135111 +0100
+--- llvm-5.0.0.src/tools/clang/include/clang/Driver/Distro.h.orig	2017-05-04 14:46:38.000000000 +0200
++++ llvm-5.0.0.src/tools/clang/include/clang/Driver/Distro.h	2017-12-01 22:44:57.785429043 +0100
 @@ -27,6 +27,7 @@
      // in this enum, because some tests are done by integer comparison against
      // the first and last known member in the family, e.g. IsRedHat().
@@ -79,22 +52,20 @@
      DebianLenny,
      DebianSqueeze,
      DebianWheezy,
-@@ -112,7 +113,11 @@
-   bool IsUbuntu() const {
-     return DistroVal >= UbuntuHardy && DistroVal <= UbuntuZesty;
+@@ -114,6 +115,10 @@
+     return DistroVal >= UbuntuHardy && DistroVal <= UbuntuArtful;
    }
-- 
-+
-+  bool IsPLD() const {
+ 
++  bool IsPLD() {
 +    return DistroVal == PLDLinux;
 +  }
 +
    /// @}
  };
  
---- llvm-4.0.1.src/tools/clang/lib/Driver/Distro.cpp.orig	2016-11-28 22:11:18.000000000 +0100
-+++ llvm-4.0.1.src/tools/clang/lib/Driver/Distro.cpp	2017-12-10 08:32:15.883801082 +0100
-@@ -128,6 +128,9 @@
+--- llvm-5.0.0.src/tools/clang/lib/Driver/Distro.cpp.orig	2017-05-04 14:46:38.000000000 +0200
++++ llvm-5.0.0.src/tools/clang/lib/Driver/Distro.cpp	2017-12-01 22:47:15.155427475 +0100
+@@ -129,6 +129,9 @@
    if (VFS.exists("/etc/arch-release"))
      return Distro::ArchLinux;
  
@@ -104,3 +75,32 @@
    return Distro::UnknownDistro;
  }
  
+--- llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Linux.cpp.orig	2017-12-01 22:14:03.462116884 +0100
++++ llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Linux.cpp	2017-12-01 22:51:38.678757801 +0100
+@@ -210,7 +210,7 @@
+ 
+   Distro Distro(D.getVFS());
+ 
+-  if (Distro.IsOpenSUSE() || Distro.IsUbuntu()) {
++  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsPLD()) {
+     ExtraOpts.push_back("-z");
+     ExtraOpts.push_back("relro");
+   }
+@@ -232,7 +232,7 @@
+   // Android loader does not support .gnu.hash.
+   // Hexagon linker/loader does not support .gnu.hash
+   if (!IsMips && !IsAndroid && !IsHexagon) {
+-    if (Distro.IsRedhat() || Distro.IsOpenSUSE() ||
++    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsPLD() ||
+         (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick))
+       ExtraOpts.push_back("--hash-style=gnu");
+ 
+@@ -241,7 +241,7 @@
+       ExtraOpts.push_back("--hash-style=both");
+   }
+ 
+-  if (Distro.IsRedhat() && Distro != Distro::RHEL5 && Distro != Distro::RHEL6)
++  if ((Distro.IsRedhat() && Distro != Distro::RHEL5 && Distro != Distro::RHEL6) || Distro.IsPLD())
+     ExtraOpts.push_back("--no-add-needed");
+ 
+ #ifdef ENABLE_LINKER_BUILD_ID
