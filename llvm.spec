@@ -1,8 +1,12 @@
 # TODO:
 # - move and package:
+#	%{_datadir}/clang/bash-autocomplete.sh
 #	%{_datadir}/clang/clang-format-sublime.py - sublime plugin
-#	%{_datadir}/clang/clang-format.el - emacs mode
-#	%{_datadir}/clang/clang-format.py - vim plugin
+#	%{_datadir}/clang/clang-format.el - clang tools emacs integration
+#	%{_datadir}/clang/clang-include-fixer.el
+#	%{_datadir}/clang/clang-rename.el
+#	%{_datadir}/clang/clang-format.py - clang tools vim integration
+#	%{_datadir}/clang/clang-rename.py
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
 #
@@ -17,35 +21,33 @@
 %bcond_with	tests		# run tests
 
 # No ocaml on other arches or no native ocaml (required for ocaml-ctypes)
-%ifnarch %{ix86} %{x8664} arm aarch64 ppc sparc sparcv9
+%ifnarch %{ix86} %{x8664} %{arm} aarch64 ppc sparc sparcv9
 %undefine	with_ocaml
 %endif
 
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	3.9.1
-Release:	3
+Version:	4.0.1
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
-#Source0Download: http://llvm.org/releases/download.html
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	3259018a7437e157f3642df80f1983ea
-Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	45713ec5c417ed9cad614cd283d786a1
-Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	aadc76e7e180fafb10fb729444e287a3
-Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	91399402f287d3f637db1207113deecb
-Source4:	http://llvm.org/releases/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	2cc7fe2bd9539775ba140abfd375bec6
-Source5:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	1a01d545a064fcbc46a2f05f6880d3d7
-Source6:	http://llvm.org/releases/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	6254dd138e23b098df4ef7840c11e2c8
-Patch0:		%{name}-lld-link.patch
+#Source0Download: http://releases.llvm.org/download.html
+Source0:	http://releases.llvm.org/%{version}/%{name}-%{version}.src.tar.xz
+# Source0-md5:	a818e70321b91e2bb2d47e60edd5408f
+Source1:	http://releases.llvm.org/%{version}/cfe-%{version}.src.tar.xz
+# Source1-md5:	a6c7b3e953f8b93e252af5917df7db97
+Source2:	http://releases.llvm.org/%{version}/compiler-rt-%{version}.src.tar.xz
+# Source2-md5:	0227ac853ce422125f8bb08f6ad5c995
+Source3:	http://releases.llvm.org/%{version}/lldb-%{version}.src.tar.xz
+# Source3-md5:	908bdd777d3b527a914ba360477b8ab3
+Source4:	http://releases.llvm.org/%{version}/polly-%{version}.src.tar.xz
+# Source4-md5:	0d4a3fa2eb446a378bbf01b220851b1f
+Source5:	http://releases.llvm.org/%{version}/clang-tools-extra-%{version}.src.tar.xz
+# Source5-md5:	cfd46027a0ab7eed483dfcc803e86bd9
+Source6:	http://releases.llvm.org/%{version}/lld-%{version}.src.tar.xz
+# Source6-md5:	39cd3512cddcfd7d37ef12066c961660
 Patch1:		%{name}-pld.patch
-Patch2:		libdir.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
@@ -68,10 +70,11 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libstdc++-devel >= 5:3.4
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
+BuildRequires:	ocaml >= 4.00.0
 BuildRequires:	ocaml-ctypes-devel >= 0.4
 BuildRequires:	ocaml-findlib
 BuildRequires:	ocaml-ocamldoc
-BuildRequires:	ocaml-ounit
+BuildRequires:	ocaml-ounit >= 2
 %endif
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
@@ -114,7 +117,7 @@ BuildRequires:	swig-python
 %if %{with polly}
 #BuildRequires:	gmp-devel or imath-devel (private copy in polly/lib/External/isl/imath)
 # private copy in polly/lib/External/isl
-#BuildRequires:	isl-devel >= 0.17.1
+#BuildRequires:	isl-devel >= 0.18
 #TODO (bcond): cuda-devel (with POLLY_ENABLE_GPGPU_CODEGEN=ON)
 %endif
 %if %{with ocaml}
@@ -126,13 +129,17 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	3.9
+%define		abi	4.0
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
 # ix86 and x32 - the same issue as https://llvm.org/bugs/show_bug.cgi?id=27237
+# use -gsplit-dwarf only when building packages with debuginfo
+# to avoid excessive disk space usage
+%if 0%{?_enable_debug_packages}
 %define		specflags_ia32	-gsplit-dwarf
 %define		specflags_x32	-gsplit-dwarf
+%endif
 
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
 %define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
@@ -145,7 +152,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		filterout_ccpp	-fvar-tracking-assignments
 
 # std::__once_call, std::__once_callable non-function symbols
-%define		skip_post_check_so	liblldb.so.*
+%define		skip_post_check_so	libclang.so.* liblldb.so.*
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -494,15 +501,13 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 %prep
 %setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6
 %{__mv} cfe-%{version}.src tools/clang
-%{?with_rt:mv compiler-rt-%{version}.src projects/compiler-rt}
-%{?with_lldb:mv lldb-%{version}.src tools/lldb}
-%{?with_polly:mv polly-%{version}.src tools/polly}
+%{?with_rt:%{__mv} compiler-rt-%{version}.src projects/compiler-rt}
+%{?with_lldb:%{__mv} lldb-%{version}.src tools/lldb}
+%{?with_polly:%{__mv} polly-%{version}.src tools/polly}
 %{__mv} clang-tools-extra-%{version}.src tools/clang/tools/extra
 %{__mv} lld-%{version}.src tools/lld
 
-%patch0 -p1
 %patch1 -p1
-%patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
@@ -521,10 +526,10 @@ cd build
 CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
 %cmake \
-%ifarch %{x8664}
+%if "%{_lib}" == "lib64"
 	-DLLVM_LIBDIR_SUFFIX:STRING=64 \
 %endif
-%ifarch x32
+%if "%{_lib}" == "libx32"
 	-DLLVM_LIBDIR_SUFFIX:STRING=x32 \
 %endif
 %if %{with apidocs}
@@ -563,12 +568,14 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %{__make} -C tools/clang/docs docs-clang-html
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
+LD_LIBRARY_PATH=$(pwd)/%{_lib}
 %{__make} -C tools/lldb/docs lldb-python-doc
 %{__make} -C tools/lldb/docs lldb-cpp-doc
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
 %{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
@@ -599,7 +606,7 @@ echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 # Move documentation back to build directory
 %if %{with ocaml}
 rm -rf ocamldocs
-%{__mv} $RPM_BUILD_ROOT%{_prefix}/docs/ocaml/html/html ocamldocs
+%{__mv} $RPM_BUILD_ROOT%{_docdir}/llvm/ocaml-html ocamldocs
 %endif
 
 # and separate the apidoc
@@ -632,8 +639,8 @@ rm -rf $RPM_BUILD_ROOT
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
 
-%post	-n clang -p /sbin/ldconfig
-%postun	-n clang -p /sbin/ldconfig
+%post	-n clang-libs -p /sbin/ldconfig
+%postun	-n clang-libs -p /sbin/ldconfig
 
 %post	-n lldb -p /sbin/ldconfig
 %postun	-n lldb -p /sbin/ldconfig
@@ -647,7 +654,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-ar
 %attr(755,root,root) %{_bindir}/llvm-as
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
+%attr(755,root,root) %{_bindir}/llvm-cat
 %attr(755,root,root) %{_bindir}/llvm-cov
+%attr(755,root,root) %{_bindir}/llvm-cxxdump
+%attr(755,root,root) %{_bindir}/llvm-cxxfilt
 %attr(755,root,root) %{_bindir}/llvm-diff
 %attr(755,root,root) %{_bindir}/llvm-dis
 %attr(755,root,root) %{_bindir}/llvm-dsymutil
@@ -657,10 +667,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-lib
 %attr(755,root,root) %{_bindir}/llvm-link
 %attr(755,root,root) %{_bindir}/llvm-lto
+%attr(755,root,root) %{_bindir}/llvm-lto2
 %attr(755,root,root) %{_bindir}/llvm-mc
 %attr(755,root,root) %{_bindir}/llvm-mcmarkup
+%attr(755,root,root) %{_bindir}/llvm-modextract
 %attr(755,root,root) %{_bindir}/llvm-nm
 %attr(755,root,root) %{_bindir}/llvm-objdump
+%attr(755,root,root) %{_bindir}/llvm-opt-report
+%attr(755,root,root) %{_bindir}/llvm-pdbdump
 %attr(755,root,root) %{_bindir}/llvm-profdata
 %attr(755,root,root) %{_bindir}/llvm-ranlib
 %attr(755,root,root) %{_bindir}/llvm-readobj
@@ -668,10 +682,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-size
 %attr(755,root,root) %{_bindir}/llvm-split
 %attr(755,root,root) %{_bindir}/llvm-stress
+%attr(755,root,root) %{_bindir}/llvm-strings
 %attr(755,root,root) %{_bindir}/llvm-symbolizer
 %attr(755,root,root) %{_bindir}/llvm-tblgen
-%attr(755,root,root) %{_bindir}/llvm-cxxdump
-%attr(755,root,root) %{_bindir}/llvm-pdbdump
+%attr(755,root,root) %{_bindir}/llvm-xray
 %attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_bindir}/sancov
@@ -708,12 +722,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLTO.so
+%attr(755,root,root) %{_libdir}/libLTO.so.%{version}
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.4
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
 %attr(755,root,root) %{_libdir}/libLLVM.so
+%attr(755,root,root) %{_libdir}/libLTO.so
 %attr(755,root,root) %{_libdir}/BugpointPasses.so
 %{_libdir}/libLLVM*.a
 %{_includedir}/llvm
@@ -754,7 +770,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-%{abi}
 %attr(755,root,root) %{_bindir}/clang-check
 %attr(755,root,root) %{_bindir}/clang-cl
+%attr(755,root,root) %{_bindir}/clang-cpp
 %attr(755,root,root) %{_bindir}/clang-format
+%attr(755,root,root) %{_bindir}/clang-import-test
+%attr(755,root,root) %{_bindir}/clang-offload-bundler
 %attr(755,root,root) %{_bindir}/git-clang-format
 %dir %{_libdir}/clang
 %dir %{_libdir}/clang/%{version}
@@ -790,6 +809,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libclang.so.%{abi}
+%attr(755,root,root) %ghost %{_libdir}/libclang.so.4
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664} x32
@@ -838,9 +858,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt}
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
+%attr(755,root,root) %{_bindir}/clang-change-namespace
 %attr(755,root,root) %{_bindir}/clang-include-fixer
 %attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-rename
+%attr(755,root,root) %{_bindir}/clang-reorder-fields
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/find-all-symbols
 %attr(755,root,root) %{_bindir}/modularize
@@ -873,6 +895,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-server-%{version}
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.4
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/lldb-argdumper
 %{py_sitedir}/lldb/formatters
@@ -893,16 +916,19 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with ocaml}
 %files ocaml
 %defattr(644,root,root,755)
+%dir %{_libdir}/ocaml/llvm
+%attr(755,root,root) %{_libdir}/ocaml/llvm/dllllvm*.so
+%{_libdir}/ocaml/llvm/llvm*.cma
+%{_libdir}/ocaml/llvm/llvm*.cmi
 %{_libdir}/ocaml/META.llvm*
-%attr(755,root,root) %{_libdir}/ocaml/dllllvm*.so
-%{_libdir}/ocaml/llvm*.cma
-%{_libdir}/ocaml/llvm*.cmi
 
 %files ocaml-devel
 %defattr(644,root,root,755)
-%{_libdir}/ocaml/libllvm*.a
-%{_libdir}/ocaml/llvm*.a
-%{_libdir}/ocaml/llvm*.cmx*
+%{_libdir}/ocaml/llvm/libllvm*.a
+%{_libdir}/ocaml/llvm/llvm*.a
+%{_libdir}/ocaml/llvm/llvm*.cmx
+%{_libdir}/ocaml/llvm/llvm*.cmxa
+%{_libdir}/ocaml/llvm/llvm*.mli
 
 %files ocaml-doc
 %defattr(644,root,root,755)
