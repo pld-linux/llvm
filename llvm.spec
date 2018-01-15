@@ -575,8 +575,9 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %{__make} -C tools/clang/docs docs-clang-html
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
-LD_LIBRARY_PATH=$(pwd)/%{_lib}
-%{__make} -C tools/lldb/docs lldb-python-doc
+%{__make} \
+	LD_LIBRARY_PATH=$(pwd)/%{_lib} \
+	-C tools/lldb/docs lldb-python-doc
 %{__make} -C tools/lldb/docs lldb-cpp-doc
 %endif
 
