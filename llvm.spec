@@ -25,7 +25,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	3.9.1
-Release:	3
+Release:	3.2
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://llvm.org/releases/download.html
@@ -542,6 +542,7 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
+	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
 	../
 
 %{__make} \
@@ -709,6 +710,7 @@ rm -rf $RPM_BUILD_ROOT
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
 %attr(755,root,root) %{_libdir}/libLTO.so
+%attr(755,root,root) %{_libdir}/LLVMgold.so
 
 %files devel
 %defattr(644,root,root,755)
