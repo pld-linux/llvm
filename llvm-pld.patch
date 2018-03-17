@@ -81,8 +81,8 @@
  
    Distro Distro(D.getVFS());
  
--  if (Distro.IsOpenSUSE() || Distro.IsUbuntu()) {
-+  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsPLD()) {
+-  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsAlpineLinux()) {
++  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsAlpineLinux() || Distro.IsPLD()) {
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
@@ -90,8 +90,8 @@
    // Android loader does not support .gnu.hash.
    // Hexagon linker/loader does not support .gnu.hash
    if (!IsMips && !IsAndroid && !IsHexagon) {
--    if (Distro.IsRedhat() || Distro.IsOpenSUSE() ||
-+    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsPLD() ||
+-    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsAlpineLinux() ||
++    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsAlpineLinux() || Distro.IsPLD() ||
          (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick))
        ExtraOpts.push_back("--hash-style=gnu");
  

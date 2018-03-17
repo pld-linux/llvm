@@ -30,25 +30,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	5.0.1
+Version:	6.0.0
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://releases.llvm.org/download.html
 Source0:	http://releases.llvm.org/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	3a4ec6dcbc71579eeaec7cb157fe2168
+# Source0-md5:	788a11a35fa62eb008019b37187d09d2
 Source1:	http://releases.llvm.org/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	e4daa278d8f252585ab73d196484bf11
+# Source1-md5:	121b3896cb0c7765d690acc5d9495d24
 Source2:	http://releases.llvm.org/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	6329380d643fb5dc5f5abdd0d5eecd70
+# Source2-md5:	ba6368e894b5528e527d86a69d8533c6
 Source3:	http://releases.llvm.org/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	d64078681215b5935614b6b83b2d1463
+# Source3-md5:	1ec6498066e273b7261270f344b68121
 Source4:	http://releases.llvm.org/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	49c49fb61b0e73855fc21a60db9f5ab3
+# Source4-md5:	e5808a3a1ed1c23f56dd1854b86689d0
 Source5:	http://releases.llvm.org/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	c2bd3733c183b033b49f7a416c6dca36
+# Source5-md5:	6b1d543116dab5a3caba10091d983743
 Source6:	http://releases.llvm.org/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	a873c7fdaac647613d8eed2cb03d82de
+# Source6-md5:	7ab2612417477b03538f11cd8b5e12f8
 Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
@@ -133,7 +133,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	5.0
+%define		abi	6.0
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -663,6 +663,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-as
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
 %attr(755,root,root) %{_bindir}/llvm-cat
+%attr(755,root,root) %{_bindir}/llvm-cfi-verify
 %attr(755,root,root) %{_bindir}/llvm-cov
 %attr(755,root,root) %{_bindir}/llvm-cvtres
 %attr(755,root,root) %{_bindir}/llvm-cxxdump
@@ -683,11 +684,13 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-modextract
 %attr(755,root,root) %{_bindir}/llvm-mt
 %attr(755,root,root) %{_bindir}/llvm-nm
+%attr(755,root,root) %{_bindir}/llvm-objcopy
 %attr(755,root,root) %{_bindir}/llvm-objdump
 %attr(755,root,root) %{_bindir}/llvm-opt-report
 %attr(755,root,root) %{_bindir}/llvm-pdbutil
 %attr(755,root,root) %{_bindir}/llvm-profdata
 %attr(755,root,root) %{_bindir}/llvm-ranlib
+%attr(755,root,root) %{_bindir}/llvm-rc
 %attr(755,root,root) %{_bindir}/llvm-readelf
 %attr(755,root,root) %{_bindir}/llvm-readobj
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
@@ -706,6 +709,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/yaml2obj
 %if %{with doc}
 %{_mandir}/man1/bugpoint.1*
+%{_mandir}/man1/dsymutil.1*
 %{_mandir}/man1/lit.1*
 %{_mandir}/man1/llc.1*
 %{_mandir}/man1/lli.1*
@@ -720,6 +724,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-lib.1*
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-nm.1*
+%{_mandir}/man1/llvm-pdbutil.1*
 %{_mandir}/man1/llvm-profdata.1*
 %{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvm-readobj.1*
@@ -735,7 +740,7 @@ rm -rf $RPM_BUILD_ROOT
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
 %attr(755,root,root) %{_libdir}/libLTO.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.5
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.6
 
 %files devel
 %defattr(644,root,root,755)
@@ -822,7 +827,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libclang.so.%{abi}
-%attr(755,root,root) %ghost %{_libdir}/libclang.so.5
+%attr(755,root,root) %ghost %{_libdir}/libclang.so.6
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664} x32
@@ -872,8 +877,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt}
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
 %attr(755,root,root) %{_bindir}/clang-change-namespace
+%attr(755,root,root) %{_bindir}/clang-func-mapping
 %attr(755,root,root) %{_bindir}/clang-include-fixer
 %attr(755,root,root) %{_bindir}/clang-query
+%attr(755,root,root) %{_bindir}/clang-refactor
 %attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-reorder-fields
 %attr(755,root,root) %{_bindir}/clang-tidy
@@ -890,6 +897,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/lld/{LICENSE.TXT,README.md}
 %attr(755,root,root) %{_bindir}/ld.lld
+%attr(755,root,root) %{_bindir}/ld64.lld
 %attr(755,root,root) %{_bindir}/lld
 %attr(755,root,root) %{_bindir}/lld-link
 
@@ -905,10 +913,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-argdumper
 %attr(755,root,root) %{_bindir}/lldb-mi
 %attr(755,root,root) %{_bindir}/lldb-server
-# FIXME: why bindir???
-%attr(755,root,root) %{_bindir}/liblldb-intel-mpxtable.so
+%attr(755,root,root) %{_bindir}/lldb-test
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.5
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.6
+%attr(755,root,root) %{_libdir}/liblldbIntelFeatures.so.%{version}
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.6
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/lldb-argdumper
 %{py_sitedir}/lldb/formatters
@@ -922,6 +931,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n lldb-devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/liblldb.so
+%attr(755,root,root) %{_libdir}/liblldbIntelFeatures.so
 %{_libdir}/liblldb*.a
 %{_includedir}/lldb
 %endif
