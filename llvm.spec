@@ -116,7 +116,7 @@ BuildRequires:	libatomic-devel
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python-devel >= 2
-BuildRequires:	swig-python
+BuildRequires:	swig-python >= 3.0.11
 %endif
 %if %{with polly}
 #BuildRequires:	gmp-devel or imath-devel (private copy in polly/lib/External/isl/imath)
