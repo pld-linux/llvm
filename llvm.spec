@@ -1,14 +1,10 @@
 # TODO:
-# - wait for rust ready for LLVM 5.0
 # - move and package:
 #	%{_datadir}/clang/bash-autocomplete.sh
 #	%{_datadir}/clang/clang-format-sublime.py - sublime plugin
 #	%{_datadir}/clang/clang-format.el - clang tools emacs integration
 #	%{_datadir}/clang/clang-include-fixer.el
 #	%{_datadir}/clang/clang-rename.el
-#	%{_datadir}/clang/clang-format.py - clang tools vim integration
-#	%{_datadir}/clang/clang-rename.py
-#	%{_datadir}/opt-viewer
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
 #
@@ -502,6 +498,23 @@ HTML documentation for LLVM's OCaml binding.
 %description ocaml-doc -l pl.UTF-8
 Dokumentacja HTML wiązania OCamla do LLVM-a.
 
+%package opt-viewer
+Summary:	Optimization records visualization tools
+Group:		Development/Tools
+Requires:	%{name} = %{version}
+
+%description opt-viewer
+Optimization records visualization tools.
+
+%package -n vim-plugin-clang
+Summary:	Clang format and rename integration for vim
+Group:		Applications/Editors/Vim
+Requires:	vim-rt >= 4:7.0
+BuildArch:	noarch
+
+%description -n vim-plugin-clang
+Clang format and rename integration for vim.
+
 %prep
 %setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6
 %{__mv} cfe-%{version}.src tools/clang
@@ -521,6 +534,10 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
 	s,^#!.*bin/env perl,#!%{__perl},
+}'
+
+find -name '*.py' -print0 | xargs -0 sed -i -e '1{
+	s,^#!.*bin/python.*,#!%{__python},
 }'
 
 %build
@@ -900,10 +917,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ld64.lld
 %attr(755,root,root) %{_bindir}/lld
 %attr(755,root,root) %{_bindir}/lld-link
+%attr(755,root,root) %{_bindir}/wasm-ld
 
 %files -n lld-devel
 %defattr(644,root,root,755)
-%{_libdir}/liblld[ACDEHMRXY]*.a
+%{_libdir}/liblld[ACDEHMRWXY]*.a
 %{_includedir}/lld
 
 %if %{with lldb}
@@ -957,3 +975,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc ocamldocs/*
 %endif
+
+%files opt-viewer
+%defattr(644,root,root,755)
+%{_datadir}/opt-viewer
+
+%files -n vim-plugin-clang
+%defattr(644,root,root,755)
+%{_datadir}/clang/clang-format.py
+%{_datadir}/clang/clang-rename.py
