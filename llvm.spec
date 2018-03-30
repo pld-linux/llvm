@@ -598,7 +598,7 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} -C build install \
+%{__make} -j1 -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 # only some .pyc files are created by make install
