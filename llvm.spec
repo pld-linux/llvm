@@ -498,6 +498,7 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 
 %package opt-viewer
 Summary:	Optimization records visualization tools
+Summary(pl.UTF-8):	Narzędzia do wizualizacji rekordów optymalizacji
 Group:		Development/Tools
 Requires:	%{name} = %{version}
 BuildArch:	noarch
@@ -505,14 +506,21 @@ BuildArch:	noarch
 %description opt-viewer
 Optimization records visualization tools.
 
+%description opt-viewer -l pl.UTF-8
+Narzędzia do wizualizacji rekordów optymalizacji.
+
 %package -n vim-plugin-clang
-Summary:	Clang format and rename integration for vim
+Summary:	Clang format and rename integration for Vim
+Summary(pl.UTF-8):	Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem
 Group:		Applications/Editors/Vim
 Requires:	vim-rt >= 4:7.0
 BuildArch:	noarch
 
 %description -n vim-plugin-clang
-Clang format and rename integration for vim.
+Clang format and rename integration for Vim.
+
+%description -n vim-plugin-clang -l pl.UTF-8
+Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 
 %prep
 %setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6
