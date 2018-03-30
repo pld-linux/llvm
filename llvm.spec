@@ -49,8 +49,6 @@ Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
-Patch6:		D35246.diff
-Patch7:		gcc7.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -529,8 +527,6 @@ Clang format and rename integration for vim.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p0
-%patch7 -p1
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
