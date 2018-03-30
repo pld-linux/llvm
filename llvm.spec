@@ -502,6 +502,7 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 Summary:	Optimization records visualization tools
 Group:		Development/Tools
 Requires:	%{name} = %{version}
+BuildArch:	noarch
 
 %description opt-viewer
 Optimization records visualization tools.
