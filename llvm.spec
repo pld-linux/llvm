@@ -755,6 +755,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
 %attr(755,root,root) %{_libdir}/libLTO.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/libLTO.so.6
+%attr(755,root,root) %{_libdir}/LLVMgold.so
 
 %files devel
 %defattr(644,root,root,755)
