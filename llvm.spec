@@ -1,3 +1,7 @@
+#
+# NOTE:
+#  - normal build (x86_64) requires about 80 GB of disk space
+#
 # TODO:
 # - move and package:
 #	%{_datadir}/clang/bash-autocomplete.sh
