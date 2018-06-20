@@ -82,6 +82,7 @@ BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	python >= 1:2.7
 BuildRequires:	rpm-pythonprov
+BuildRequires:	rpmbuild(macros) >= 1.734
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
@@ -152,9 +153,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		filterout_c	-fvar-tracking-assignments
 %define		filterout_cxx	-fvar-tracking-assignments -Werror=format-security
 %define		filterout_ccpp	-fvar-tracking-assignments
-
-# std::__once_call, std::__once_callable non-function symbols
-%define		skip_post_check_so	libclang.so.* liblldb.so.*
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
