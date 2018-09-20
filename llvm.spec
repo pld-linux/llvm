@@ -30,25 +30,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	6.0.1
+Version:	7.0.0
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://releases.llvm.org/download.html
 Source0:	http://releases.llvm.org/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	c88c98709300ce2c285391f387fecce0
+# Source0-md5:	e0140354db83cdeb8668531b431398f0
 Source1:	http://releases.llvm.org/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	4e419bd4e3b55aa06d872320f754bd85
+# Source1-md5:	2ac5d8d78be681e31611c5e546e11174
 Source2:	http://releases.llvm.org/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	99bf8bcb68ba96dda74f6aee6c55f639
+# Source2-md5:	3b759c47076298363f4443395e0e51c1
 Source3:	http://releases.llvm.org/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	482eba39e78c75a83216cf2d5b7a54b4
+# Source3-md5:	76338963b3ccc4f9dccc923716207310
 Source4:	http://releases.llvm.org/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	4e5937753d1f77e2c0feca485fc7f9da
+# Source4-md5:	ff689bbfdca3ea812d195f60e63d8346
 Source5:	http://releases.llvm.org/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	431cba2b652e9c227a59a6d681388160
+# Source5-md5:	e98b37a5911cd556775cba0868a56981
 Source6:	http://releases.llvm.org/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	31cc580b32be124972c40c19c0839fed
+# Source6-md5:	5eb148c3064acff71d8e5856163c8323
 Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
@@ -132,7 +132,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	6.0
+%define		abi	7
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -681,6 +681,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CREDITS.TXT LICENSE.TXT README.txt %{?with_tests:llvm-testlog.txt}
 %attr(755,root,root) %{_bindir}/bugpoint
+%attr(755,root,root) %{_bindir}/dsymutil
 %attr(755,root,root) %{_bindir}/llc
 %attr(755,root,root) %{_bindir}/lli
 %attr(755,root,root) %{_bindir}/llvm-ar
@@ -695,16 +696,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-diff
 %attr(755,root,root) %{_bindir}/llvm-dis
 %attr(755,root,root) %{_bindir}/llvm-dlltool
-%attr(755,root,root) %{_bindir}/llvm-dsymutil
 %attr(755,root,root) %{_bindir}/llvm-dwarfdump
 %attr(755,root,root) %{_bindir}/llvm-dwp
+%attr(755,root,root) %{_bindir}/llvm-exegesis
 %attr(755,root,root) %{_bindir}/llvm-extract
 %attr(755,root,root) %{_bindir}/llvm-lib
 %attr(755,root,root) %{_bindir}/llvm-link
 %attr(755,root,root) %{_bindir}/llvm-lto
 %attr(755,root,root) %{_bindir}/llvm-lto2
 %attr(755,root,root) %{_bindir}/llvm-mc
-%attr(755,root,root) %{_bindir}/llvm-mcmarkup
+%attr(755,root,root) %{_bindir}/llvm-mca
 %attr(755,root,root) %{_bindir}/llvm-modextract
 %attr(755,root,root) %{_bindir}/llvm-mt
 %attr(755,root,root) %{_bindir}/llvm-nm
@@ -720,10 +721,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
 %attr(755,root,root) %{_bindir}/llvm-size
 %attr(755,root,root) %{_bindir}/llvm-split
+%attr(755,root,root) %{_bindir}/llvm-strip
 %attr(755,root,root) %{_bindir}/llvm-stress
 %attr(755,root,root) %{_bindir}/llvm-strings
 %attr(755,root,root) %{_bindir}/llvm-symbolizer
 %attr(755,root,root) %{_bindir}/llvm-tblgen
+%attr(755,root,root) %{_bindir}/llvm-undname
 %attr(755,root,root) %{_bindir}/llvm-xray
 %attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
@@ -744,9 +747,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-diff.1*
 %{_mandir}/man1/llvm-dis.1*
 %{_mandir}/man1/llvm-dwarfdump.1*
+%{_mandir}/man1/llvm-exegesis.1*
 %{_mandir}/man1/llvm-extract.1*
 %{_mandir}/man1/llvm-lib.1*
 %{_mandir}/man1/llvm-link.1*
+%{_mandir}/man1/llvm-mca.1*
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-pdbutil.1*
 %{_mandir}/man1/llvm-profdata.1*
@@ -763,8 +768,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLTO.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.6
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.7
 %attr(755,root,root) %{_libdir}/LLVMgold.so
 
 %files devel
@@ -825,6 +829,7 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86} %{x8664} x32
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
+%dir %{_libdir}/clang/%{version}/share
 %endif
 %ifarch %{ix86}
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.a
@@ -836,14 +841,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
 %ifarch %{ix86} %{x8664} x32 %{arm} aarch64 mips mips64 ppc64
-%{_libdir}/clang/%{version}/asan_blacklist.txt
+%{_libdir}/clang/%{version}/share/asan_blacklist.txt
 %endif
 %ifarch %{ix86} %{x8664} x32 mips64
-%{_libdir}/clang/%{version}/cfi_blacklist.txt
+%{_libdir}/clang/%{version}/share/cfi_blacklist.txt
 %endif
 %ifarch %{x8664} x32 aarch64 mips64
-%{_libdir}/clang/%{version}/dfsan_abilist.txt
-%{_libdir}/clang/%{version}/msan_blacklist.txt
+%{_libdir}/clang/%{version}/share/dfsan_abilist.txt
+%{_libdir}/clang/%{version}/share/msan_blacklist.txt
+%endif
+%ifarch %{x8664} x32 aarch64
+%{_libdir}/clang/%{version}/share/hwasan_blacklist.txt
 %endif
 %endif
 %dir %{_datadir}/clang
@@ -852,7 +860,6 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libclang.so.%{abi}
-%attr(755,root,root) %ghost %{_libdir}/libclang.so.6
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664} x32
@@ -910,7 +917,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-reorder-fields
 %attr(755,root,root) %{_bindir}/clang-tidy
 %attr(755,root,root) %{_bindir}/clangd
+%attr(755,root,root) %{_bindir}/diagtool
 %attr(755,root,root) %{_bindir}/find-all-symbols
+%attr(755,root,root) %{_bindir}/hmaptool
 %attr(755,root,root) %{_bindir}/modularize
 %attr(755,root,root) %{_bindir}/pp-trace
 %{_datadir}/clang/clang-include-fixer.py
@@ -941,9 +950,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-test
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.6
-%attr(755,root,root) %{_libdir}/liblldbIntelFeatures.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.6
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.7
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.7
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/lldb-argdumper
 %{py_sitedir}/lldb/formatters
