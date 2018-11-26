@@ -140,8 +140,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # use -gsplit-dwarf only when building packages with debuginfo
 # to avoid excessive disk space usage
 %if 0%{?_enable_debug_packages}
-%define		specflags_ia32	-gsplit-dwarf
-%define		specflags_x32	-gsplit-dwarf
+%define		specflags	-gsplit-dwarf
 %endif
 
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
