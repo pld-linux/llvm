@@ -31,7 +31,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	7.0.0
-Release:	1
+Release:	2
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://releases.llvm.org/download.html
@@ -656,6 +656,7 @@ done
 # Get rid of erroneously installed example files.
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/LLVMHello.so
 # test?
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/TestPlugin.so
 %{__rm} $RPM_BUILD_ROOT%{_bindir}/{c-index-test,llvm-c-test}
 # not this OS
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
@@ -663,6 +664,9 @@ done
 %{__rm} $RPM_BUILD_ROOT%{py_sitedir}/six.py*
 # it seems it is used internally by an extra clang tool
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
+
+# disable completeness check incompatible with split packaging
+%{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' $RPM_BUILD_ROOT%{_libdir}/cmake/llvm/LLVMExports.cmake
 
 %clean
 rm -rf $RPM_BUILD_ROOT
