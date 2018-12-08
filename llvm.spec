@@ -139,9 +139,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # ix86 and x32 - the same issue as https://llvm.org/bugs/show_bug.cgi?id=27237
 # use -gsplit-dwarf only when building packages with debuginfo
 # to avoid excessive disk space usage
-%if 0%{?_enable_debug_packages}
-%define		specflags	-gsplit-dwarf
-%endif
+#if 0%{?_enable_debug_packages}
+#define		specflags	-gsplit-dwarf
+#endif
 
 # strip corrupts: $RPM_BUILD_ROOT/usr/lib64/llvm-gcc/bin/llvm-c++ ...
 %define		_noautostrip	.*/\\(libmud.*\\.a\\|bin/llvm-.*\\|lib.*++\\.a\\)
