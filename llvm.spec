@@ -11,6 +11,7 @@
 #	%{_datadir}/clang/clang-rename.el
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
+# - check why REQUIRES_RTTI=1 does not work and if we should fix that (Clover, Mesa OpenCL impl. needs that)
 #
 # Conditional build:
 %bcond_without	lldb		# LLDB debugger
