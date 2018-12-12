@@ -11,7 +11,6 @@
 #	%{_datadir}/clang/clang-rename.el
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
-# - check why REQUIRES_RTTI=1 does not work and if we should fix that (Clover, Mesa OpenCL impl. needs that)
 #
 # Conditional build:
 %bcond_without	lldb		# LLDB debugger
@@ -64,9 +63,6 @@ BuildRequires:	gcc >= 5:3.4
 %if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
 BuildRequires:	__cc >= 3.4
 %endif
-%ifarch x32
-BuildRequires:	glibc-devel(x86_64)
-%endif
 BuildRequires:	groff
 BuildRequires:	libedit-devel
 BuildRequires:	libltdl-devel
@@ -102,10 +98,11 @@ BuildRequires:	gcc-c++-multilib-32
 BuildRequires:	libstdc++-multilib-32-devel
 %endif
 %ifarch x32
-BuildRequires: gcc-c++-multilib-32
-BuildRequires: libstdc++-multilib-32-devel
-BuildRequires: gcc-c++-multilib-64
-BuildRequires: libstdc++-multilib-64-devel
+BuildRequires:	gcc-c++-multilib-32
+BuildRequires:	gcc-c++-multilib-64
+BuildRequires:	glibc-devel(x86_64)
+BuildRequires:	libstdc++-multilib-32-devel
+BuildRequires:	libstdc++-multilib-64-devel
 %endif
 %endif
 %if %{with lldb}
@@ -569,9 +566,10 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 	-DLLVM_ENABLE_SPHINX:BOOL=ON \
 	-DSPHINX_WARNINGS_AS_ERRORS=OFF \
 %endif
-	-DLLVM_ENABLE_PIC:BOOL=ON \
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
 	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
+	-DLLVM_ENABLE_RTTI:BOOL=ON \
+	-DLLVM_ENABLE_PIC:BOOL=ON \
 	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
@@ -582,7 +580,6 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
 %{__make} \
 	VERBOSE=1 \
-	REQUIRES_RTTI=1 \
 	OPTIMIZE_OPTION="%{rpmcflags} %{rpmcppflags}"
 
 %if %{with tests}
@@ -830,10 +827,17 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang/%{version}
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
-%ifarch %{ix86} %{x8664} x32
+%ifarch %{ix86} %{x8664}
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
 %dir %{_libdir}/clang/%{version}/share
+%endif
+%ifarch x32
+%if %{with multilib}
+%dir %{_libdir}/clang/%{version}/lib
+%dir %{_libdir}/clang/%{version}/lib/linux
+%dir %{_libdir}/clang/%{version}/share
+%endif
 %endif
 %ifarch %{ix86}
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-i*86.a
@@ -844,18 +848,27 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
-%ifarch %{ix86} %{x8664} x32 %{arm} aarch64 mips mips64 ppc64
+%ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
 %{_libdir}/clang/%{version}/share/asan_blacklist.txt
 %endif
-%ifarch %{ix86} %{x8664} x32 mips64
+%ifarch %{ix86} %{x8664} mips64
 %{_libdir}/clang/%{version}/share/cfi_blacklist.txt
 %endif
-%ifarch %{x8664} x32 aarch64 mips64
+%ifarch %{x8664} aarch64 mips64
 %{_libdir}/clang/%{version}/share/dfsan_abilist.txt
 %{_libdir}/clang/%{version}/share/msan_blacklist.txt
 %endif
-%ifarch %{x8664} x32 aarch64
+%ifarch %{x8664} aarch64
 %{_libdir}/clang/%{version}/share/hwasan_blacklist.txt
+%endif
+%ifarch x32
+%if %{with multilib}
+%{_libdir}/clang/%{version}/share/asan_blacklist.txt
+%{_libdir}/clang/%{version}/share/cfi_blacklist.txt
+%{_libdir}/clang/%{version}/share/dfsan_abilist.txt
+%{_libdir}/clang/%{version}/share/msan_blacklist.txt
+%{_libdir}/clang/%{version}/share/hwasan_blacklist.txt
+%endif
 %endif
 %endif
 %dir %{_datadir}/clang
