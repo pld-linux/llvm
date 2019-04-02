@@ -30,25 +30,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	8.0.0
-Release:	2
+Version:	7.0.1
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://releases.llvm.org/download.html
 Source0:	http://releases.llvm.org/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	74818f431563603515a62be1ee69a142
+# Source0-md5:	79f1256f97d52a054da8660706deb5f6
 Source1:	http://releases.llvm.org/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	988b59cdb372c5a4f44ae4c39df3de73
+# Source1-md5:	8583c9fb2af0ce61a7154fd9125363c1
 Source2:	http://releases.llvm.org/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	547893456e22c75d16189a13881bc866
+# Source2-md5:	697b70141ae7cc854e4fbde1a07b7287
 Source3:	http://releases.llvm.org/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	9d319ed0f02a026242a85399938afed2
+# Source3-md5:	9ea3dc5cb9a1d9e390652d42ef1ccf41
 Source4:	http://releases.llvm.org/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	7643bba808becabf35785fbacc413ee5
+# Source4-md5:	287d7391438b5285265fede3b08e1e29
 Source5:	http://releases.llvm.org/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	acd22ccbd06bfc0054027fe2644af1e0
+# Source5-md5:	f0a94f63cc3d717f8f6662e0bf9c7330
 Source6:	http://releases.llvm.org/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	c09fb102d4537a0c37a2e8e36a1dc6d2
+# Source6-md5:	9162cde32887cd33facead766645ef1f
 Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
