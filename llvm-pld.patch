@@ -78,23 +78,23 @@
 --- llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Linux.cpp.orig	2017-12-01 22:14:03.462116884 +0100
 +++ llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Linux.cpp	2017-12-01 22:51:38.678757801 +0100
 @@ -210,7 +210,7 @@
+     ExtraOpts.push_back("now");
+   }
  
-   Distro Distro(D.getVFS());
- 
--  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsAlpineLinux()) {
-+  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsAlpineLinux() || Distro.IsPLD()) {
+-  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsAlpineLinux() ||
++  if (Distro.IsOpenSUSE() || Distro.IsUbuntu() || Distro.IsAlpineLinux() || Distro.IsPLD() ||
+       Triple.isAndroid()) {
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
-   }
 @@ -232,7 +232,7 @@
-   // Android loader does not support .gnu.hash.
+   // Android loader does not support .gnu.hash until API 23.
    // Hexagon linker/loader does not support .gnu.hash
-   if (!IsMips && !IsAndroid && !IsHexagon) {
+   if (!IsMips && !IsHexagon) {
 -    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsAlpineLinux() ||
 +    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsAlpineLinux() || Distro.IsPLD() ||
-         (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick))
+         (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick) ||
+         (IsAndroid && !Triple.isAndroidVersionLT(23)))
        ExtraOpts.push_back("--hash-style=gnu");
- 
 @@ -241,7 +241,7 @@
        ExtraOpts.push_back("--hash-style=both");
    }
