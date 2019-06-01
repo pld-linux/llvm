@@ -113,6 +113,7 @@ BuildRequires:	libatomic-devel
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python-devel >= 2
+%{?with_doc:BuildRequires:	python3-recommonmark}
 BuildRequires:	swig-python >= 3.0.11
 %endif
 %if %{with polly}
