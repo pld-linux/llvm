@@ -1,0 +1,28 @@
+From 9bfebd6e47cb8513dcd7f7203f29489bdec7bfe4 Mon Sep 17 00:00:00 2001
+From: Jonas Devlieghere <jonas@devlieghere.com>
+Date: Fri, 21 Sep 2018 12:28:44 +0000
+Subject: [PATCH 2/2] [test] Fix Assembler/debug-info.ll
+
+Update Assembler/debug-info.ll to contain discriminator.
+
+llvm-svn: 342727
+---
+ llvm/test/Assembler/debug-info.ll | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/Assembler/debug-info.ll b/test/Assembler/debug-info.ll
+index 5dfb8cd93435..605afc3f1587 100644
+--- a/test/Assembler/debug-info.ll
++++ b/test/Assembler/debug-info.ll
+@@ -83,7 +83,7 @@
+ ; CHECK-NEXT: !32 = !DIFile(filename: "file", directory: "dir", checksumkind: CSK_MD5, checksum: "000102030405060708090a0b0c0d0e0f")
+ !35 = !DIFile(filename: "file", directory: "dir", checksumkind: CSK_MD5, checksum: "000102030405060708090a0b0c0d0e0f")
+ 
+-; CHECK-NEXT: !33 = !DICompositeType(tag: DW_TAG_variant_part, name: "A", scope: !14, size: 64)
++; CHECK-NEXT: !33 = !DICompositeType(tag: DW_TAG_variant_part, name: "A", scope: !14, size: 64, discriminator: !34)
+ ; CHECK-NEXT: !34 = !DIDerivedType(tag: DW_TAG_member, scope: !33, baseType: !35, size: 64, align: 64, flags: DIFlagArtificial)
+ ; CHECK-NEXT: !35 = !DIBasicType(name: "u64", size: 64, encoding: DW_ATE_unsigned)
+ !36 = !DICompositeType(tag: DW_TAG_variant_part, name: "A", scope: !16, size: 64, discriminator: !37)
+-- 
+2.20.1
+
