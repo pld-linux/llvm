@@ -31,7 +31,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	7.0.1
-Release:	2
+Release:	3
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: http://releases.llvm.org/download.html
@@ -55,6 +55,12 @@ Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
 Patch6:		0001-Ensure-that-variant-part-discriminator-is-read-by-Me.patch
 Patch7:		0002-test-Fix-Assembler-debug-info.ll.patch
+# for intel-computer-runtime
+Patch100:	0001-Add-cl_intel_planar_yuv-extension.patch
+Patch101:	0002-Unify-ZeroToOCL-cast-types.patch
+Patch102:	0003-OpenCL-Add-support-of-cl_intel_device_side_avc_motio.patch
+Patch103:	0004-OpenCL-Relax-diagnostics-on-OpenCL-access-qualifiers.patch
+Patch104:	0005-OpenCL-Fix-invalid-address-space-generation-for-clk_.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -538,6 +544,14 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+
+cd tools/clang
+%patch100 -p1
+%patch101 -p1
+%patch102 -p1
+%patch103 -p1
+%patch104 -p1
+cd ../..
 
 grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
