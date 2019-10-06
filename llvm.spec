@@ -18,6 +18,7 @@
 %bcond_without	rt		# compiler-rt libraries
 %bcond_without	multilib	# compiler-rt multilib libraries
 %bcond_without	ocaml		# OCaml binding
+%bcond_without	z3		# Z3 constraint solver support in Clang Static Analyzer
 %bcond_without	doc		# HTML docs and man pages
 %bcond_with	apidocs		# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests		# run tests
@@ -50,6 +51,7 @@ Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{versio
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
 # Source6-md5:	ee4fe10c625bbc66b1055c5d33017daf
 Patch1:		%{name}-pld.patch
+Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
@@ -78,11 +80,14 @@ BuildRequires:	ocaml-ounit >= 2
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	python >= 1:2.7
+BuildRequires:	python-PyYAML
+BuildRequires:	python-pygments >= 2.0
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.734
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
+%{?with_z3:BuildRequires:	z3-devel >= 4.7.1}
 BuildRequires:	zlib-devel
 %if %{with apidocs}
 BuildRequires:	doxygen
@@ -539,6 +544,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %{__mv} lld-%{version}.src tools/lld
 
 %patch1 -p1
+%patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
@@ -560,31 +566,31 @@ install -d build
 cd build
 CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
-%cmake \
+%cmake .. \
+	-DBUILD_SHARED_LIBS:BOOL=OFF \
+	%{!?with_z3:-DCLANG_ANALYZER_ENABLE_Z3_SOLVER:BOOL=OFF} \
+	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
+	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
+	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
+	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
+	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
+%if %{with apidocs}
+	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
+%endif
+	-DLLVM_ENABLE_PIC:BOOL=ON \
+	-DLLVM_ENABLE_RTTI:BOOL=ON \
+%if %{with doc}
+	-DLLVM_ENABLE_SPHINX:BOOL=ON \
+%endif
 %if "%{_lib}" == "lib64"
 	-DLLVM_LIBDIR_SUFFIX:STRING=64 \
 %endif
 %if "%{_lib}" == "libx32"
 	-DLLVM_LIBDIR_SUFFIX:STRING=x32 \
 %endif
-%if %{with apidocs}
-	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
-%endif
-%if %{with doc}
-	-DLLVM_ENABLE_SPHINX:BOOL=ON \
-	-DSPHINX_WARNINGS_AS_ERRORS=OFF \
-%endif
-	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
-	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
-	-DLLVM_ENABLE_RTTI:BOOL=ON \
-	-DLLVM_ENABLE_PIC:BOOL=ON \
-	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
-	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
-	-DBUILD_SHARED_LIBS:BOOL=OFF \
-	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
-	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
-	../
+	-DSPHINX_WARNINGS_AS_ERRORS=OFF
 
 %{__make} \
 	VERBOSE=1 \
