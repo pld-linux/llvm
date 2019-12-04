@@ -95,12 +95,3 @@
          (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick) ||
          (IsAndroid && !Triple.isAndroidVersionLT(23)))
        ExtraOpts.push_back("--hash-style=gnu");
-@@ -241,7 +241,7 @@
-       ExtraOpts.push_back("--hash-style=both");
-   }
- 
--  if (Distro.IsRedhat() && Distro != Distro::RHEL5 && Distro != Distro::RHEL6)
-+  if ((Distro.IsRedhat() && Distro != Distro::RHEL5 && Distro != Distro::RHEL6) || Distro.IsPLD())
-     ExtraOpts.push_back("--no-add-needed");
- 
- #ifdef ENABLE_LINKER_BUILD_ID
