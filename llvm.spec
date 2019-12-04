@@ -674,6 +674,8 @@ done
 %{__rm} $RPM_BUILD_ROOT%{py_sitedir}/six.py*
 # it seems it is used internally by an extra clang tool
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
+# examples only
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/{CheckerDependencyHandling,CheckerOptionHandling,Sample}AnalyzerPlugin.so
 
 # disable completeness check incompatible with split packaging
 %{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' $RPM_BUILD_ROOT%{_libdir}/cmake/llvm/LLVMExports.cmake
