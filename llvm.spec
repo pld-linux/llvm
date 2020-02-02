@@ -20,6 +20,7 @@
 %bcond_without	ocaml		# OCaml binding
 %bcond_without	z3		# Z3 constraint solver support in Clang Static Analyzer
 %bcond_without	doc		# HTML docs and man pages
+%bcond_with	cxxmodules	# C++20 modules (requires support in bootstrap compiler)
 %bcond_with	apidocs		# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests		# run tests
 
@@ -31,25 +32,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	9.0.0
+Version:	9.0.1
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
-#Source0Download: http://releases.llvm.org/download.html
-Source0:	http://releases.llvm.org/%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	0fd4283ff485dffb71a4f1cc8fd3fc72
-Source1:	http://releases.llvm.org/%{version}/cfe-%{version}.src.tar.xz
-# Source1-md5:	0df6971e2f99b1e99e7bfb533e4067af
-Source2:	http://releases.llvm.org/%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	c92b8a1aed654463962d77445ebee10b
-Source3:	http://releases.llvm.org/%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	963b43e591d9501965e932fc4218d1a0
-Source4:	http://releases.llvm.org/%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	5cd3222a5d7f96cf789dd0bdba14d0fc
-Source5:	http://releases.llvm.org/%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	6d1b6e8a9c24ccf98b6ed4f63dbb6356
-Source6:	http://releases.llvm.org/%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	aa70e956ddbe0c7bff029b8358ff6c44
+#Source0Download: https://github.com/llvm/llvm-project/releases/
+Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
+# Source0-md5:	31eb9ce73dd2a0f8dcab8319fb03f8fc
+Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
+# Source1-md5:	13468e4a44940efef1b75e8641752f90
+Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
+# Source2-md5:	1b39b9b90007a2170ebe77d6214ec581
+Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
+# Source3-md5:	b2b656b0c34a486c61e4891e374b1b2a
+Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
+# Source4-md5:	5fe12339a88b56cd7dc4b1183aec4716
+Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
+# Source5-md5:	c76293870b564c6a7968622b475b7646
+Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
+# Source6-md5:	63d74ba4d80edf0199ca3d00f9285ba1
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
@@ -68,7 +69,9 @@ BuildRequires:	__cc >= 3.4
 BuildRequires:	groff
 BuildRequires:	libedit-devel
 BuildRequires:	libltdl-devel
+BuildRequires:	libpfm-devel
 BuildRequires:	libstdc++-devel >= 5:3.4
+BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
 BuildRequires:	ocaml >= 4.00.0
@@ -117,7 +120,7 @@ BuildRequires:	libatomic-devel
 %endif
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-ext-devel
-BuildRequires:	python-devel >= 2
+BuildRequires:	python-devel >= 1:2.7
 %{?with_doc:BuildRequires:	python3-recommonmark}
 BuildRequires:	swig-python >= 3.0.11
 %endif
@@ -536,7 +539,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 
 %prep
 %setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6
-%{__mv} cfe-%{version}.src tools/clang
+%{__mv} clang-%{version}.src tools/clang
 %{?with_rt:%{__mv} compiler-rt-%{version}.src projects/compiler-rt}
 %{?with_lldb:%{__mv} lldb-%{version}.src tools/lldb}
 %{?with_polly:%{__mv} polly-%{version}.src tools/polly}
@@ -568,7 +571,6 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
 %cmake .. \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
-	%{!?with_z3:-DCLANG_ANALYZER_ENABLE_Z3_SOLVER:BOOL=OFF} \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
 	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
@@ -578,11 +580,13 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %if %{with apidocs}
 	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
 %endif
+	%{?with_cxxmodules:-DLLVM_ENABLE_MODULES:BOOL=ON} \
 	-DLLVM_ENABLE_PIC:BOOL=ON \
 	-DLLVM_ENABLE_RTTI:BOOL=ON \
 %if %{with doc}
 	-DLLVM_ENABLE_SPHINX:BOOL=ON \
 %endif
+	%{!?with_z3:-DLLVM_ENABLE_Z3_SOLVER:BOOL=OFF} \
 %if "%{_lib}" == "lib64"
 	-DLLVM_LIBDIR_SUFFIX:STRING=64 \
 %endif
@@ -674,8 +678,6 @@ done
 %{__rm} $RPM_BUILD_ROOT%{py_sitedir}/six.py*
 # it seems it is used internally by an extra clang tool
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
-# examples only
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/{CheckerDependencyHandling,CheckerOptionHandling,Sample}AnalyzerPlugin.so
 
 # disable completeness check incompatible with split packaging
 %{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' $RPM_BUILD_ROOT%{_libdir}/cmake/llvm/LLVMExports.cmake
