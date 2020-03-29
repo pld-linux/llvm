@@ -32,25 +32,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	9.0.1
+Version:	10.0.0
 Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	31eb9ce73dd2a0f8dcab8319fb03f8fc
+# Source0-md5:	693cefdc49d618f828144486a18b473f
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	13468e4a44940efef1b75e8641752f90
+# Source1-md5:	717ef92318fed4dbe1ee058368cfb552
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	1b39b9b90007a2170ebe77d6214ec581
+# Source2-md5:	3a8477233f69600f3e2ca997405c29db
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	b2b656b0c34a486c61e4891e374b1b2a
+# Source3-md5:	9828da982f3088cece20e0db9e76e06d
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	5fe12339a88b56cd7dc4b1183aec4716
+# Source4-md5:	f71e6f808676c211338ad10b3ad5c10d
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	c76293870b564c6a7968622b475b7646
+# Source5-md5:	19adb2918e88d682ba2f97ac7280a25d
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	63d74ba4d80edf0199ca3d00f9285ba1
+# Source6-md5:	481ab4e01c8c5549c8aff5ef1bd25425
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
@@ -139,7 +139,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	9
+%define		abi	10
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -552,7 +552,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch4 -p1
 %patch5 -p1
 
-grep -rl /usr/bin/env tools utils | xargs sed -i -e '1{
+grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
 	s,^#!.*bin/env perl,#!%{__perl},
 }'
@@ -615,7 +615,7 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
 # workaround failed import of _lldb
-cp -an %{_lib}/python%{py_ver}/site-packages/lldb/_lldb.so tools/lldb/docs/lldb
+cp -pnL %{_lib}/python%{py_ver}/site-packages/lldb/_lldb.so tools/lldb/docs/lldb
 %{__make} \
 	LD_LIBRARY_PATH=$(pwd)/%{_lib} \
 	-C tools/lldb/docs lldb-python-doc
@@ -720,6 +720,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-elfabi
 %attr(755,root,root) %{_bindir}/llvm-exegesis
 %attr(755,root,root) %{_bindir}/llvm-extract
+%attr(755,root,root) %{_bindir}/llvm-ifs
+%attr(755,root,root) %{_bindir}/llvm-install-name-tool
 %attr(755,root,root) %{_bindir}/llvm-jitlink
 %attr(755,root,root) %{_bindir}/llvm-lib
 %attr(755,root,root) %{_bindir}/llvm-link
@@ -740,6 +742,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-rc
 %attr(755,root,root) %{_bindir}/llvm-readelf
 %attr(755,root,root) %{_bindir}/llvm-readobj
+%attr(755,root,root) %{_bindir}/llvm-reduce
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
 %attr(755,root,root) %{_bindir}/llvm-size
 %attr(755,root,root) %{_bindir}/llvm-split
@@ -777,6 +780,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-lib.1*
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-lipo.1*
+%{_mandir}/man1/llvm-locstats.1*
 %{_mandir}/man1/llvm-mca.1*
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-objcopy.1*
@@ -800,10 +804,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.9
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.10
 %attr(755,root,root) %{_libdir}/LLVMgold.so
-%attr(755,root,root) %{_libdir}/libRemarks.so.9
-%attr(755,root,root) %{_libdir}/libclang-cpp.so.9
+%attr(755,root,root) %{_libdir}/libRemarks.so.10
+%attr(755,root,root) %{_libdir}/libclang-cpp.so.10
 
 %files devel
 %defattr(644,root,root,755)
@@ -857,11 +861,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-format
 %attr(755,root,root) %{_bindir}/clang-import-test
 %attr(755,root,root) %{_bindir}/clang-offload-bundler
+%attr(755,root,root) %{_bindir}/clang-offload-wrapper
 %attr(755,root,root) %{_bindir}/git-clang-format
 %dir %{_libdir}/clang
 %dir %{_libdir}/clang/%{version}
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
+%dir %{_libdir}/clang/%{version}/bin
+%attr(755,root,root) %{_libdir}/clang/%{version}/bin/hwasan_symbolize
 %ifarch %{ix86} %{x8664}
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
@@ -967,6 +974,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-change-namespace
 %attr(755,root,root) %{_bindir}/clang-extdef-mapping
 %attr(755,root,root) %{_bindir}/clang-include-fixer
+%attr(755,root,root) %{_bindir}/clang-move
 %attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-refactor
 %attr(755,root,root) %{_bindir}/clang-rename
@@ -1004,16 +1012,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb
 %attr(755,root,root) %{_bindir}/lldb-argdumper
 %attr(755,root,root) %{_bindir}/lldb-instr
-%attr(755,root,root) %{_bindir}/lldb-mi
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-vscode
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.9
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.9
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.10
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.10
 %dir %{py_sitedir}/lldb
 %attr(755,root,root) %{py_sitedir}/lldb/lldb-argdumper
 %{py_sitedir}/lldb/formatters
-%{py_sitedir}/lldb/runtime
 %{py_sitedir}/lldb/utils
 %{py_sitedir}/lldb/__init__.py[co]
 %{py_sitedir}/lldb/embedded_interpreter.py[co]
