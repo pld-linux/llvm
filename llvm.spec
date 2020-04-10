@@ -363,6 +363,7 @@ Summary(pl.UTF-8):	Pliki nagłówkowe Clanga
 Group:		Development/Languages
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	clang = %{version}-%{release}
+%{?with_polly:Requires:	llvm-polly-devel = %{version}-%{release}}
 
 %description -n clang-devel
 This package contains header files for the Clang compiler.
