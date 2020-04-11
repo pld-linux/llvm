@@ -870,8 +870,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang/%{version}
 %{_libdir}/clang/%{version}/include
 %if %{with rt}
+%ifarch %{x8664} aarch64
 %dir %{_libdir}/clang/%{version}/bin
 %attr(755,root,root) %{_libdir}/clang/%{version}/bin/hwasan_symbolize
+%endif
 %ifarch %{ix86} %{x8664}
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
