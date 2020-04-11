@@ -56,6 +56,7 @@ Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
+Patch6:		lld-sphinx2.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	bison
@@ -552,6 +553,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},

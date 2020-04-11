@@ -1,0 +1,11 @@
+--- llvm-10.0.0.src/tools/lld/docs/conf.py.orig	2020-04-11 21:02:50.200235591 +0200
++++ llvm-10.0.0.src/tools/lld/docs/conf.py	2020-04-11 21:02:56.470201624 +0200
+@@ -134,7 +134,7 @@
+ #html_use_smartypants = True
+ 
+ # Custom sidebar templates, maps document names to template names.
+-html_sidebars = {'index': 'indexsidebar.html'}
++html_sidebars = {'index': ['indexsidebar.html']}
+ 
+ # Additional templates that should be rendered to pages, maps page names to
+ # template names.
