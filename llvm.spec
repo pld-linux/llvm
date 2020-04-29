@@ -874,7 +874,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang/%{version}/bin
 %attr(755,root,root) %{_libdir}/clang/%{version}/bin/hwasan_symbolize
 %endif
-%ifarch %{ix86} %{x8664}
+%ifarch %{ix86} %{x8664} aarch64
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
 %dir %{_libdir}/clang/%{version}/share
@@ -897,10 +897,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
+%ifarch aarch64
+%{_libdir}/clang/%{version}/lib/linux/clang_rt.*-aarch64.o
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-aarch64.a
+%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-aarch64.so
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-aarch64.a.syms
+%endif
 %ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
 %{_libdir}/clang/%{version}/share/asan_blacklist.txt
 %endif
-%ifarch %{ix86} %{x8664} mips64
+%ifarch %{ix86} %{x8664} mips64 aarch64
 %{_libdir}/clang/%{version}/share/cfi_blacklist.txt
 %endif
 %ifarch %{x8664} aarch64 mips64
