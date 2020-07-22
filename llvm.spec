@@ -32,25 +32,25 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	10.0.0
-Release:	2
+Version:	10.0.1
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	693cefdc49d618f828144486a18b473f
+# Source0-md5:	71c68c526cbbf1674b5aafc5542b336c
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	717ef92318fed4dbe1ee058368cfb552
+# Source1-md5:	6c8b56f531876fd24e06257a2d8ce422
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	3a8477233f69600f3e2ca997405c29db
+# Source2-md5:	970835d14e9c08a68c4b2ff3931bada7
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	9828da982f3088cece20e0db9e76e06d
+# Source3-md5:	0dddd62dd96ba97ccf075fc3ca086024
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	f71e6f808676c211338ad10b3ad5c10d
+# Source4-md5:	263ad3980c19012719b14333b69c108e
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	19adb2918e88d682ba2f97ac7280a25d
+# Source5-md5:	251388aa2f5fbd472acc9735b3386e59
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	481ab4e01c8c5549c8aff5ef1bd25425
+# Source6-md5:	c8f364fbb129e47ef2793c317561449a
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
