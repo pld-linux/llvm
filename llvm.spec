@@ -64,7 +64,7 @@ BuildRequires:	cmake >= 3.4.3
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
-%if "%(echo %{cc_version} | cut -d. -f1,2)" < "3.4"
+%if %(rpmvercmp %{cc_version} 3.4 > /dev/null; test $? = 2 && echo 1 || echo 0)
 BuildRequires:	__cc >= 3.4
 %endif
 BuildRequires:	groff
