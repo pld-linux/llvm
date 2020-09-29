@@ -64,7 +64,7 @@ BuildRequires:	cmake >= 3.4.3
 BuildRequires:	flex
 BuildRequires:	gcc >= 5:3.4
 # gcc4 might be installed, but not current __cc
-%if %(rpmvercmp %{cc_version} 3.4 > /dev/null; test $? = 2 && echo 1 || echo 0)
+%if %{_ver_lt "%{cc_version}" "3.4"}
 BuildRequires:	__cc >= 3.4
 %endif
 BuildRequires:	groff
@@ -87,7 +87,7 @@ BuildRequires:	python >= 1:2.7
 BuildRequires:	python-PyYAML
 BuildRequires:	python-pygments >= 2.0
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.734
+BuildRequires:	rpmbuild(macros) >= 1.750
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
