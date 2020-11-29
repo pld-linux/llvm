@@ -23,6 +23,7 @@
 %bcond_with	cxxmodules	# C++20 modules (requires support in bootstrap compiler)
 %bcond_with	apidocs		# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests		# run tests
+%bcond_with	lowmem		# lower memory requirements
 
 # No ocaml on other arches or no native ocaml (required for ocaml-ctypes)
 %ifnarch %{ix86} %{x8664} %{arm} aarch64 ppc sparc sparcv9
@@ -31,6 +32,10 @@
 
 %ifarch armv3l armv4b armv4l armv4tl armv5tl armv5tel armv5tejl armv6l armv6hl
 %undefine	with_rt
+%endif
+
+%ifarch %{arm} aarch64
+%define		lowmem		1
 %endif
 
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
@@ -574,6 +579,12 @@ install -d build
 cd build
 CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
+%if %{with lowmem}
+export CFLAGS="%{rpmcflags} -g0"
+export CXXFLAGS="%{rpmcxxflags} -g0"
+export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
+%endif
+
 %cmake .. \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
@@ -600,6 +611,9 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %endif
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_DEFAULT_TARGET_TRIPLE:STRING=%{_target_platform} \
+%if %{with lowmem}
+	-DLLVM_PARALLEL_LINK_JOBS:STRING=1 \
+%endif
 	-DSPHINX_WARNINGS_AS_ERRORS=OFF
 
 %{__make} \
