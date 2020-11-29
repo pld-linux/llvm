@@ -67,6 +67,7 @@ Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
+BuildRequires:	binutils-devel
 BuildRequires:	bison
 BuildRequires:	cmake >= 3.4.3
 BuildRequires:	flex
