@@ -115,7 +115,7 @@ BuildRequires:	libstdc++-multilib-64-devel
 %endif
 %if %{with lldb}
 BuildRequires:	epydoc
-%ifarch i386 i486
+%ifarch i386 i486 %{arm}
 BuildRequires:	libatomic-devel
 %endif
 BuildRequires:	libxml2-devel >= 2
