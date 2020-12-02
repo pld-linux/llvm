@@ -35,7 +35,7 @@
 %endif
 
 %ifarch %{arm} aarch64
-%define		lowmem		1
+%define		with_lowmem		1
 %endif
 
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
