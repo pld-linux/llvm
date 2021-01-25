@@ -20,6 +20,7 @@
 %bcond_without	ocaml		# OCaml binding
 %bcond_without	z3		# Z3 constraint solver support in Clang Static Analyzer
 %bcond_without	doc		# HTML docs and man pages
+%bcond_with	flang		# flang (Fortran18) compiler (broken as of 11.0.1)
 %bcond_with	cxxmodules	# C++20 modules (requires support in bootstrap compiler)
 %bcond_with	apidocs		# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests		# run tests
@@ -60,11 +61,17 @@ Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{versio
 # Source5-md5:	1e577a85948a0f07483b7c405e59a0ca
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
 # Source6-md5:	652c93bd3f78fcb9a02d8d3027f7dae2
+Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
+# Source7-md5:	3d37b40aa1618d8337e9b010d3e24f2d
+# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.1/llvm-project-11.0.1.src.tar.xz
+Source8:	mlir-%{version}.tar.xz
+# Source8-md5:	97736d1209b01ac52b0dd3c0916f8198
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
+Patch6:		%{name}-flang.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -549,19 +556,26 @@ Clang format and rename integration for Vim.
 Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 
 %prep
-%setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6
+%setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6 %{?with_flang:-a7 -a8}
 %{__mv} clang-%{version}.src tools/clang
 %{?with_rt:%{__mv} compiler-rt-%{version}.src projects/compiler-rt}
 %{?with_lldb:%{__mv} lldb-%{version}.src tools/lldb}
 %{?with_polly:%{__mv} polly-%{version}.src tools/polly}
 %{__mv} clang-tools-extra-%{version}.src tools/clang/tools/extra
 %{__mv} lld-%{version}.src tools/lld
+%if %{with flang}
+%{__mv} flang-%{version}.src tools/flang
+%{__mv} mlir tools/mlir
+%endif
 
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%if %{with flang}
+%patch6 -p1
+%endif
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python},
