@@ -78,16 +78,11 @@ BuildRequires:	binutils-devel
 BuildRequires:	bison
 BuildRequires:	cmake >= 3.4.3
 BuildRequires:	flex
-BuildRequires:	gcc >= 5:3.4
-# gcc4 might be installed, but not current __cc
-%if %(rpmvercmp %{cc_version} 3.4 > /dev/null; test $? = 2 && echo 1 || echo 0)
-BuildRequires:	__cc >= 3.4
-%endif
 BuildRequires:	groff
 BuildRequires:	libedit-devel
 BuildRequires:	libltdl-devel
 BuildRequires:	libpfm-devel
-BuildRequires:	libstdc++-devel >= 5:3.4
+BuildRequires:	libstdc++-devel >= 6:5
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
@@ -106,6 +101,7 @@ BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.734
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
+BuildRequires:	xar-devel
 BuildRequires:	xz
 %{?with_z3:BuildRequires:	z3-devel >= 4.7.1}
 BuildRequires:	zlib-devel
@@ -136,15 +132,17 @@ BuildRequires:	epydoc
 BuildRequires:	libatomic-devel
 %endif
 BuildRequires:	libxml2-devel >= 2
+BuildRequires:	lua-devel
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python-devel >= 1:2.7
 %{?with_doc:BuildRequires:	python3-recommonmark}
 BuildRequires:	swig-python >= 3.0.11
+BuildRequires:	xz-devel
 %endif
 %if %{with polly}
 #BuildRequires:	gmp-devel or imath-devel (private copy in polly/lib/External/isl/imath)
 # private copy in polly/lib/External/isl
-#BuildRequires:	isl-devel >= 0.18
+#BuildRequires:	isl-devel >= 0.22.1
 #TODO (bcond): cuda-devel (with POLLY_ENABLE_GPGPU_CODEGEN=ON)
 %endif
 %if %{with ocaml}
@@ -607,7 +605,6 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
-	-DLLVM_ENABLE_CXX1Y:BOOL=ON \
 %if %{with apidocs}
 	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
 %endif
@@ -617,7 +614,7 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 %if %{with doc}
 	-DLLVM_ENABLE_SPHINX:BOOL=ON \
 %endif
-	%{!?with_z3:-DLLVM_ENABLE_Z3_SOLVER:BOOL=OFF} \
+	%{?with_z3:-DLLVM_ENABLE_Z3_SOLVER:BOOL=ON} \
 %if "%{_lib}" == "lib64"
 	-DLLVM_LIBDIR_SUFFIX:STRING=64 \
 %endif
