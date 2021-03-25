@@ -1,6 +1,42 @@
---- llvm-5.0.0.src.orig/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2016-08-18 19:56:48.000000000 +0200
-+++ llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2016-11-03 12:18:35.000000000 +0100
-@@ -1996,6 +1996,7 @@
+diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/include/clang/Driver/Distro.h llvm-11.0.1.src/tools/clang/include/clang/Driver/Distro.h
+--- llvm-11.0.1.src.org/tools/clang/include/clang/Driver/Distro.h	2020-12-18 20:57:38.000000000 +0100
++++ llvm-11.0.1.src/tools/clang/include/clang/Driver/Distro.h	2021-03-25 22:27:39.173689051 +0100
+@@ -28,6 +28,7 @@ public:
+     // the first and last known member in the family, e.g. IsRedHat().
+     AlpineLinux,
+     ArchLinux,
++    PLDLinux,
+     DebianLenny,
+     DebianSqueeze,
+     DebianWheezy,
+@@ -132,6 +133,10 @@ public:
+     return DistroVal == Gentoo;
+   }
+ 
++  bool IsPLD() {
++    return DistroVal == PLDLinux;
++  }
++
+   /// @}
+ };
+ 
+diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/Distro.cpp llvm-11.0.1.src/tools/clang/lib/Driver/Distro.cpp
+--- llvm-11.0.1.src.org/tools/clang/lib/Driver/Distro.cpp	2020-12-18 20:57:38.000000000 +0100
++++ llvm-11.0.1.src/tools/clang/lib/Driver/Distro.cpp	2021-03-25 22:27:39.173689051 +0100
+@@ -165,6 +165,9 @@ static Distro::DistroType DetectDistro(l
+   if (VFS.exists("/etc/gentoo-release"))
+     return Distro::Gentoo;
+ 
++  if (VFS.exists("/etc/pld-release"))
++    return Distro::PLDLinux;
++
+   return Distro::UnknownDistro;
+ }
+ 
+diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp
+--- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2020-12-18 20:57:38.000000000 +0100
++++ llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:27:39.173689051 +0100
+@@ -2048,6 +2048,7 @@ void Generic_GCC::GCCInstallationDetecto
    // lifetime or initialization issues.
    static const char *const AArch64LibDirs[] = {"/lib64", "/lib"};
    static const char *const AArch64Triples[] = {
@@ -8,7 +44,7 @@
        "aarch64-none-linux-gnu", "aarch64-linux-gnu", "aarch64-redhat-linux",
        "aarch64-suse-linux", "aarch64-linux-android"};
    static const char *const AArch64beLibDirs[] = {"/lib"};
-@@ -2056,9 +2056,13 @@
+@@ -2055,9 +2056,13 @@ void Generic_GCC::GCCInstallationDetecto
                                                   "aarch64_be-linux-gnu"};
  
    static const char *const ARMLibDirs[] = {"/lib"};
@@ -24,7 +60,7 @@
                                               "armv7hl-redhat-linux-gnueabi",
                                               "armv6hl-suse-linux-gnueabi",
                                               "armv7hl-suse-linux-gnueabi"};
-@@ -2020,6 +2021,7 @@
+@@ -2072,6 +2077,7 @@ void Generic_GCC::GCCInstallationDetecto
  
    static const char *const X86_64LibDirs[] = {"/lib64", "/lib"};
    static const char *const X86_64Triples[] = {
@@ -32,7 +68,7 @@
        "x86_64-linux-gnu",       "x86_64-unknown-linux-gnu",
        "x86_64-pc-linux-gnu",    "x86_64-redhat-linux6E",
        "x86_64-redhat-linux",    "x86_64-suse-linux",
-@@ -2029,6 +2031,7 @@
+@@ -2081,6 +2087,7 @@ void Generic_GCC::GCCInstallationDetecto
    static const char *const X32LibDirs[] = {"/libx32"};
    static const char *const X86LibDirs[] = {"/lib32", "/lib"};
    static const char *const X86Triples[] = {
@@ -40,7 +76,7 @@
        "i686-linux-gnu",       "i686-pc-linux-gnu",     "i486-linux-gnu",
        "i386-linux-gnu",       "i386-redhat-linux6E",   "i686-redhat-linux",
        "i586-redhat-linux",    "i386-redhat-linux",     "i586-suse-linux",
-@@ -2069,6 +2072,7 @@
+@@ -2121,6 +2128,7 @@ void Generic_GCC::GCCInstallationDetecto
  
    static const char *const PPCLibDirs[] = {"/lib32", "/lib"};
    static const char *const PPCTriples[] = {
@@ -48,7 +84,7 @@
        "powerpc-linux-gnu", "powerpc-unknown-linux-gnu", "powerpc-linux-gnuspe",
        // On 32-bit PowerPC systems running SUSE Linux, gcc is configured as a
        // 64-bit compiler which defaults to "-m32", hence "powerpc64-suse-linux".
-@@ -2093,14 +2097,14 @@
+@@ -2146,14 +2154,14 @@ void Generic_GCC::GCCInstallationDetecto
                                                 "riscv64-suse-linux"};
  
    static const char *const SPARCv8LibDirs[] = {"/lib32", "/lib"};
@@ -66,42 +102,10 @@
        "s390x-linux-gnu", "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu",
        "s390x-suse-linux", "s390x-redhat-linux"};
  
---- llvm-5.0.0.src/tools/clang/include/clang/Driver/Distro.h.orig	2017-05-04 14:46:38.000000000 +0200
-+++ llvm-5.0.0.src/tools/clang/include/clang/Driver/Distro.h	2017-12-01 22:44:57.785429043 +0100
-@@ -27,6 +27,7 @@
-     // in this enum, because some tests are done by integer comparison against
-     // the first and last known member in the family, e.g. IsRedHat().
-     ArchLinux,
-+    PLDLinux,
-     DebianLenny,
-     DebianSqueeze,
-     DebianWheezy,
-@@ -114,6 +115,10 @@
-     return DistroVal >= UbuntuHardy && DistroVal <= UbuntuArtful;
-   }
- 
-+  bool IsPLD() {
-+    return DistroVal == PLDLinux;
-+  }
-+
-   /// @}
- };
- 
---- llvm-5.0.0.src/tools/clang/lib/Driver/Distro.cpp.orig	2017-05-04 14:46:38.000000000 +0200
-+++ llvm-5.0.0.src/tools/clang/lib/Driver/Distro.cpp	2017-12-01 22:47:15.155427475 +0100
-@@ -129,6 +129,9 @@
-   if (VFS.exists("/etc/arch-release"))
-     return Distro::ArchLinux;
- 
-+  if (VFS.exists("/etc/pld-release"))
-+    return Distro::PLDLinux;
-+
-   return Distro::UnknownDistro;
- }
- 
---- llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Linux.cpp.orig	2017-12-01 22:14:03.462116884 +0100
-+++ llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Linux.cpp	2017-12-01 22:51:38.678757801 +0100
-@@ -210,7 +210,7 @@
+diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Linux.cpp llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Linux.cpp
+--- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Linux.cpp	2020-12-18 20:57:38.000000000 +0100
++++ llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Linux.cpp	2021-03-25 22:27:39.173689051 +0100
+@@ -226,7 +226,7 @@ Linux::Linux(const Driver &D, const llvm
      ExtraOpts.push_back("now");
    }
  
@@ -110,7 +114,7 @@
        Triple.isAndroid()) {
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
-@@ -232,7 +232,7 @@
+@@ -266,7 +266,7 @@ Linux::Linux(const Driver &D, const llvm
    // Android loader does not support .gnu.hash until API 23.
    // Hexagon linker/loader does not support .gnu.hash
    if (!IsMips && !IsHexagon) {

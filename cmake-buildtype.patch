@@ -1,8 +1,7 @@
-allow CMAKE_BUILD_TYPE=PLD
-
---- llvm-3.8.0.src/CMakeLists.txt~	2016-01-13 21:03:44.000000000 +0200
-+++ llvm-3.8.0.src/CMakeLists.txt	2016-10-01 15:54:42.749630541 +0300
-@@ -174,11 +174,6 @@
+diff -urNp -x '*.orig' llvm-11.0.1.src.org/CMakeLists.txt llvm-11.0.1.src/CMakeLists.txt
+--- llvm-11.0.1.src.org/CMakeLists.txt	2021-03-25 22:28:14.616795886 +0100
++++ llvm-11.0.1.src/CMakeLists.txt	2021-03-25 22:28:19.786759915 +0100
+@@ -264,11 +264,6 @@ endif()
  
  string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
  
@@ -13,4 +12,4 @@ allow CMAKE_BUILD_TYPE=PLD
 -
  set(LLVM_LIBDIR_SUFFIX "" CACHE STRING "Define suffix of library directory name (32/64)" )
  
- # They are used as destination of target generators.
+ set(LLVM_TOOLS_INSTALL_DIR "bin" CACHE STRING "Path for binary subdirectory (defaults to 'bin')")

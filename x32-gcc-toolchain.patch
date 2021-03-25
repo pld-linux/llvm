@@ -1,8 +1,9 @@
---- llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp~	2015-07-26 12:48:18.000000000 +0200
-+++ llvm-5.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2015-07-26 17:44:56.883613971 +0200
-@@ -1312,6 +1312,9 @@
-       "x86_64-slackware-linux", "x86_64-linux-android",
-       "x86_64-unknown-linux"};
+diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp
+--- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:28:00.723555728 +0100
++++ llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:28:05.906854918 +0100
+@@ -2085,6 +2085,9 @@ void Generic_GCC::GCCInstallationDetecto
+       "x86_64-slackware-linux", "x86_64-unknown-linux",
+       "x86_64-amazon-linux",    "x86_64-linux-android"};
    static const char *const X32LibDirs[] = {"/libx32"};
 +  static const char *const X32Triples[] = {
 +      "x86_64-pld-linux-gnux32", "amd64-pld-linux-gnux32",
@@ -10,8 +11,8 @@
    static const char *const X86LibDirs[] = {"/lib32", "/lib"};
    static const char *const X86Triples[] = {
        "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
-@@ -1407,15 +1407,19 @@
-     }
+@@ -2307,15 +2310,19 @@ void Generic_GCC::GCCInstallationDetecto
+     TripleAliases.append(begin(AVRTriples), end(AVRTriples));
      break;
    case llvm::Triple::x86_64:
 -    LibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
