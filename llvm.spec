@@ -43,7 +43,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	11.0.1
-Release:	2
+Release:	3
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
@@ -90,7 +90,7 @@ BuildRequires:	ocaml >= 4.00.0
 BuildRequires:	ocaml-ctypes-devel >= 0.4
 BuildRequires:	ocaml-findlib
 BuildRequires:	ocaml-ocamldoc
-BuildRequires:	ocaml-ounit >= 2
+%{?with_tests:BuildRequires:	ocaml-ounit >= 2}
 %endif
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
