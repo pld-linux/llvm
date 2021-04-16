@@ -1,67 +1,20 @@
 --- llvm-11.0.0.src/CMakeLists.txt.orig	2020-10-07 12:10:48.000000000 +0200
 +++ llvm-11.0.0.src/CMakeLists.txt	2020-10-13 01:18:33.807817497 +0200
-@@ -646,6 +646,23 @@
+@@ -646,6 +646,8 @@
  set(LLVM_ENABLE_PER_TARGET_RUNTIME_DIR OFF CACHE BOOL
    "Enable per-target runtimes directory")
  
-+include(FindPythonInterp)
-+if( NOT PYTHONINTERP_FOUND )
-+  message(FATAL_ERROR
-+"Unable to find Python interpreter, required for builds and testing.
-+
-+Please install Python or specify the PYTHON_EXECUTABLE CMake variable.")
-+endif()
-+
-+if( ${PYTHON_VERSION_STRING} VERSION_LESS 2.7 )
-+  message(FATAL_ERROR "Python 2.7 or newer is required")
-+endif()
-+
-+add_executable(Python3::Interpreter IMPORTED)
-+set_target_properties(Python3::Interpreter PROPERTIES
-+  IMPORTED_LOCATION ${PYTHON_EXECUTABLE})
-+set(Python3_EXECUTABLE ${PYTHON_EXECUTABLE})
++find_package(Python3 REQUIRED COMPONENTS Interpreter)
 +
  set(LLVM_PROFDATA_FILE "" CACHE FILEPATH
    "Profiling data file to use when compiling in order to improve runtime performance.")
  
-@@ -679,40 +691,6 @@
+@@ -679,8 +691,6 @@
  
  include(HandleLLVMOptions)
  
--if(CMAKE_VERSION VERSION_LESS 3.12)
--  include(FindPythonInterp)
--  if( NOT PYTHONINTERP_FOUND )
--    message(FATAL_ERROR
--  "Unable to find Python interpreter, required for builds and testing.
--
--  Please install Python or specify the PYTHON_EXECUTABLE CMake variable.")
--  endif()
--
--  if( ${PYTHON_VERSION_STRING} VERSION_LESS 2.7 )
--    message(FATAL_ERROR "Python 2.7 or newer is required")
--  endif()
--
--  add_executable(Python3::Interpreter IMPORTED)
--  set_target_properties(Python3::Interpreter PROPERTIES
--    IMPORTED_LOCATION ${PYTHON_EXECUTABLE})
--  set(Python3_EXECUTABLE ${PYTHON_EXECUTABLE})
--else()
--  find_package(Python3 COMPONENTS Interpreter)
--  if(NOT Python3_Interpreter_FOUND)
--    message(WARNING "Python3 not found, using python2 as a fallback")
--    find_package(Python2 COMPONENTS Interpreter REQUIRED)
--    if(Python2_VERSION VERSION_LESS 2.7)
--      message(SEND_ERROR "Python 2.7 or newer is required")
--    endif()
--
--    # Treat python2 as python3
--    add_executable(Python3::Interpreter IMPORTED)
--    set_target_properties(Python3::Interpreter PROPERTIES
--      IMPORTED_LOCATION ${Python2_EXECUTABLE})
--    set(Python3_EXECUTABLE ${Python2_EXECUTABLE})
--  endif()
--endif()
+-find_package(Python3 REQUIRED COMPONENTS Interpreter)
 -
  ######
- # LLVMBuild Integration
- #
+ 
+ # Configure all of the various header file fragments LLVM uses which depend on

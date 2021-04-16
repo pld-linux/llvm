@@ -42,36 +42,37 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	11.0.1
-Release:	3
+Version:	12.0.0
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	6ec7ae9fd43da9b87cda15b3ab9cc7af
+# Source0-md5:	ceab21c9081e122a88d82216a80d0dc0
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	b4cb0b74b1f3292a89c9720f3e1e2934
+# Source1-md5:	877200cc072ece1a52c27677ab26e3ee
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	29d6186e048936008512b8bbdb3a1b71
+# Source2-md5:	313e9b1caf33195cbece3ba3174115a1
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	e49cde09adb5ed43a651e6d5bcb2aded
+# Source3-md5:	6e1b19f825fe8535aeb740b44d815c81
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	f9cc25cb4e52f1176225ef28d3b4d8ab
+# Source4-md5:	c9b362f89ed8f2d6f9563648ecb7af66
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	1e577a85948a0f07483b7c405e59a0ca
+# Source5-md5:	640967530560f7ff96e487b6d64aa6e4
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	652c93bd3f78fcb9a02d8d3027f7dae2
+# Source6-md5:	7368ec545a26d67dbc487706970827c1
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	3d37b40aa1618d8337e9b010d3e24f2d
-# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.1/llvm-project-11.0.1.src.tar.xz
+# Source7-md5:	28e7993b76258a04b3eabdcd2f4eae45
+# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/llvm-project-12.0.0.src.tar.xz
 Source8:	mlir-%{version}.tar.xz
-# Source8-md5:	97736d1209b01ac52b0dd3c0916f8198
+# Source8-md5:	6ec5402ada1f8b60cb8e8c023a267901
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
 Patch6:		%{name}-flang.patch
+Patch7:		llvm12-build_fixes.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -94,9 +95,9 @@ BuildRequires:	ocaml-ocamldoc
 %endif
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
-BuildRequires:	python >= 1:2.7
-BuildRequires:	python-PyYAML
-BuildRequires:	python-pygments >= 2.0
+BuildRequires:	python3
+BuildRequires:	python3-PyYAML
+BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.734
 %{?with_doc:BuildRequires:	sphinx-pdg}
@@ -134,7 +135,7 @@ BuildRequires:	libatomic-devel
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	lua-devel
 BuildRequires:	ncurses-ext-devel
-BuildRequires:	python-devel >= 1:2.7
+BuildRequires:	python3-devel
 %{?with_doc:BuildRequires:	python3-recommonmark}
 BuildRequires:	swig-python >= 3.0.11
 BuildRequires:	xz-devel
@@ -154,7 +155,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	11
+%define		abi	12
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -358,7 +359,7 @@ Group:		Development/Languages
 Requires:	clang = %{version}-%{release}
 # not picked up automatically since files are currently not instaled
 # in standard Python hierarchies yet
-Requires:	python
+Requires:	python3
 
 %description -n clang-analyzer
 The Clang Static Analyzer consists of both a source code analysis
@@ -456,7 +457,7 @@ Summary(pl.UTF-8):	Wydajny debugger nowej generacji
 Group:		Development/Debuggers
 URL:		http://lldb.llvm.org/
 Requires:	%{name} = %{version}-%{release}
-Requires:	python-six
+Requires:	python3-six
 
 %description -n lldb
 LLDB is a next generation, high-performance debugger. It is built as a
@@ -574,14 +575,15 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %if %{with flang}
 %patch6 -p1
 %endif
+%patch7 -p1
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
-	s,^#!.*bin/env python,#!%{__python},
+	s,^#!.*bin/env python,#!%{__python3},
 	s,^#!.*bin/env perl,#!%{__perl},
 }'
 
 find -name '*.py' -print0 | xargs -0 sed -i -e '1{
-	s,^#!.*bin/python.*,#!%{__python},
+	s,^#!.*bin/python.*,#!%{__python3},
 }'
 
 %build
@@ -647,10 +649,10 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
 # workaround failed import of _lldb
-cp -pnL %{_lib}/python%{py_ver}/site-packages/lldb/_lldb.so tools/lldb/docs/lldb
+cp -pnL %{_lib}/python%{py3_ver}/site-packages/lldb/_lldb.so tools/lldb/docs/lldb
 %{__make} \
 	LD_LIBRARY_PATH=$(pwd)/%{_lib} \
-	-C tools/lldb/docs lldb-python-doc
+	-C tools/lldb/docs lldb-python-doc-package
 %{__make} -C tools/lldb/docs lldb-cpp-doc
 %endif
 
@@ -661,17 +663,16 @@ rm -rf $RPM_BUILD_ROOT
 	DESTDIR=$RPM_BUILD_ROOT
 
 # only some .pyc files are created by make install
-%py_comp $RPM_BUILD_ROOT%{py_sitedir}
-%py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
+%py3_comp $RPM_BUILD_ROOT%{py3_sitedir}
+%py3_ocomp $RPM_BUILD_ROOT%{py3_sitedir}
 
 # Adjust static analyzer installation
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
 install -d $RPM_BUILD_ROOT%{_libdir}/scan-build
 %{__mv} $RPM_BUILD_ROOT%{_prefix}/libexec/c??-analyzer $RPM_BUILD_ROOT%{_libdir}/scan-build
 %{__sed} -i -e 's,/\.\./libexec/,/../%{_lib}/scan-build/,' $RPM_BUILD_ROOT%{_bindir}/scan-build
-%py_comp $RPM_BUILD_ROOT%{_datadir}/scan-view
-%py_ocomp $RPM_BUILD_ROOT%{_datadir}/scan-view
-%py_postclean %{_datadir}/scan-view
+%py3_comp $RPM_BUILD_ROOT%{_datadir}/scan-view
+%py3_ocomp $RPM_BUILD_ROOT%{_datadir}/scan-view
 
 # not installed by cmake buildsystem
 install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
@@ -679,7 +680,7 @@ install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
 %if %{with doc}
 cp -p build/docs/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 # these tools are not installed
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,llvm-build}.1
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/FileCheck.1
 # make links
 echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 %endif
@@ -707,7 +708,7 @@ done
 # not this OS
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
 # use system six
-%{__rm} $RPM_BUILD_ROOT%{py_sitedir}/six.py*
+%{__rm} $RPM_BUILD_ROOT%{py3_sitedir}/{,__pycache__/}six*.py*
 # it seems it is used internally by an extra clang tool
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
 
@@ -737,6 +738,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-ar
 %attr(755,root,root) %{_bindir}/llvm-as
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
+%attr(755,root,root) %{_bindir}/llvm-bitcode-strip
 %attr(755,root,root) %{_bindir}/llvm-cat
 %attr(755,root,root) %{_bindir}/llvm-cfi-verify
 %attr(755,root,root) %{_bindir}/llvm-cov
@@ -757,6 +759,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-install-name-tool
 %attr(755,root,root) %{_bindir}/llvm-jitlink
 %attr(755,root,root) %{_bindir}/llvm-lib
+%attr(755,root,root) %{_bindir}/llvm-libtool-darwin
 %attr(755,root,root) %{_bindir}/llvm-link
 %attr(755,root,root) %{_bindir}/llvm-lipo
 %attr(755,root,root) %{_bindir}/llvm-lto
@@ -772,6 +775,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-opt-report
 %attr(755,root,root) %{_bindir}/llvm-pdbutil
 %attr(755,root,root) %{_bindir}/llvm-profdata
+%attr(755,root,root) %{_bindir}/llvm-profgen
 %attr(755,root,root) %{_bindir}/llvm-ranlib
 %attr(755,root,root) %{_bindir}/llvm-rc
 %attr(755,root,root) %{_bindir}/llvm-readelf
@@ -787,12 +791,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/llvm-undname
 %attr(755,root,root) %{_bindir}/llvm-xray
-%attr(755,root,root) %{_bindir}/obj2yaml
 %attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_bindir}/sancov
 %attr(755,root,root) %{_bindir}/sanstats
+%attr(755,root,root) %{_bindir}/split-file
 %attr(755,root,root) %{_bindir}/verify-uselistorder
-%attr(755,root,root) %{_bindir}/yaml2obj
 %if %{with doc}
 %{_mandir}/man1/bugpoint.1*
 %{_mandir}/man1/dsymutil.1*
@@ -811,7 +814,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-dwarfdump.1*
 %{_mandir}/man1/llvm-exegesis.1*
 %{_mandir}/man1/llvm-extract.1*
+%{_mandir}/man1/llvm-install-name-tool.1*
 %{_mandir}/man1/llvm-lib.1*
+%{_mandir}/man1/llvm-libtool-darwin.1*
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-lipo.1*
 %{_mandir}/man1/llvm-locstats.1*
@@ -821,6 +826,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-objdump.1*
 %{_mandir}/man1/llvm-pdbutil.1*
 %{_mandir}/man1/llvm-profdata.1*
+%{_mandir}/man1/llvm-profgen.1*
 %{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvm-readelf.1*
 %{_mandir}/man1/llvm-readobj.1*
@@ -830,7 +836,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-strip.1*
 %{_mandir}/man1/llvm-symbolizer.1*
 %{_mandir}/man1/opt.1*
-%{_mandir}/man1/tblgen.1*
+%{_mandir}/man1/xxx-tblgen.1*
 %endif
 
 %files libs
@@ -838,10 +844,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.11
+%attr(755,root,root) %ghost %{_libdir}/libLTO.so.12
 %attr(755,root,root) %{_libdir}/LLVMgold.so
-%attr(755,root,root) %{_libdir}/libRemarks.so.11
-%attr(755,root,root) %{_libdir}/libclang-cpp.so.11
+%attr(755,root,root) %{_libdir}/libRemarks.so.12
+%attr(755,root,root) %{_libdir}/libclang-cpp.so.12
 
 %files devel
 %defattr(644,root,root,755)
@@ -1039,6 +1045,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc tools/lld/{LICENSE.TXT,README.md}
 %attr(755,root,root) %{_bindir}/ld.lld
 %attr(755,root,root) %{_bindir}/ld64.lld
+%attr(755,root,root) %{_bindir}/ld64.lld.darwinnew
 %attr(755,root,root) %{_bindir}/lld
 %attr(755,root,root) %{_bindir}/lld-link
 %attr(755,root,root) %{_bindir}/wasm-ld
@@ -1058,15 +1065,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-vscode
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.11
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.11
-%dir %{py_sitedir}/lldb
-%attr(755,root,root) %{py_sitedir}/lldb/lldb-argdumper
-%{py_sitedir}/lldb/formatters
-%{py_sitedir}/lldb/utils
-%{py_sitedir}/lldb/__init__.py[co]
-%{py_sitedir}/lldb/embedded_interpreter.py[co]
-%attr(755,root,root) %{py_sitedir}/lldb/_lldb.so
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.12
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.12
+%dir %{py3_sitedir}/lldb
+%attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
+%{py3_sitedir}/lldb/formatters
+%{py3_sitedir}/lldb/utils
+%{py3_sitedir}/lldb/__init__.py
+%{py3_sitedir}/lldb/__pycache__
+%{py3_sitedir}/lldb/embedded_interpreter.py
+%attr(755,root,root) %{py3_sitedir}/lldb/_lldb.so
 
 %files -n lldb-devel
 %defattr(644,root,root,755)

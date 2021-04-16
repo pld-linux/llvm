@@ -10,8 +10,8 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/include/clang/Driver/Dist
      DebianSqueeze,
      DebianWheezy,
 @@ -132,6 +133,10 @@ public:
-     return DistroVal == Gentoo;
-   }
+ 
+   bool IsGentoo() const { return DistroVal == Gentoo; }
  
 +  bool IsPLD() {
 +    return DistroVal == PLDLinux;
