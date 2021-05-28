@@ -708,7 +708,7 @@ done
 # not this OS
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
 # use system six
-%{__rm} $RPM_BUILD_ROOT%{py3_sitedir}/{,__pycache__/}six*.py*
+%{?with_lldb:%{__rm} $RPM_BUILD_ROOT%{py3_sitedir}/{,__pycache__/}six*.py*}
 # it seems it is used internally by an extra clang tool
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
 
