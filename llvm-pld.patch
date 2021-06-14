@@ -44,7 +44,7 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
        "aarch64-none-linux-gnu", "aarch64-linux-gnu", "aarch64-redhat-linux",
        "aarch64-suse-linux", "aarch64-linux-android"};
    static const char *const AArch64beLibDirs[] = {"/lib"};
-@@ -2055,9 +2056,13 @@ void Generic_GCC::GCCInstallationDetecto
+@@ -2055,9 +2056,14 @@ void Generic_GCC::GCCInstallationDetecto
                                                   "aarch64_be-linux-gnu"};
  
    static const char *const ARMLibDirs[] = {"/lib"};
@@ -56,6 +56,7 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
 +  static const char *const ARMHFTriples[] = {"arm-pld-linux-gnueabihf",
 +                                             "armv6hl-pld-linux-gnueabi",
 +                                             "armv7hl-pld-linux-gnueabi",
++                                             "armv7hnl-pld-linux-gnueabi",
 +                                             "arm-linux-gnueabihf",
                                               "armv7hl-redhat-linux-gnueabi",
                                               "armv6hl-suse-linux-gnueabi",
