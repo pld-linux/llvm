@@ -1,15 +1,3 @@
---- llvm-12.0.0.src/tools/clang/tools/extra/clangd/quality/CompletionModel.cmake.orig	2021-04-06 18:38:18.000000000 +0200
-+++ llvm-12.0.0.src/tools/clang/tools/extra/clangd/quality/CompletionModel.cmake	2021-04-18 18:45:47.412730844 +0200
-@@ -4,8 +4,8 @@
- # ${CMAKE_CURRENT_BINARY_DIR}. The generated header
- # will define a C++ class called ${cpp_class} - which may be a
- # namespace-qualified class name.
-+set(model_compiler ${CMAKE_CURRENT_LIST_DIR}/CompletionModelCodegen.py)
- function(gen_decision_forest model filename cpp_class)
--  set(model_compiler ${CMAKE_SOURCE_DIR}/../clang-tools-extra/clangd/quality/CompletionModelCodegen.py)
-   
-   set(output_dir ${CMAKE_CURRENT_BINARY_DIR})
-   set(header_file ${output_dir}/${filename}.h)
 diff -urN llvm-12.0.0.src.orig/tools/lld/MachO/mach-o/compact_unwind_encoding.h llvm-12.0.0.src/tools/lld/MachO/mach-o/compact_unwind_encoding.h
 --- llvm-12.0.0.src.orig/tools/lld/MachO/mach-o/compact_unwind_encoding.h	1970-01-01 01:00:00.000000000 +0100
 +++ llvm-12.0.0.src/tools/lld/MachO/mach-o/compact_unwind_encoding.h	2021-04-16 16:24:55.701577683 +0200
