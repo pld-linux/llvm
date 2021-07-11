@@ -13,18 +13,35 @@
 # - system isl in polly?
 #
 # Conditional build:
-%bcond_without	lldb		# LLDB debugger
-%bcond_without	polly		# Polly cache-locality optimization, auto-parallelism and vectorization
-%bcond_without	rt		# compiler-rt libraries
-%bcond_without	multilib	# compiler-rt multilib libraries
-%bcond_without	ocaml		# OCaml binding
-%bcond_without	z3		# Z3 constraint solver support in Clang Static Analyzer
-%bcond_without	doc		# HTML docs and man pages
-%bcond_with	flang		# flang (Fortran18) compiler (broken as of 11.0.1)
-%bcond_with	cxxmodules	# C++20 modules (requires support in bootstrap compiler)
-%bcond_with	apidocs		# doxygen docs (HUGE, so they are not built by default)
-%bcond_with	tests		# run tests
-%bcond_with	lowmem		# lower memory requirements
+%bcond_without	lldb			# LLDB debugger
+%bcond_without	polly			# Polly cache-locality optimization, auto-parallelism and vectorization
+%bcond_without	rt			# compiler-rt libraries
+%bcond_without	multilib		# compiler-rt multilib libraries
+%bcond_without	ocaml			# OCaml binding
+%bcond_without	z3			# Z3 constraint solver support in Clang Static Analyzer
+%bcond_without	doc			# HTML docs and man pages
+%bcond_without	target_aarch64		# AArch64 target support
+%bcond_without	target_amdgpu		# AMDGPU target support
+%bcond_without	target_arm		# ARM target support
+%bcond_without	target_avr		# AVR target support
+%bcond_without	target_bpf		# BPF target support
+%bcond_without	target_hexagon		# Hexagon target support
+%bcond_without	target_lanai		# Lanai target support
+%bcond_without	target_mips		# Mips target support
+%bcond_without	target_msp430		# MSP430 target support
+%bcond_without	target_nvptx		# NVPTX target support
+%bcond_without	target_powerpc		# PowerPC target support
+%bcond_without	target_riscv		# RISCV target support
+%bcond_without	target_sparc		# Sparc target support
+%bcond_without	target_systemz		# SystemZ target support
+%bcond_without	target_webassembly	# WebAssembly target support
+%bcond_without	target_x86		# X86 target support
+%bcond_without	target_xcore		# XCore target support
+%bcond_with	flang			# flang (Fortran18) compiler (broken as of 11.0.1)
+%bcond_with	cxxmodules		# C++20 modules (requires support in bootstrap compiler)
+%bcond_with	apidocs			# doxygen docs (HUGE, so they are not built by default)
+%bcond_with	tests			# run tests
+%bcond_with	lowmem			# lower memory requirements
 
 # No ocaml on other arches or no native ocaml (required for ocaml-ctypes)
 %ifnarch %{ix86} %{x8664} %{arm} aarch64 ppc sparc sparcv9
@@ -38,6 +55,8 @@
 %ifarch %{arm} aarch64
 %define		with_lowmem		1
 %endif
+
+%define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_systemz:SystemZ;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
 
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
@@ -628,6 +647,7 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 %if %{with lowmem}
 	-DLLVM_PARALLEL_LINK_JOBS:STRING=1 \
 %endif
+	-DLLVM_TARGETS_TO_BUILD="%{targets_to_build}" \
 	-DSPHINX_WARNINGS_AS_ERRORS=OFF
 
 %{__make} \
