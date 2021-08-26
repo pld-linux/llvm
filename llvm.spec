@@ -96,7 +96,7 @@ URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
 BuildRequires:	bison
-BuildRequires:	cmake >= 3.4.3
+BuildRequires:	cmake >= 3.13.4
 BuildRequires:	flex
 BuildRequires:	groff
 BuildRequires:	libedit-devel
@@ -114,7 +114,7 @@ BuildRequires:	ocaml-ocamldoc
 %endif
 BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
-BuildRequires:	python3
+BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-PyYAML
 BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-pythonprov
@@ -154,7 +154,7 @@ BuildRequires:	libatomic-devel
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	lua-devel
 BuildRequires:	ncurses-ext-devel
-BuildRequires:	python3-devel
+BuildRequires:	python3-devel >= 1:3.2
 %{?with_doc:BuildRequires:	python3-recommonmark}
 BuildRequires:	swig-python >= 3.0.11
 BuildRequires:	xz-devel
