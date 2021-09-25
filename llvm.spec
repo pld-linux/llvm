@@ -62,7 +62,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	12.0.1
-Release:	2
+Release:	3
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
@@ -861,11 +861,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/LLVMgold.so
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %ghost %{_libdir}/libLTO.so.12
-%attr(755,root,root) %{_libdir}/LLVMgold.so
+%attr(755,root,root) %{_libdir}/libLTO.so.12
 %attr(755,root,root) %{_libdir}/libRemarks.so.12
 %attr(755,root,root) %{_libdir}/libclang-cpp.so.12
 
