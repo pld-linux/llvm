@@ -1,38 +1,31 @@
-diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp
---- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:28:00.723555728 +0100
-+++ llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:28:05.906854918 +0100
-@@ -2085,6 +2085,9 @@ void Generic_GCC::GCCInstallationDetecto
+--- llvm-13.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp.orig	2021-10-25 20:48:42.045696956 +0200
++++ llvm-13.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-10-25 20:56:43.802012798 +0200
+@@ -2113,8 +2113,9 @@
+       "x86_64-manbo-linux-gnu", "x86_64-linux-gnu",
        "x86_64-slackware-linux", "x86_64-unknown-linux",
        "x86_64-amazon-linux",    "x86_64-linux-android"};
-   static const char *const X32LibDirs[] = {"/libx32"};
+-  static const char *const X32Triples[] = {"x86_64-linux-gnux32",
+-                                           "x86_64-pc-linux-gnux32"};
 +  static const char *const X32Triples[] = {
 +      "x86_64-pld-linux-gnux32", "amd64-pld-linux-gnux32",
 +      "x86_64-linux-gnux32", "x86_64-unknown-linux-gnux32", "x86_64-pc-linux-gnux32"};
+   static const char *const X32LibDirs[] = {"/libx32", "/lib"};
    static const char *const X86LibDirs[] = {"/lib32", "/lib"};
    static const char *const X86Triples[] = {
-       "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
-@@ -2307,15 +2310,19 @@ void Generic_GCC::GCCInstallationDetecto
-     TripleAliases.append(begin(AVRTriples), end(AVRTriples));
-     break;
-   case llvm::Triple::x86_64:
--    LibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
--    TripleAliases.append(begin(X86_64Triples), end(X86_64Triples));
--    // x32 is always available when x86_64 is available, so adding it as
--    // secondary arch with x86_64 triples
-     if (TargetTriple.getEnvironment() == llvm::Triple::GNUX32) {
--      BiarchLibDirs.append(begin(X32LibDirs), end(X32LibDirs));
-+      LibDirs.append(begin(X32LibDirs), end(X32LibDirs));
-+      TripleAliases.append(begin(X32Triples), end(X32Triples));
-+      BiarchLibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
+@@ -2352,12 +2353,16 @@
+       LibDirs.append(begin(X32LibDirs), end(X32LibDirs));
+       TripleAliases.append(begin(X32Triples), end(X32Triples));
+       BiarchLibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
 +      BiarchLibDirs.append(begin(X86LibDirs), end(X86LibDirs));
        BiarchTripleAliases.append(begin(X86_64Triples), end(X86_64Triples));
 +      BiarchTripleAliases.append(begin(X86Triples), end(X86Triples));
      } else {
-+      LibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
-+      TripleAliases.append(begin(X86_64Triples), end(X86_64Triples));
-+      BiarchLibDirs.append(begin(X32LibDirs), end(X32LibDirs));
-       BiarchLibDirs.append(begin(X86LibDirs), end(X86LibDirs));
-+      BiarchTripleAliases.append(begin(X32Triples), end(X32Triples));
-       BiarchTripleAliases.append(begin(X86Triples), end(X86Triples));
+       LibDirs.append(begin(X86_64LibDirs), end(X86_64LibDirs));
+       TripleAliases.append(begin(X86_64Triples), end(X86_64Triples));
+       BiarchLibDirs.append(begin(X32LibDirs), end(X32LibDirs));
++      BiarchLibDirs.append(begin(X86LibDirs), end(X86LibDirs));
+       BiarchTripleAliases.append(begin(X32Triples), end(X32Triples));
++      BiarchTripleAliases.append(begin(X86Triples), end(X86Triples));
      }
-     break;
+     BiarchLibDirs.append(begin(X86LibDirs), end(X86LibDirs));
+     BiarchTripleAliases.append(begin(X86Triples), end(X86Triples));

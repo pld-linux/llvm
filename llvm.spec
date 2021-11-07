@@ -61,30 +61,30 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	12.0.1
-Release:	3
+Version:	13.0.0
+Release:	1
 License:	University of Illinois/NCSA Open Source License
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	72a257604efa1d32ef85a37cd9c66873
+# Source0-md5:	8c24626dce3ee9d87d1079ebf0897db5
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	03d77af27fcbeeae4414fb4713b9fd7e
+# Source1-md5:	020cbac6e5786094fe4f96f72e290763
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	40095daa9070b20eef9bdd32fdc53db5
+# Source2-md5:	e2e136656d27d60c5f40e20260f63c07
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	e5727e0caf947dfc5575db22d1186b9a
+# Source3-md5:	0956c6078d1fd3bee22d064e2addd784
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	6932b855535c97283b21c07f0e9cfd79
+# Source4-md5:	4bde9e5c4d739576cf2d804d50c822d6
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	befc3b0dbd926378f9e863b6817d4fb8
+# Source5-md5:	f86778fc0d97508b4d7c244d93ebf944
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	bb29dcdebead37a8738986d4ef616e69
+# Source6-md5:	e4f95d6cb895ebedf2c3224585682159
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	2cbf2687297f20467b3bd9a8a490b4be
-# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/llvm-project-12.0.0.src.tar.xz
+# Source7-md5:	4125a570905dd2755748e6f33442b74d
+# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/llvm-project-13.0.0.src.tar.xz
 Source8:	mlir-%{version}.tar.xz
-# Source8-md5:	fca8ea96f3e3278a0e5d8c1d5d5c821e
+# Source8-md5:	de6a9476ef2a52b59d7c29a8bb786719
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
@@ -164,6 +164,7 @@ BuildRequires:	xz-devel
 # private copy in polly/lib/External/isl
 #BuildRequires:	isl-devel >= 0.22.1
 #TODO (bcond): cuda-devel (with POLLY_ENABLE_GPGPU_CODEGEN=ON)
+BuildRequires:	ocl-icd-libOpenCL-devel
 %endif
 %if %{with ocaml}
 BuildConflicts:	llvm-ocaml
@@ -174,7 +175,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	12
+%define		abi	13
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -648,6 +649,9 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 	-DLLVM_PARALLEL_LINK_JOBS:STRING=1 \
 %endif
 	-DLLVM_TARGETS_TO_BUILD="%{targets_to_build}" \
+%if %{with polly}
+	-DPOLLY_ENABLE_GPGPU_CODEGEN:BOOL=ON \
+%endif
 	-DSPHINX_WARNINGS_AS_ERRORS=OFF
 
 %{__make} \
@@ -771,7 +775,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-dlltool
 %attr(755,root,root) %{_bindir}/llvm-dwarfdump
 %attr(755,root,root) %{_bindir}/llvm-dwp
-%attr(755,root,root) %{_bindir}/llvm-elfabi
 %attr(755,root,root) %{_bindir}/llvm-exegesis
 %attr(755,root,root) %{_bindir}/llvm-extract
 %attr(755,root,root) %{_bindir}/llvm-gsymutil
@@ -793,6 +796,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-objcopy
 %attr(755,root,root) %{_bindir}/llvm-objdump
 %attr(755,root,root) %{_bindir}/llvm-opt-report
+%attr(755,root,root) %{_bindir}/llvm-otool
 %attr(755,root,root) %{_bindir}/llvm-pdbutil
 %attr(755,root,root) %{_bindir}/llvm-profdata
 %attr(755,root,root) %{_bindir}/llvm-profgen
@@ -802,14 +806,17 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-readobj
 %attr(755,root,root) %{_bindir}/llvm-reduce
 %attr(755,root,root) %{_bindir}/llvm-rtdyld
+%attr(755,root,root) %{_bindir}/llvm-sim
 %attr(755,root,root) %{_bindir}/llvm-size
 %attr(755,root,root) %{_bindir}/llvm-split
 %attr(755,root,root) %{_bindir}/llvm-strip
 %attr(755,root,root) %{_bindir}/llvm-stress
 %attr(755,root,root) %{_bindir}/llvm-strings
 %attr(755,root,root) %{_bindir}/llvm-symbolizer
+%attr(755,root,root) %{_bindir}/llvm-tapi-diff
 %attr(755,root,root) %{_bindir}/llvm-tblgen
 %attr(755,root,root) %{_bindir}/llvm-undname
+%attr(755,root,root) %{_bindir}/llvm-windres
 %attr(755,root,root) %{_bindir}/llvm-xray
 %attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_bindir}/sancov
@@ -844,6 +851,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-objcopy.1*
 %{_mandir}/man1/llvm-objdump.1*
+%{_mandir}/man1/llvm-otool.1*
 %{_mandir}/man1/llvm-pdbutil.1*
 %{_mandir}/man1/llvm-profdata.1*
 %{_mandir}/man1/llvm-profgen.1*
@@ -855,8 +863,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-strings.1*
 %{_mandir}/man1/llvm-strip.1*
 %{_mandir}/man1/llvm-symbolizer.1*
+%{_mandir}/man1/llvm-tblgen.1*
 %{_mandir}/man1/opt.1*
-%{_mandir}/man1/xxx-tblgen.1*
 %endif
 
 %files libs
@@ -865,9 +873,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLTO.so.12
-%attr(755,root,root) %{_libdir}/libRemarks.so.12
-%attr(755,root,root) %{_libdir}/libclang-cpp.so.12
+%attr(755,root,root) %{_libdir}/libLTO.so.13
+%attr(755,root,root) %{_libdir}/libRemarks.so.13
+%attr(755,root,root) %{_libdir}/libclang-cpp.so.13
 
 %files devel
 %defattr(644,root,root,755)
@@ -896,8 +904,9 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with polly}
 %files polly
 %defattr(644,root,root,755)
-%doc tools/polly/{CREDITS.txt,LICENSE.txt,README} tools/polly/www/{bugs,changelog,contributors}.html
+%doc tools/polly/{CREDITS.txt,LICENSE.TXT,README} tools/polly/www/{bugs,changelog,contributors}.html
 %attr(755,root,root) %{_libdir}/LLVMPolly.so
+%attr(755,root,root) %{_libdir}/libGPURuntime.so
 
 %files polly-devel
 %defattr(644,root,root,755)
@@ -921,6 +930,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-format
 %attr(755,root,root) %{_bindir}/clang-offload-bundler
 %attr(755,root,root) %{_bindir}/clang-offload-wrapper
+%attr(755,root,root) %{_bindir}/clang-repl
 %attr(755,root,root) %{_bindir}/git-clang-format
 %dir %{_libdir}/clang
 %dir %{_libdir}/clang/%{version}
@@ -960,25 +970,25 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-aarch64.a.syms
 %endif
 %ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
-%{_libdir}/clang/%{version}/share/asan_blacklist.txt
+%{_libdir}/clang/%{version}/share/asan_ignorelist.txt
 %endif
 %ifarch %{ix86} %{x8664} mips64 aarch64
-%{_libdir}/clang/%{version}/share/cfi_blacklist.txt
+%{_libdir}/clang/%{version}/share/cfi_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64 mips64
 %{_libdir}/clang/%{version}/share/dfsan_abilist.txt
-%{_libdir}/clang/%{version}/share/msan_blacklist.txt
+%{_libdir}/clang/%{version}/share/msan_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64
-%{_libdir}/clang/%{version}/share/hwasan_blacklist.txt
+%{_libdir}/clang/%{version}/share/hwasan_ignorelist.txt
 %endif
 %ifarch x32
 %if %{with multilib}
-%{_libdir}/clang/%{version}/share/asan_blacklist.txt
-%{_libdir}/clang/%{version}/share/cfi_blacklist.txt
+%{_libdir}/clang/%{version}/share/asan_ignorelist.txt
+%{_libdir}/clang/%{version}/share/cfi_ignorelist.txt
 %{_libdir}/clang/%{version}/share/dfsan_abilist.txt
-%{_libdir}/clang/%{version}/share/msan_blacklist.txt
-%{_libdir}/clang/%{version}/share/hwasan_blacklist.txt
+%{_libdir}/clang/%{version}/share/msan_ignorelist.txt
+%{_libdir}/clang/%{version}/share/hwasan_ignorelist.txt
 %endif
 %endif
 %endif
@@ -988,6 +998,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n clang-libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libclang.so.%{abi}
+%attr(755,root,root) %{_libdir}/libclang.so.*.*.*
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664} x32
@@ -1007,8 +1018,17 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/analyze-build
+%attr(755,root,root) %{_bindir}/intercept-build
 %attr(755,root,root) %{_bindir}/scan-build
+%attr(755,root,root) %{_bindir}/scan-build-py
 %attr(755,root,root) %{_bindir}/scan-view
+%attr(755,root,root) %{_libexecdir}/analyze-c++
+%attr(755,root,root) %{_libexecdir}/analyze-cc
+%attr(755,root,root) %{_libexecdir}/intercept-c++
+%attr(755,root,root) %{_libexecdir}/intercept-cc
+%{_prefix}/lib/libear
+%{_prefix}/lib/libscanbuild
 %{_datadir}/scan-build
 %{_datadir}/scan-view
 %{_mandir}/man1/scan-build.1*
@@ -1055,9 +1075,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/hmaptool
 %attr(755,root,root) %{_bindir}/modularize
 %attr(755,root,root) %{_bindir}/pp-trace
+%attr(755,root,root) %{_bindir}/run-clang-tidy
 %{_datadir}/clang/clang-include-fixer.py
 %{_datadir}/clang/clang-tidy-diff.py
-%{_datadir}/clang/run-clang-tidy.py
 %{_datadir}/clang/run-find-all-symbols.py
 
 %files -n lld
@@ -1085,8 +1105,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-vscode
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.12
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.12
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.13
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.13
 %dir %{py3_sitedir}/lldb
 %attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
 %{py3_sitedir}/lldb/formatters
@@ -1094,6 +1114,10 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/lldb/__init__.py
 %{py3_sitedir}/lldb/__pycache__
 %{py3_sitedir}/lldb/embedded_interpreter.py
+%dir %{py3_sitedir}/lldb/plugins
+%{py3_sitedir}/lldb/plugins/__pycache__
+%{py3_sitedir}/lldb/plugins/__init__.py
+%{py3_sitedir}/lldb/plugins/scripted_process.py
 %attr(755,root,root) %{py3_sitedir}/lldb/_lldb.so
 
 %files -n lldb-devel
