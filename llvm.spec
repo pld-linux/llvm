@@ -92,6 +92,7 @@ Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
 Patch6:		%{name}-flang.patch
 Patch7:		llvm12-build_fixes.patch
+Patch8:		%{name}-selective_bindings.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -596,6 +597,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch6 -p1
 %endif
 %patch7 -p1
+%patch8 -p1
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python3},
