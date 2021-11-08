@@ -118,7 +118,7 @@ BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-PyYAML
 BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.734
+BuildRequires:	rpmbuild(macros) >= 1.742
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xar-devel
@@ -650,7 +650,7 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 %endif
 	-DLLVM_TARGETS_TO_BUILD="%{targets_to_build}" \
 %if %{with polly}
-	-DPOLLY_ENABLE_GPGPU_CODEGEN:BOOL=ON \
+	%{cmake_on_off target_nvptx POLLY_ENABLE_GPGPU_CODEGEN} \
 %endif
 	-DSPHINX_WARNINGS_AS_ERRORS=OFF
 
@@ -906,13 +906,13 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/polly/{CREDITS.txt,LICENSE.TXT,README} tools/polly/www/{bugs,changelog,contributors}.html
 %attr(755,root,root) %{_libdir}/LLVMPolly.so
-%attr(755,root,root) %{_libdir}/libGPURuntime.so
+%{?with_target_nvptx:%attr(755,root,root) %{_libdir}/libGPURuntime.so}
 
 %files polly-devel
 %defattr(644,root,root,755)
 %{_libdir}/libPolly.a
 %{_libdir}/libPollyISL.a
-%{_libdir}/libPollyPPCG.a
+%{?with_target_nvptx:%{_libdir}/libPollyPPCG.a}
 %{_includedir}/polly
 %{_libdir}/cmake/polly
 %endif
