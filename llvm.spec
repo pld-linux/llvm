@@ -165,7 +165,7 @@ BuildRequires:	xz-devel
 # private copy in polly/lib/External/isl
 #BuildRequires:	isl-devel >= 0.22.1
 #TODO (bcond): cuda-devel (with POLLY_ENABLE_GPGPU_CODEGEN=ON)
-BuildRequires:	ocl-icd-libOpenCL-devel
+%{?with_target_nvptx:BuildRequires:	ocl-icd-libOpenCL-devel}
 %endif
 %if %{with ocaml}
 BuildConflicts:	llvm-devel
