@@ -168,7 +168,7 @@ BuildRequires:	xz-devel
 BuildRequires:	ocl-icd-libOpenCL-devel
 %endif
 %if %{with ocaml}
-BuildConflicts:	llvm-libs
+BuildConflicts:	llvm-devel
 BuildConflicts:	llvm-ocaml
 %endif
 Requires:	%{name}-libs = %{version}-%{release}
