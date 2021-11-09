@@ -465,6 +465,7 @@ Summary(pl.UTF-8):	Pliki programistyczne narzędzi konsolidujących LLD
 Group:		Development/Tools
 URL:		http://lld.llvm.org/
 Requires:	%{name}-devel = %{version}-%{release}
+Requires:	xar-devel
 
 %description -n lld-devel
 Development files for LLD linker tools.
