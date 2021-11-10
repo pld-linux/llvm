@@ -943,7 +943,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang/%{version}/bin
 %attr(755,root,root) %{_libdir}/clang/%{version}/bin/hwasan_symbolize
 %endif
-%ifarch %{ix86} %{x8664} aarch64
+%ifarch %{ix86} %{x8664} aarch64 armv7hl armv7hnl
 %dir %{_libdir}/clang/%{version}/lib
 %dir %{_libdir}/clang/%{version}/lib/linux
 %dir %{_libdir}/clang/%{version}/share
@@ -972,10 +972,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-aarch64.so
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-aarch64.a.syms
 %endif
+%ifarch armv7hl armv7hnl
+%{_libdir}/clang/%{version}/lib/linux/clang_rt.*-armhf.o
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-armhf.a
+%attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-armhf.so
+%{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-armhf.a.syms
+%endif
 %ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
 %{_libdir}/clang/%{version}/share/asan_ignorelist.txt
 %endif
-%ifarch %{ix86} %{x8664} mips64 aarch64
+%ifarch %{ix86} %{x8664} mips64 aarch64 armv7hl armv7hnl
 %{_libdir}/clang/%{version}/share/cfi_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64 mips64
