@@ -63,7 +63,7 @@ Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora 
 Name:		llvm
 Version:	13.0.0
 Release:	3
-License:	University of Illinois/NCSA Open Source License
+License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
@@ -94,7 +94,7 @@ Patch6:		%{name}-flang.patch
 Patch7:		llvm12-build_fixes.patch
 Patch8:		%{name}-selective_bindings.patch
 Patch9:		%{name}-libexecdir.patch
-URL:		http://llvm.org/
+URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
 BuildRequires:	bison
@@ -276,7 +276,7 @@ Dokumentacja API infrastruktury kompilatorów LLVM.
 Summary:	Polyhedral optimizations for LLVM
 Summary(pl.UTF-8):	Optymalizacje wielościanowe dla LLVM-a
 Group:		Development/Tools
-URL:		http://polly.llvm.org/
+URL:		https://polly.llvm.org/
 Requires:	%{name} = %{version}-%{release}
 
 %description polly
@@ -295,7 +295,7 @@ do analizy i optymalizacji wzorców dostępu do pamięci przez program.
 Summary:	Header files for LLVM Polly optimization infrastructure
 Summary(pl.UTF-8):	Pliki nagłówkowe infrastruktury optymalizacji LLVM-a Polly
 Group:		Development/Libraries
-URL:		http://polly.llvm.org/
+URL:		https://polly.llvm.org/
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	%{name}-polly = %{version}-%{release}
 
@@ -308,8 +308,8 @@ Pliki nagłówkowe infrastruktury optymalizacji LLVM-a Polly.
 %package -n clang
 Summary:	A C language family frontend for LLVM
 Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C
-License:	NCSA
 Group:		Development/Languages
+URL:		https://clang.llvm.org/
 Requires:	%{name} = %{version}-%{release}
 Requires:	clang-libs = %{version}-%{release}
 
@@ -335,6 +335,7 @@ i rozszerzaniu.
 Summary:	Clang shared libraries
 Summary(pl.UTF-8):	Biblioteki współdzielone Clanga
 Group:		Libraries
+URL:		https://clang.llvm.org/
 
 %description -n clang-libs
 Clang shared libraries.
@@ -345,8 +346,8 @@ Biblioteki współdzielone Clanga.
 %package -n clang-multilib
 Summary:	A C language family frontend for LLVM - 32-bit support
 Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C - obsługa binariów 32-bitowych
-License:	NCSA
 Group:		Development/Languages
+URL:		https://clang.llvm.org/
 Requires:	clang = %{version}-%{release}
 
 %description -n clang-multilib
@@ -376,8 +377,8 @@ programów 32-bitowych na maszynie 64-bitowej.
 %package -n clang-analyzer
 Summary:	A source code analysis framework
 Summary(pl.UTF-8):	Szkielet do analizy kodu źródłowego
-License:	NCSA
 Group:		Development/Languages
+URL:		https://clang-analyzer.llvm.org/
 Requires:	clang = %{version}-%{release}
 # not picked up automatically since files are currently not instaled
 # in standard Python hierarchies yet
@@ -399,6 +400,7 @@ myślą o uruchamianiu wraz z kompilacją projektu lub kodu.
 Summary:	Header files for Clang
 Summary(pl.UTF-8):	Pliki nagłówkowe Clanga
 Group:		Development/Languages
+URL:		https://clang.llvm.org/
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	clang = %{version}-%{release}
 %{?with_polly:Requires:	llvm-polly-devel = %{version}-%{release}}
@@ -412,6 +414,7 @@ Ten pakiet zawiera pliki nagłówkowe kompilatora Clang.
 %package -n clang-doc
 Summary:	Documentation for Clang
 Summary(pl.UTF-8):	Dokumentacja do Clanga
+URL:		https://clang.llvm.org/
 Group:		Documentation
 Requires:	%{name} = %{version}-%{release}
 
@@ -424,6 +427,7 @@ Dokumentacja do frontendu kompilatora Clang.
 %package -n clang-apidocs
 Summary:	API documentation for Clang
 Summary(pl.UTF-8):	Dokumentacja API Clanga
+URL:		https://clang.llvm.org/
 Group:		Development/Languages
 Requires:	clang-doc = %{version}-%{release}
 
@@ -437,7 +441,7 @@ Dokumentacja API kompilatora Clang.
 Summary:	Extra tools for Clang
 Summary(pl.UTF-8):	Dodatkowe narzędzia do kompilatora Clang
 Group:		Development/Tools
-URL:		http://clang.llvm.org/docs/ClangTools.html
+URL:		https://clang.llvm.org/docs/ClangTools.html
 Requires:	clang = %{version}-%{release}
 
 %description -n clang-tools-extra
@@ -450,7 +454,7 @@ Dodatkowe narzędzia do kompilatora Clang.
 Summary:	The LLVM linker
 Summary(pl.UTF-8):	Konsolidator z projektu LLVM
 Group:		Development/Libraries
-URL:		http://lld.llvm.org/
+URL:		https://lld.llvm.org/
 Requires:	%{name} = %{version}-%{release}
 
 %description -n lld
@@ -464,7 +468,7 @@ konsolidujących.
 Summary:	Development files for LLD linker tools
 Summary(pl.UTF-8):	Pliki programistyczne narzędzi konsolidujących LLD
 Group:		Development/Tools
-URL:		http://lld.llvm.org/
+URL:		https://lld.llvm.org/
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	xar-devel >= 1.6
 
@@ -478,7 +482,7 @@ Pliki programistyczne narzędzi konsolidujących LLD.
 Summary:	Next generation high-performance debugger
 Summary(pl.UTF-8):	Wydajny debugger nowej generacji
 Group:		Development/Debuggers
-URL:		http://lldb.llvm.org/
+URL:		https://lldb.llvm.org/
 Requires:	%{name} = %{version}-%{release}
 Requires:	python3-six
 
@@ -498,7 +502,7 @@ disasembler LLVM.
 Summary:	Development files for LLDB debugger
 Summary(pl.UTF-8):	Pliki programistyczne debuggera LLDB
 Group:		Development/Libraries
-URL:		http://lldb.llvm.org/
+URL:		https://lldb.llvm.org/
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	clang-devel = %{version}-%{release}
 Requires:	lldb = %{version}-%{release}
