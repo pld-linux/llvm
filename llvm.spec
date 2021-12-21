@@ -4,7 +4,6 @@
 #
 # TODO:
 # - move and package:
-#	%{_datadir}/clang/bash-autocomplete.sh
 #	%{_datadir}/clang/clang-format-sublime.py - sublime plugin
 #	%{_datadir}/clang/clang-format.el - clang tools emacs integration
 #	%{_datadir}/clang/clang-include-fixer.el
@@ -483,6 +482,19 @@ Extra tools for Clang.
 %description -n clang-tools-extra -l pl.UTF-8
 Dodatkowe narzędzia do kompilatora Clang.
 
+%package -n bash-completion-clang
+Summary:	Bash completion for clang command
+Summary(pl.UTF-8):	Bashowe dopełnianie składni polecenia clang
+Group:		Applications/Shells
+Requires:	bash-completion >= 2.0
+Requires:	clang = %{version}-%{release}
+
+%description -n bash-completion-clang
+Bash completion for clang command.
+
+%description -n bash-completion-clang -l pl.UTF-8
+Bashowe dopełnianie składni polecenia clang.
+
 %package -n flang
 Summary:	Fortran frontend for LLVM
 Summary(pl.UTF-8):	Frontend LLVM-a do Fortranu
@@ -803,6 +815,9 @@ install -d clang-docs
 for f in LICENSE.TXT NOTES.txt README.txt; do
 	ln tools/clang/$f clang-docs
 done
+
+install -d $RPM_BUILD_ROOT%{bash_compdir}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/clang/bash-autocomplete.sh $RPM_BUILD_ROOT%{bash_compdir}/clang
 
 %{__rm} $RPM_BUILD_ROOT%{_bindir}/{c-index-test,llvm-c-test}
 # not this OS
@@ -1205,6 +1220,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/clang/clang-include-fixer.py
 %{_datadir}/clang/clang-tidy-diff.py
 %{_datadir}/clang/run-find-all-symbols.py
+
+%files -n bash-completion-clang
+%defattr(644,root,root,755)
+%{bash_compdir}/clang
 
 %if %{with flang}
 %files -n flang
