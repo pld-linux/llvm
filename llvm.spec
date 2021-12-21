@@ -364,18 +364,6 @@ LLVM do języków C, C++, Objective C i Objective C++. Narzędzia są
 budowane jako biblioteki i zaprojektowane z myślą o swobodnym łączeniu
 i rozszerzaniu.
 
-%package -n clang-libs
-Summary:	Clang shared libraries
-Summary(pl.UTF-8):	Biblioteki współdzielone Clanga
-Group:		Libraries
-URL:		https://clang.llvm.org/
-
-%description -n clang-libs
-Clang shared libraries.
-
-%description -n clang-libs -l pl.UTF-8
-Biblioteki współdzielone Clanga.
-
 %package -n clang-multilib
 Summary:	A C language family frontend for LLVM - 32-bit support
 Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C - obsługa binariów 32-bitowych
@@ -407,27 +395,17 @@ i rozszerzaniu.
 Ten pakiet zawiera rozszerzenie kompilatora C o obsługę tworzenia
 programów 32-bitowych na maszynie 64-bitowej.
 
-%package -n clang-analyzer
-Summary:	A source code analysis framework
-Summary(pl.UTF-8):	Szkielet do analizy kodu źródłowego
-Group:		Development/Languages
-URL:		https://clang-analyzer.llvm.org/
-Requires:	clang = %{version}-%{release}
-# not picked up automatically since files are currently not instaled
-# in standard Python hierarchies yet
-Requires:	python3
+%package -n clang-libs
+Summary:	Clang shared libraries
+Summary(pl.UTF-8):	Biblioteki współdzielone Clanga
+Group:		Libraries
+URL:		https://clang.llvm.org/
 
-%description -n clang-analyzer
-The Clang Static Analyzer consists of both a source code analysis
-framework and a standalone tool that finds bugs in C and Objective-C
-programs. The standalone tool is invoked from the command-line, and is
-intended to run in tandem with a build of a project or code base.
+%description -n clang-libs
+Clang shared libraries.
 
-%description -n clang-analyzer -l pl.UTF-8
-Clang Static Analyzer składa się ze szkieletu do analizy kodu
-źródłowego oraz samodzielnego narzędzia znajdującego błędy w
-programach w C i C++. Narzędzie jest wywoływane z linii poleceń, z
-myślą o uruchamianiu wraz z kompilacją projektu lub kodu.
+%description -n clang-libs -l pl.UTF-8
+Biblioteki współdzielone Clanga.
 
 %package -n clang-devel
 Summary:	Header files for Clang
@@ -469,6 +447,28 @@ API documentation for the Clang compiler.
 
 %description -n clang-apidocs -l pl.UTF-8
 Dokumentacja API kompilatora Clang.
+
+%package -n clang-analyzer
+Summary:	A source code analysis framework
+Summary(pl.UTF-8):	Szkielet do analizy kodu źródłowego
+Group:		Development/Languages
+URL:		https://clang-analyzer.llvm.org/
+Requires:	clang = %{version}-%{release}
+# not picked up automatically since files are currently not instaled
+# in standard Python hierarchies yet
+Requires:	python3
+
+%description -n clang-analyzer
+The Clang Static Analyzer consists of both a source code analysis
+framework and a standalone tool that finds bugs in C and Objective-C
+programs. The standalone tool is invoked from the command-line, and is
+intended to run in tandem with a build of a project or code base.
+
+%description -n clang-analyzer -l pl.UTF-8
+Clang Static Analyzer składa się ze szkieletu do analizy kodu
+źródłowego oraz samodzielnego narzędzia znajdującego błędy w
+programach w C i C++. Narzędzie jest wywoływane z linii poleceń, z
+myślą o uruchamianiu wraz z kompilacją projektu lub kodu.
 
 %package -n clang-tools-extra
 Summary:	Extra tools for Clang
@@ -1119,11 +1119,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/clang
 %{_datadir}/clang/clang-format-diff.py
 
-%files -n clang-libs
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.%{abi}
-%attr(755,root,root) %{_libdir}/libclang.so.*.*.*
-
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664} x32
 %files -n clang-multilib
@@ -1138,6 +1133,30 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.so
 %{_libdir}/clang/%{version}/lib/linux/libclang_rt.*-x86_64.a.syms
 %endif
+%endif
+
+%files -n clang-libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libclang.so.%{abi}
+%attr(755,root,root) %{_libdir}/libclang.so.*.*.*
+
+%files -n clang-devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libclang.so
+%{_libdir}/libclang*.a
+%{_includedir}/clang
+%{_includedir}/clang-c
+%{_includedir}/clang-tidy
+%{_libdir}/cmake/clang
+
+%files -n clang-doc
+%defattr(644,root,root,755)
+%doc tools/clang/docs/*.{html,png,txt}
+
+%if %{with apidocs}
+%files -n clang-apidocs
+%defattr(644,root,root,755)
+%doc clang-apidoc/*
 %endif
 
 %files -n clang-analyzer
@@ -1161,25 +1180,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/libear
 %{_prefix}/lib/libscanbuild
 %{_datadir}/scan-view
-
-%files -n clang-devel
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so
-%{_libdir}/libclang*.a
-%{_includedir}/clang
-%{_includedir}/clang-c
-%{_includedir}/clang-tidy
-%{_libdir}/cmake/clang
-
-%files -n clang-doc
-%defattr(644,root,root,755)
-%doc tools/clang/docs/*.{html,png,txt}
-
-%if %{with apidocs}
-%files -n clang-apidocs
-%defattr(644,root,root,755)
-%doc clang-apidoc/*
-%endif
 
 %files -n clang-tools-extra
 %defattr(644,root,root,755)
