@@ -93,6 +93,7 @@ Patch5:		%{name}-ocaml-shared.patch
 Patch6:		%{name}-flang.patch
 Patch7:		llvm12-build_fixes.patch
 Patch8:		%{name}-selective_bindings.patch
+Patch9:		%{name}-libexecdir.patch
 URL:		http://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -599,6 +600,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %endif
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python,#!%{__python3},
@@ -693,11 +695,10 @@ rm -rf $RPM_BUILD_ROOT
 %py3_comp $RPM_BUILD_ROOT%{py3_sitedir}
 %py3_ocomp $RPM_BUILD_ROOT%{py3_sitedir}
 
-# Adjust static analyzer installation
-# http://clang-analyzer.llvm.org/installation#OtherPlatforms
-install -d $RPM_BUILD_ROOT%{_libdir}/scan-build
-%{__mv} $RPM_BUILD_ROOT%{_prefix}/libexec/c??-analyzer $RPM_BUILD_ROOT%{_libdir}/scan-build
-%{__sed} -i -e 's,/\.\./libexec/,/../%{_lib}/scan-build/,' $RPM_BUILD_ROOT%{_bindir}/scan-build
+# Adjust static analyzer installation (see -libexecdir patch)
+abs_ca_libexecdir="%{_libexecdir}/clang-analyzer"
+rel_ca_libexecdir="${abs_ca_libexecdir#%{_prefix}}"
+%{__sed} -i -e "s,/\.\./libexec/,/..${rel_ca_libexecdir}/," $RPM_BUILD_ROOT%{_bindir}/scan-build
 %py3_comp $RPM_BUILD_ROOT%{_datadir}/scan-view
 %py3_ocomp $RPM_BUILD_ROOT%{_datadir}/scan-view
 
@@ -1027,23 +1028,25 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
+%dir %{_libexecdir}/clang-analyzer
+# perl tools
+%attr(755,root,root) %{_bindir}/scan-build
+%attr(755,root,root) %{_libexecdir}/clang-analyzer/c++-analyzer
+%attr(755,root,root) %{_libexecdir}/clang-analyzer/ccc-analyzer
+%{_datadir}/scan-build
+%{_mandir}/man1/scan-build.1*
+# python tools
 %attr(755,root,root) %{_bindir}/analyze-build
 %attr(755,root,root) %{_bindir}/intercept-build
-%attr(755,root,root) %{_bindir}/scan-build
 %attr(755,root,root) %{_bindir}/scan-build-py
 %attr(755,root,root) %{_bindir}/scan-view
-%attr(755,root,root) %{_libexecdir}/analyze-c++
-%attr(755,root,root) %{_libexecdir}/analyze-cc
-%attr(755,root,root) %{_libexecdir}/intercept-c++
-%attr(755,root,root) %{_libexecdir}/intercept-cc
+%attr(755,root,root) %{_libexecdir}/clang-analyzer/analyze-c++
+%attr(755,root,root) %{_libexecdir}/clang-analyzer/analyze-cc
+%attr(755,root,root) %{_libexecdir}/clang-analyzer/intercept-c++
+%attr(755,root,root) %{_libexecdir}/clang-analyzer/intercept-cc
 %{_prefix}/lib/libear
 %{_prefix}/lib/libscanbuild
-%{_datadir}/scan-build
 %{_datadir}/scan-view
-%{_mandir}/man1/scan-build.1*
-%dir %{_libdir}/scan-build
-%attr(755,root,root) %{_libdir}/scan-build/c++-analyzer
-%attr(755,root,root) %{_libdir}/scan-build/ccc-analyzer
 
 %files -n clang-devel
 %defattr(644,root,root,755)
