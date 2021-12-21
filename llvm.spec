@@ -122,7 +122,7 @@ BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.742
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
-BuildRequires:	xar-devel
+BuildRequires:	xar-devel >= 1.6
 BuildRequires:	xz
 %{?with_z3:BuildRequires:	z3-devel >= 4.7.1}
 BuildRequires:	zlib-devel
@@ -465,7 +465,7 @@ Summary(pl.UTF-8):	Pliki programistyczne narzędzi konsolidujących LLD
 Group:		Development/Tools
 URL:		http://lld.llvm.org/
 Requires:	%{name}-devel = %{version}-%{release}
-Requires:	xar-devel
+Requires:	xar-devel >= 1.6
 
 %description -n lld-devel
 Development files for LLD linker tools.
