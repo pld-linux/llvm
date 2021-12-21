@@ -14,6 +14,8 @@
 #
 # Conditional build:
 %bcond_without	lldb			# LLDB debugger
+%bcond_without	mlir			# MLIR libraries and tools (required for Flang)
+%bcond_without	flang			# Flang (Fortran18) compiler
 %bcond_without	polly			# Polly cache-locality optimization, auto-parallelism and vectorization
 %bcond_without	rt			# compiler-rt libraries
 %bcond_without	multilib		# compiler-rt multilib libraries
@@ -37,7 +39,6 @@
 %bcond_without	target_webassembly	# WebAssembly target support
 %bcond_without	target_x86		# X86 target support
 %bcond_without	target_xcore		# XCore target support
-%bcond_with	flang			# flang (Fortran18) compiler (broken as of 11.0.1)
 %bcond_with	cxxmodules		# C++20 modules (requires support in bootstrap compiler)
 %bcond_with	apidocs			# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests			# run tests
@@ -57,6 +58,10 @@
 %endif
 
 %define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_systemz:SystemZ;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
+
+%if %{without mlir}
+%undefine	with_flang
+%endif
 
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
@@ -272,6 +277,34 @@ API documentation for the LLVM compiler infrastructure.
 %description apidocs -l pl.UTF-8
 Dokumentacja API infrastruktury kompilatorów LLVM.
 
+%package mlir
+Summary:	LLVM Multi-Level Intermediate Representation libraries and tools
+Summary(pl.UTF-8):	Biblioteki i narzędzia wielopoziomowej reprezentacji pośredniej LLVM
+Group:		Development/Tools
+URL:		https://mlir.llvm.org/
+Requires:	%{name} = %{version}-%{release}
+
+%description mlir
+LLVM Multi-Level Intermediate Representation libraries and tools.
+
+%description mlir -l pl.UTF-8
+Biblioteki i narzędzia wielopoziomowej reprezentacji pośredniej LLVM.
+
+%package mlir-devel
+Summary:	LLVM Multi-Level Intermediate Representation development files
+Summary(pl.UTF-8):	Pliki do programowania z użyciem wielopoziomowej reprezentacji pośredniej LLVM
+Group:		Development/Tools
+URL:		https://mlir.llvm.org/
+Requires:	%{name}-devel = %{version}-%{release}
+Requires:	%{name}-mlir = %{version}-%{release}
+
+%description mlir-devel
+LLVM Multi-Level Intermediate Representation development files.
+
+%description mlir-devel -l pl.UTF-8
+Pliki do programowania z użyciem wielopoziomowej reprezentacji
+pośredniej LLVM.
+
 %package polly
 Summary:	Polyhedral optimizations for LLVM
 Summary(pl.UTF-8):	Optymalizacje wielościanowe dla LLVM-a
@@ -450,6 +483,35 @@ Extra tools for Clang.
 %description -n clang-tools-extra -l pl.UTF-8
 Dodatkowe narzędzia do kompilatora Clang.
 
+%package -n flang
+Summary:	Fortran frontend for LLVM
+Summary(pl.UTF-8):	Frontend LLVM-a do Fortranu
+Group:		Development/Languages
+URL:		http://flang.llvm.org/
+Requires:	%{name}-mlir = %{version}-%{release}
+
+%description -n flang
+Flang is a ground-up implementation of a Fortran front end written in
+modern C++.
+
+%description -n flang -l pl.UTF-8
+Flang to napisana od podstaw we współczesnym C++ implementacja
+frontendu do Fortranu.
+
+%package -n flang-devel
+Summary:	Fortran frontend for LLVM - development files
+Summary(pl.UTF-8):	Frontend LLVM-a do Fortranu - pliki programistyczne
+Group:		Development/Languages
+URL:		http://flang.llvm.org/
+Requires:	%{name}-mlir-devel = %{version}-%{release}
+Requires:	flang-devel = %{version}-%{release}
+
+%description -n flang-devel
+Development files for LLVM Fortran frontend.
+
+%description -n flang-devel -l pl.UTF-8
+Pliki prosramistyczne frontendu LLVM do Fortranu.
+
 %package -n lld
 Summary:	The LLVM linker
 Summary(pl.UTF-8):	Konsolidator z projektu LLVM
@@ -582,7 +644,7 @@ Clang format and rename integration for Vim.
 Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 
 %prep
-%setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6 %{?with_flang:-a7 -a8}
+%setup -q -n %{name}-%{version}.src -a1 %{?with_rt:-a2} %{?with_lldb:-a3} %{?with_polly:-a4} -a5 -a6 %{?with_flang:-a7} %{?with_mlir:-a8}
 %{__mv} clang-%{version}.src tools/clang
 %{?with_rt:%{__mv} compiler-rt-%{version}.src projects/compiler-rt}
 %{?with_lldb:%{__mv} lldb-%{version}.src tools/lldb}
@@ -591,6 +653,8 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %{__mv} lld-%{version}.src tools/lld
 %if %{with flang}
 %{__mv} flang-%{version}.src tools/flang
+%endif
+%if %{with mlir}
 %{__mv} mlir tools/mlir
 %endif
 
@@ -614,6 +678,10 @@ grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 find -name '*.py' -print0 | xargs -0 sed -i -e '1{
 	s,^#!.*bin/python.*,#!%{__python3},
 }'
+
+%if %{with flang}
+%{__sed} -i -e '1s,/usr/bin/env bash,/bin/bash,' tools/flang/tools/f18/flang.in
+%endif
 
 %build
 install -d build
@@ -745,13 +813,25 @@ done
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
 
 # disable completeness check incompatible with split packaging
-%{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' $RPM_BUILD_ROOT%{_libdir}/cmake/llvm/LLVMExports.cmake
+%{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' \
+	$RPM_BUILD_ROOT%{_libdir}/cmake/clang/ClangTargets.cmake \
+%if %{with flang}
+	$RPM_BUILD_ROOT%{_libdir}/cmake/flang/FlangTargets.cmake \
+%endif
+	$RPM_BUILD_ROOT%{_libdir}/cmake/lld/LLDTargets.cmake \
+	$RPM_BUILD_ROOT%{_libdir}/cmake/llvm/LLVMExports.cmake \
+%if %{with mlir}
+	$RPM_BUILD_ROOT%{_libdir}/cmake/mlir/MLIRTargets.cmake
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
+
+%post	mlir -p /sbin/ldconfig
+%postun	mlir -p /sbin/ldconfig
 
 %post	-n clang-libs -p /sbin/ldconfig
 %postun	-n clang-libs -p /sbin/ldconfig
@@ -908,6 +988,35 @@ rm -rf $RPM_BUILD_ROOT
 %files apidocs
 %defattr(644,root,root,755)
 %doc apidoc/*
+%endif
+
+%if %{with mlir}
+%files mlir
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/mlir-cpu-runner
+%attr(755,root,root) %{_bindir}/mlir-linalg-ods-gen
+%attr(755,root,root) %{_bindir}/mlir-linalg-ods-yaml-gen
+%attr(755,root,root) %{_bindir}/mlir-lsp-server
+%attr(755,root,root) %{_bindir}/mlir-opt
+%attr(755,root,root) %{_bindir}/mlir-reduce
+%attr(755,root,root) %{_bindir}/mlir-tblgen
+%attr(755,root,root) %{_bindir}/mlir-translate
+%attr(755,root,root) %{_libdir}/libMLIR.so.13
+%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.13
+%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.13
+%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.13
+%{_mandir}/man1/mlir-tblgen.1*
+
+%files mlir-devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libMLIR.so
+%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so
+%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so
+%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so
+%{_libdir}/libMLIR*.a
+%{_includedir}/mlir
+%{_includedir}/mlir-c
+%{_libdir}/cmake/mlir
 %endif
 
 %if %{with polly}
@@ -1096,6 +1205,39 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/clang/clang-include-fixer.py
 %{_datadir}/clang/clang-tidy-diff.py
 %{_datadir}/clang/run-find-all-symbols.py
+
+%if %{with flang}
+%files -n flang
+%defattr(644,root,root,755)
+%doc tools/flang/{LICENSE.TXT,README.md}
+%attr(755,root,root) %{_bindir}/f18
+%attr(755,root,root) %{_bindir}/f18-parse-demo
+%attr(755,root,root) %{_bindir}/fir-opt
+%attr(755,root,root) %{_bindir}/flang
+%attr(755,root,root) %{_bindir}/tco
+%dir %{_includedir}/flang
+%{_includedir}/flang/Version.inc
+%{_includedir}/flang/__fortran_*.mod
+%{_includedir}/flang/ieee_*.mod
+%{_includedir}/flang/iso_*.mod
+%{_includedir}/flang/omp_lib*.mod
+
+%files -n flang-devel
+%defattr(644,root,root,755)
+%{_libdir}/libFIROptimizer.a
+%{_libdir}/libFortran*.a
+%{_includedir}/flang/Common
+%{_includedir}/flang/Decimal
+%{_includedir}/flang/Evaluate
+%{_includedir}/flang/Frontend
+%{_includedir}/flang/FrontendTool
+%{_includedir}/flang/Lower
+%{_includedir}/flang/Optimizer
+%{_includedir}/flang/Parser
+%{_includedir}/flang/Semantics
+%{_includedir}/flang/ISO_Fortran_binding.h
+%{_libdir}/cmake/flang
+%endif
 
 %files -n lld
 %defattr(644,root,root,755)

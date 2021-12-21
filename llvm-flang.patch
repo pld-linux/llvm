@@ -1,13 +1,13 @@
---- llvm-11.0.1.src/tools/flang/CMakeLists.txt.orig	2020-12-18 20:57:38.000000000 +0100
-+++ llvm-11.0.1.src/tools/flang/CMakeLists.txt	2021-01-22 19:02:18.090511526 +0100
-@@ -183,8 +183,8 @@
-   set(FLANG_BINARY_DIR ${CMAKE_BINARY_DIR}/tools/flang)
+--- llvm-13.0.0.src/tools/flang/CMakeLists.txt.orig	2021-12-19 14:54:33.560125321 +0100
++++ llvm-13.0.0.src/tools/flang/CMakeLists.txt	2021-12-19 14:56:15.709571929 +0100
+@@ -196,8 +196,8 @@ else()
+   endif()
+ 
    set(BACKEND_PACKAGE_STRING "${PACKAGE_STRING}")
-   if (LINK_WITH_FIR)
--    set(MLIR_MAIN_SRC_DIR ${LLVM_MAIN_SRC_DIR}/../mlir/include ) # --src-root
--    set(MLIR_INCLUDE_DIR ${LLVM_MAIN_SRC_DIR}/../mlir/include ) # --includedir
-+    set(MLIR_MAIN_SRC_DIR ${LLVM_MAIN_SRC_DIR}/tools/mlir/include ) # --src-root
-+    set(MLIR_INCLUDE_DIR ${LLVM_MAIN_SRC_DIR}/tools/mlir/include ) # --includedir
-     set(MLIR_TABLEGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/tools/mlir/include)
-     set(MLIR_TABLEGEN_EXE $<TARGET_FILE:mlir-tblgen>)
-     include_directories(SYSTEM ${MLIR_INCLUDE_DIR})
+-  set(MLIR_MAIN_SRC_DIR ${LLVM_MAIN_SRC_DIR}/../mlir/include ) # --src-root
+-  set(MLIR_INCLUDE_DIR ${LLVM_MAIN_SRC_DIR}/../mlir/include ) # --includedir
++  set(MLIR_MAIN_SRC_DIR ${LLVM_MAIN_SRC_DIR}/tools/mlir/include ) # --src-root
++  set(MLIR_INCLUDE_DIR ${LLVM_MAIN_SRC_DIR}/tools/mlir/include ) # --includedir
+   set(MLIR_TABLEGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/tools/mlir/include)
+   set(MLIR_TABLEGEN_EXE $<TARGET_FILE:mlir-tblgen>)
+   include_directories(SYSTEM ${MLIR_INCLUDE_DIR})
