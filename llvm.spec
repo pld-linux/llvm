@@ -708,7 +708,7 @@ install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
 %if %{with doc}
 cp -p build/docs/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 # these tools are not installed
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/FileCheck.1
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/{FileCheck,clang-tblgen,lldb-tblgen}.1
 # make links
 echo '.so llvm-ar.1' > $RPM_BUILD_ROOT%{_mandir}/man1/llvm-ranlib.1
 %endif
@@ -869,6 +869,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-symbolizer.1*
 %{_mandir}/man1/llvm-tblgen.1*
 %{_mandir}/man1/opt.1*
+%{_mandir}/man1/tblgen.1*
 %endif
 
 %files libs
@@ -1098,6 +1099,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ld.lld
 %attr(755,root,root) %{_bindir}/ld64.lld
 %attr(755,root,root) %{_bindir}/ld64.lld.darwinnew
+%attr(755,root,root) %{_bindir}/ld64.lld.darwinold
 %attr(755,root,root) %{_bindir}/lld
 %attr(755,root,root) %{_bindir}/lld-link
 %attr(755,root,root) %{_bindir}/wasm-ld
