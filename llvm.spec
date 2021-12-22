@@ -14,7 +14,7 @@
 # Conditional build:
 %bcond_without	lldb			# LLDB debugger
 %bcond_without	mlir			# MLIR libraries and tools (required for Flang)
-%bcond_without	flang			# Flang (Fortran18) compiler
+%bcond_with	flang			# Flang (Fortran18) compiler (heavy memory requirements during build)
 %bcond_without	polly			# Polly cache-locality optimization, auto-parallelism and vectorization
 %bcond_without	rt			# compiler-rt libraries
 %bcond_without	multilib		# compiler-rt multilib libraries
