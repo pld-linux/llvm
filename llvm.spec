@@ -123,6 +123,7 @@ BuildRequires:	perl-tools-pod
 BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-PyYAML
 BuildRequires:	python3-pygments >= 2.0
+BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.742
 %{?with_doc:BuildRequires:	sphinx-pdg}
