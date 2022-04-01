@@ -1021,7 +1021,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.13
 %attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.13
 %attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.13
+%if %{with doc}
 %{_mandir}/man1/mlir-tblgen.1*
+%endif
 
 %files mlir-devel
 %defattr(644,root,root,755)
