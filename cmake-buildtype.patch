@@ -12,4 +12,4 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/CMakeLists.txt llvm-11.0.1.src/CMakeL
 -
  set(LLVM_LIBDIR_SUFFIX "" CACHE STRING "Define suffix of library directory name (32/64)" )
  
- set(LLVM_TOOLS_INSTALL_DIR "bin" CACHE STRING "Path for binary subdirectory (defaults to 'bin')")
+ set(LLVM_TOOLS_INSTALL_DIR "${CMAKE_INSTALL_BINDIR}" CACHE STRING

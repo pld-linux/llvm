@@ -37,22 +37,21 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
 --- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2020-12-18 20:57:38.000000000 +0100
 +++ llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:27:39.173689051 +0100
 @@ -2048,6 +2048,7 @@ void Generic_GCC::GCCInstallationDetecto
-   // lifetime or initialization issues.
+   // lists should shrink over time. Please don't add more elements to *Triples.
    static const char *const AArch64LibDirs[] = {"/lib64", "/lib"};
    static const char *const AArch64Triples[] = {
 +      "aarch64-pld-linux",
        "aarch64-none-linux-gnu", "aarch64-linux-gnu", "aarch64-redhat-linux",
-       "aarch64-suse-linux", "aarch64-linux-android"};
+       "aarch64-suse-linux"};
    static const char *const AArch64beLibDirs[] = {"/lib"};
-@@ -2055,9 +2056,14 @@ void Generic_GCC::GCCInstallationDetecto
+@@ -2055,8 +2056,13 @@ void Generic_GCC::GCCInstallationDetecto
                                                   "aarch64_be-linux-gnu"};
  
    static const char *const ARMLibDirs[] = {"/lib"};
--  static const char *const ARMTriples[] = {"arm-linux-gnueabi",
-+  static const char *const ARMTriples[] = {"arm-pld-linux-gnueabi",
-+                                           "arm-linux-gnueabi",
-                                            "arm-linux-androideabi"};
+-  static const char *const ARMTriples[] = {"arm-linux-gnueabi"};
 -  static const char *const ARMHFTriples[] = {"arm-linux-gnueabihf",
++  static const char *const ARMTriples[] = {"arm-pld-linux-gnueabi",
++                                           "arm-linux-gnueabi"};
 +  static const char *const ARMHFTriples[] = {"arm-pld-linux-gnueabihf",
 +                                             "armv6hl-pld-linux-gnueabi",
 +                                             "armv7hl-pld-linux-gnueabi",
@@ -74,9 +73,9 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
    static const char *const X86LibDirs[] = {"/lib32", "/lib"};
    static const char *const X86Triples[] = {
 +      "i686-pld-linux", "i586-pld-linux", "i486-pld-linux", "i386-pld-linux", "athlon-pld-linux",
-       "i586-linux-gnu",     "i686-linux-gnu",
-       "i686-pc-linux-gnu",  "i386-redhat-linux6E",
-       "i686-redhat-linux",  "i386-redhat-linux",
+       "i586-linux-gnu",      "i686-linux-gnu",        "i686-pc-linux-gnu",
+       "i386-redhat-linux6E", "i686-redhat-linux",     "i386-redhat-linux",
+       "i586-suse-linux",     "i686-montavista-linux", "i686-gnu",
 @@ -2121,6 +2128,7 @@ void Generic_GCC::GCCInstallationDetecto
  
    static const char *const PPCLibDirs[] = {"/lib32", "/lib"};
@@ -86,7 +85,7 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
        // On 32-bit PowerPC systems running SUSE Linux, gcc is configured as a
        // 64-bit compiler which defaults to "-m32", hence "powerpc64-suse-linux".
 @@ -2146,14 +2154,14 @@ void Generic_GCC::GCCInstallationDetecto
-                                                "riscv64-suse-linux"};
+                                                "riscv64-unknown-elf"};
  
    static const char *const SPARCv8LibDirs[] = {"/lib32", "/lib"};
 -  static const char *const SPARCv8Triples[] = {"sparc-linux-gnu",

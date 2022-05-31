@@ -10,6 +10,8 @@
 #	%{_datadir}/clang/clang-rename.el
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
+# - dependencies and files for lua module
+# - figure out whether we need obj.MLIRCAPIIR files
 #
 # Conditional build:
 %bcond_without	lldb			# LLDB debugger
@@ -35,6 +37,7 @@
 %bcond_without	target_riscv		# RISCV target support
 %bcond_without	target_sparc		# Sparc target support
 %bcond_without	target_systemz		# SystemZ target support
+%bcond_without	target_ve		# VE target support
 %bcond_without	target_webassembly	# WebAssembly target support
 %bcond_without	target_x86		# X86 target support
 %bcond_without	target_xcore		# XCore target support
@@ -56,7 +59,7 @@
 %define		with_lowmem		1
 %endif
 
-%define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_systemz:SystemZ;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
+%define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_systemz:SystemZ;}%{?with_target_ve:VE;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
 
 %if %{without mlir}
 %undefine	with_flang
@@ -65,30 +68,30 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	13.0.1
-Release:	2
+Version:	14.0.4
+Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	4ca3266b539ccec41cb5094c510221a1
+# Source0-md5:	8aad3395466b23d3d34e98dbe386b018
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	89017bafd256ac5ad766920d15d8deba
+# Source1-md5:	335980de1f61d2641acc83bdf0ab0faf
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	f534ab8fb371ec1a8a22a6fa5809be46
+# Source2-md5:	1068037dce5e42a0eeb2217484f501fd
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	6af3b882e301e523e1a33af674e90d30
+# Source3-md5:	8741b5d30a5390a7daef639cf4042f0c
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	01caf4b0582b6a19f15f33ed64b9115c
+# Source4-md5:	5d37eabbfb147314187fc8abe7880796
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	00efa2ac5b911c69f427a1b5b98b9d00
+# Source5-md5:	2c71885c8bad1724cea3d021224a69a1
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	a33aa45465a1ba896f55e87c0b0f4189
+# Source6-md5:	cd93e87550e48b1a8ae3ee638861f47c
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	3ebb3f268aab4d3c2ae79f94b688e4c1
+# Source7-md5:	ce6eebfe98c5372c969cd1da6145bfb6
 # "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/llvm-project-13.0.1.src.tar.xz
 Source8:	mlir-%{version}.tar.xz
-# Source8-md5:	bba03b4e8e73d6f9489a94d2e4a4f35f
+# Source8-md5:	34fbb0505b40478016d9e518b0fcf24c
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
@@ -98,6 +101,7 @@ Patch6:		%{name}-flang.patch
 Patch7:		llvm12-build_fixes.patch
 Patch8:		%{name}-selective_bindings.patch
 Patch9:		%{name}-libexecdir.patch
+Patch10:	compiler-rt-paths.patch
 URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -143,12 +147,14 @@ BuildRequires:	tcl-devel
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664}
 BuildRequires:	gcc-c++-multilib-32
+BuildRequires:	glibc-devel(ix86)
 BuildRequires:	libstdc++-multilib-32-devel
 %endif
 %ifarch x32
 BuildRequires:	gcc-c++-multilib-32
 BuildRequires:	gcc-c++-multilib-64
 BuildRequires:	glibc-devel(x86_64)
+BuildRequires:	glibc-devel(ix86)
 BuildRequires:	libstdc++-multilib-32-devel
 BuildRequires:	libstdc++-multilib-64-devel
 %endif
@@ -182,7 +188,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	13
+%define		abi	14
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -682,9 +688,12 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%if %{with rt}
+%patch10 -p1
+%endif
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
-	s,^#!.*bin/env python,#!%{__python3},
+	s,^#!.*bin/env python3\?,#!%{__python3},
 	s,^#!.*bin/env perl,#!%{__perl},
 }'
 
@@ -717,6 +726,7 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
+	-DLLVM_TOOLS_INSTALL_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_bindir}") \
 %if %{with apidocs}
 	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
 %endif
@@ -726,6 +736,7 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 %if %{with doc}
 	-DLLVM_ENABLE_SPHINX:BOOL=ON \
 %endif
+	-DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
 	%{?with_z3:-DLLVM_ENABLE_Z3_SOLVER:BOOL=ON} \
 %if "%{_lib}" == "lib64"
 	-DLLVM_LIBDIR_SUFFIX:STRING=64 \
@@ -763,7 +774,7 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
 # workaround failed import of _lldb
-cp -pnL %{_lib}/python%{py3_ver}/site-packages/lldb/_lldb.so tools/lldb/docs/lldb
+cp -pnL %{_lib}/liblldb.so tools/lldb/docs/lldb/_lldb.so
 %{__make} \
 	LD_LIBRARY_PATH=$(pwd)/%{_lib} \
 	-C tools/lldb/docs lldb-python-doc-package
@@ -874,6 +885,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-cxxdump
 %attr(755,root,root) %{_bindir}/llvm-cxxfilt
 %attr(755,root,root) %{_bindir}/llvm-cxxmap
+%attr(755,root,root) %{_bindir}/llvm-debuginfod-find
 %attr(755,root,root) %{_bindir}/llvm-diff
 %attr(755,root,root) %{_bindir}/llvm-dis
 %attr(755,root,root) %{_bindir}/llvm-dlltool
@@ -919,6 +931,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-symbolizer
 %attr(755,root,root) %{_bindir}/llvm-tapi-diff
 %attr(755,root,root) %{_bindir}/llvm-tblgen
+%attr(755,root,root) %{_bindir}/llvm-tli-checker
 %attr(755,root,root) %{_bindir}/llvm-undname
 %attr(755,root,root) %{_bindir}/llvm-windres
 %attr(755,root,root) %{_bindir}/llvm-xray
@@ -968,6 +981,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-strip.1*
 %{_mandir}/man1/llvm-symbolizer.1*
 %{_mandir}/man1/llvm-tblgen.1*
+%{_mandir}/man1/llvm-tli-checker.1*
 %{_mandir}/man1/opt.1*
 %{_mandir}/man1/tblgen.1*
 %endif
@@ -978,9 +992,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLTO.so.13
-%attr(755,root,root) %{_libdir}/libRemarks.so.13
-%attr(755,root,root) %{_libdir}/libclang-cpp.so.13
+%attr(755,root,root) %{_libdir}/libLTO.so.14
+%attr(755,root,root) %{_libdir}/libRemarks.so.14
+%attr(755,root,root) %{_libdir}/libclang-cpp.so.14
 
 %files devel
 %defattr(644,root,root,755)
@@ -1010,17 +1024,17 @@ rm -rf $RPM_BUILD_ROOT
 %files mlir
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/mlir-cpu-runner
-%attr(755,root,root) %{_bindir}/mlir-linalg-ods-gen
 %attr(755,root,root) %{_bindir}/mlir-linalg-ods-yaml-gen
 %attr(755,root,root) %{_bindir}/mlir-lsp-server
 %attr(755,root,root) %{_bindir}/mlir-opt
+%attr(755,root,root) %{_bindir}/mlir-pdll
 %attr(755,root,root) %{_bindir}/mlir-reduce
 %attr(755,root,root) %{_bindir}/mlir-tblgen
 %attr(755,root,root) %{_bindir}/mlir-translate
-%attr(755,root,root) %{_libdir}/libMLIR.so.13
-%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.13
-%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.13
-%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.13
+%attr(755,root,root) %{_libdir}/libMLIR.so.14
+%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.14
+%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.14
+%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.14
 %if %{with doc}
 %{_mandir}/man1/mlir-tblgen.1*
 %endif
@@ -1064,6 +1078,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-cpp
 %attr(755,root,root) %{_bindir}/clang-doc
 %attr(755,root,root) %{_bindir}/clang-format
+%attr(755,root,root) %{_bindir}/clang-linker-wrapper
+%attr(755,root,root) %{_bindir}/clang-nvlink-wrapper
 %attr(755,root,root) %{_bindir}/clang-offload-bundler
 %attr(755,root,root) %{_bindir}/clang-offload-wrapper
 %attr(755,root,root) %{_bindir}/clang-repl
@@ -1155,7 +1171,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.%{abi}
+%attr(755,root,root) %{_libdir}/libclang.so.13
 %attr(755,root,root) %{_libdir}/libclang.so.*.*.*
 
 %files -n clang-devel
@@ -1266,8 +1282,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc tools/lld/{LICENSE.TXT,README.md}
 %attr(755,root,root) %{_bindir}/ld.lld
 %attr(755,root,root) %{_bindir}/ld64.lld
-%attr(755,root,root) %{_bindir}/ld64.lld.darwinnew
-%attr(755,root,root) %{_bindir}/ld64.lld.darwinold
 %attr(755,root,root) %{_bindir}/lld
 %attr(755,root,root) %{_bindir}/lld-link
 %attr(755,root,root) %{_bindir}/wasm-ld
@@ -1287,8 +1301,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-vscode
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.13
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.13
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.14
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.14
 %dir %{py3_sitedir}/lldb
 %attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
 %{py3_sitedir}/lldb/formatters
@@ -1300,7 +1314,7 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/lldb/plugins/__pycache__
 %{py3_sitedir}/lldb/plugins/__init__.py
 %{py3_sitedir}/lldb/plugins/scripted_process.py
-%attr(755,root,root) %{py3_sitedir}/lldb/_lldb.so
+%attr(755,root,root) %{py3_sitedir}/lldb/_lldb.cpython-*-linux-gnu.so
 
 %files -n lldb-devel
 %defattr(644,root,root,755)
@@ -1322,6 +1336,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/ocaml/llvm/libllvm*.a
 %{_libdir}/ocaml/llvm/llvm*.a
+%{_libdir}/ocaml/llvm/llvm*.cmt
+%{_libdir}/ocaml/llvm/llvm*.cmti
 %{_libdir}/ocaml/llvm/llvm*.cmx
 %{_libdir}/ocaml/llvm/llvm*.cmxa
 %{_libdir}/ocaml/llvm/llvm*.mli
