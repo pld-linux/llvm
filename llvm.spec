@@ -753,7 +753,12 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 %if %{with polly}
 	%{cmake_on_off target_nvptx POLLY_ENABLE_GPGPU_CODEGEN} \
 %endif
-	-DSPHINX_WARNINGS_AS_ERRORS=OFF
+	-DSPHINX_WARNINGS_AS_ERRORS=OFF \
+%if %{with rt}
+%ifarch x32
+	-DCOMPILER_RT_BUILD_MEMPROF:BOOL=OFF
+%endif
+%endif
 
 %{__make} \
 	VERBOSE=1 \
