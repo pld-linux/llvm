@@ -1320,7 +1320,7 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/lldb/plugins/__pycache__
 %{py3_sitedir}/lldb/plugins/__init__.py
 %{py3_sitedir}/lldb/plugins/scripted_process.py
-%attr(755,root,root) %{py3_sitedir}/lldb/_lldb.cpython-*-linux-gnu.so
+%attr(755,root,root) %{py3_sitedir}/lldb/_lldb.cpython-*.so
 
 %files -n lldb-devel
 %defattr(644,root,root,755)
