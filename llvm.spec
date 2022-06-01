@@ -836,7 +836,7 @@ done
 install -d $RPM_BUILD_ROOT%{bash_compdir}
 %{__mv} $RPM_BUILD_ROOT%{_datadir}/clang/bash-autocomplete.sh $RPM_BUILD_ROOT%{bash_compdir}/clang
 
-%{__rm} $RPM_BUILD_ROOT%{_bindir}/{c-index-test,llvm-c-test}
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/c-index-test
 # not this OS
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
 # use system six
@@ -883,6 +883,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-as
 %attr(755,root,root) %{_bindir}/llvm-bcanalyzer
 %attr(755,root,root) %{_bindir}/llvm-bitcode-strip
+%attr(755,root,root) %{_bindir}/llvm-c-test
 %attr(755,root,root) %{_bindir}/llvm-cat
 %attr(755,root,root) %{_bindir}/llvm-cfi-verify
 %attr(755,root,root) %{_bindir}/llvm-cov
