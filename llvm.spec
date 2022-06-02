@@ -12,6 +12,19 @@
 # - system isl in polly?
 # - dependencies and files for lua module
 # - figure out whether we need obj.MLIRCAPIIR files
+# - cmake dependencies mess (LLVMExports.cmake appears to require all -devels):
+#   with llvm-devel and spirv-tools-devel installed but without llvm-mlir (or other packages):
+#   $ cat CMakeLists.txt
+#   find_package(LLVM)
+#   find_package(SPIRV-Tools)
+#   $ cmake -B build
+#   ...
+#   The imported target "mlir-tblgen" references the file
+#
+#      "/usr/bin/mlir-tblgen"
+#
+#   but this file does not exist.  Possible reasons include:
+#   ...
 #
 # Conditional build:
 %bcond_without	lldb			# LLDB debugger
