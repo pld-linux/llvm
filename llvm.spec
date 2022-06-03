@@ -758,6 +758,7 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 	-DLLVM_LIBDIR_SUFFIX:STRING=x32 \
 %endif
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
+	-DLLVM_TARGET_ARCH:STRING=%{_target_base_arch} \
 	-DLLVM_DEFAULT_TARGET_TRIPLE:STRING=%{_target_platform} \
 %if %{with lowmem}
 	-DLLVM_PARALLEL_LINK_JOBS:STRING=1 \
