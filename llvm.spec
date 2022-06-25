@@ -11,6 +11,7 @@
 # - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
 # - dependencies and files for lua module
+#	%{_libdir}/lua/5.3/lldb.so
 # - figure out whether we need obj.MLIRCAPIIR files
 # - cmake dependencies mess (LLVMExports.cmake appears to require all -devels):
 #   with llvm-devel and spirv-tools-devel installed but without llvm-mlir (or other packages):
@@ -81,30 +82,30 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	14.0.4
-Release:	2
+Version:	14.0.6
+Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	8aad3395466b23d3d34e98dbe386b018
+# Source0-md5:	80072c6a4be8b9adb60c6aac01f577db
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	335980de1f61d2641acc83bdf0ab0faf
+# Source1-md5:	c469d3dc25c743a1e7f17cc6dc32ca62
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	1068037dce5e42a0eeb2217484f501fd
+# Source2-md5:	4fe314438ea54811f9a02d9e4f90e4dd
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	8741b5d30a5390a7daef639cf4042f0c
+# Source3-md5:	4ffc428ec564dc6a8399b60cf7d2e0e5
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	5d37eabbfb147314187fc8abe7880796
+# Source4-md5:	c1157683da94138de42a72f40cb4fbbe
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	2c71885c8bad1724cea3d021224a69a1
+# Source5-md5:	39f3b6b00542c64a2dcead8930c3ae01
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	cd93e87550e48b1a8ae3ee638861f47c
+# Source6-md5:	606743c854cbc9d9c61aa6f480c6d9e4
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	ce6eebfe98c5372c969cd1da6145bfb6
+# Source7-md5:	32d2f89881df5b761902383000b3bf70
 # "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/llvm-project-13.0.1.src.tar.xz
 Source8:	mlir-%{version}.tar.xz
-# Source8-md5:	34fbb0505b40478016d9e518b0fcf24c
+# Source8-md5:	bd6070403253cf0aaa41a24409c53683
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
