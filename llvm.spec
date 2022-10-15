@@ -735,7 +735,9 @@ CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 %if %{with lowmem}
 export CFLAGS="%{rpmcflags} -g0"
 export CXXFLAGS="%{rpmcxxflags} -g0"
+if echo 'int main(){}' | %{__cc} -x c %{rpmldflags} -Wl,--reduce-memory-overheads -o /dev/null - > /dev/null 2>&1; then
 export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
+fi
 %endif
 
 %cmake .. \
