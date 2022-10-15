@@ -510,7 +510,7 @@ Dodatkowe narzędzia do kompilatora Clang.
 Summary:	Bash completion for clang command
 Summary(pl.UTF-8):	Bashowe dopełnianie składni polecenia clang
 Group:		Applications/Shells
-Requires:	bash-completion >= 2.0
+Requires:	bash-completion >= 1:2.0
 Requires:	clang = %{version}-%{release}
 
 %description -n bash-completion-clang
