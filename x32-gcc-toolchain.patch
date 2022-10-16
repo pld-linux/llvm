@@ -29,3 +29,15 @@
      }
      BiarchLibDirs.append(begin(X86LibDirs), end(X86LibDirs));
      BiarchTripleAliases.append(begin(X86Triples), end(X86Triples));
+--- llvm-15.0.2.src/projects/compiler-rt/cmake/Modules/CompilerRTUtils.cmake.orig	2022-10-04 11:29:17.000000000 +0200
++++ llvm-15.0.2.src/projects/compiler-rt/cmake/Modules/CompilerRTUtils.cmake	2022-10-16 22:33:08.014906010 +0200
+@@ -478,7 +478,8 @@
+ 
+ function(get_compiler_rt_target arch variable)
+   string(FIND ${COMPILER_RT_DEFAULT_TARGET_TRIPLE} "-" dash_index)
+-  string(SUBSTRING ${COMPILER_RT_DEFAULT_TARGET_TRIPLE} ${dash_index} -1 triple_suffix)
++  string(SUBSTRING ${COMPILER_RT_DEFAULT_TARGET_TRIPLE} ${dash_index} -1 triple_suffix_with_abi)
++  string(REPLACE "-gnux32" "" triple_suffix ${triple_suffix_with_abi})
+   if(COMPILER_RT_DEFAULT_TARGET_ONLY)
+     # Use exact spelling when building only for the target specified to CMake.
+     set(target "${COMPILER_RT_DEFAULT_TARGET_TRIPLE}")
