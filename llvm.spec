@@ -1133,13 +1133,13 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %ifarch %{ix86} %{x8664} aarch64 armv7hl armv7hnl
 %dir %{_libdir}/clang/%{version}/lib
-%dir %{_libdir}/clang/%{version}/lib/*-linux
+%dir %{_libdir}/clang/%{version}/lib/*-linux*
 %dir %{_libdir}/clang/%{version}/share
 %endif
 %ifarch x32
 %if %{with multilib}
 %dir %{_libdir}/clang/%{version}/lib
-%dir %{_libdir}/clang/%{version}/lib/*-linux
+%dir %{_libdir}/clang/%{version}/lib/*-linux*
 %dir %{_libdir}/clang/%{version}/share
 %endif
 %endif
@@ -1161,10 +1161,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{version}/lib/aarch64-*linux/libclang_rt.*.a.syms
 %endif
 %ifarch armv7hl armv7hnl
-%{_libdir}/clang/%{version}/lib/armhf-*linux/clang_rt.*.o
-%{_libdir}/clang/%{version}/lib/armhf-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/%{version}/lib/armhf-*linux/libclang_rt.*.so
-%{_libdir}/clang/%{version}/lib/armhf-*linux/libclang_rt.*.a.syms
+%{_libdir}/clang/%{version}/lib/armhf-*linux%{_gnu}/clang_rt.*.o
+%{_libdir}/clang/%{version}/lib/armhf-*linux%{_gnu}/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/%{version}/lib/armhf-*linux%{_gnu}/libclang_rt.*.so
+%{_libdir}/clang/%{version}/lib/armhf-*linux%{_gnu}/libclang_rt.*.a.syms
 %endif
 %ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
 %{_libdir}/clang/%{version}/share/asan_ignorelist.txt
