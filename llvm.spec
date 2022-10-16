@@ -119,6 +119,7 @@ Patch8:		%{name}-selective_bindings.patch
 Patch9:		%{name}-libexecdir.patch
 Patch10:	compiler-rt-paths.patch
 Patch11:	cmake-utils-path-override.patch
+Patch12:	x32-compiler-rt.patch
 URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -708,6 +709,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch9 -p1
 %if %{with rt}
 %patch10 -p1
+%patch12 -p1
 %endif
 %patch11 -p1
 
