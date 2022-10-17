@@ -1,0 +1,22 @@
+--- llvm-15.0.2.src/cmake/modules/AddLLVM.cmake.orig	2022-10-04 11:29:17.000000000 +0200
++++ llvm-15.0.2.src/cmake/modules/AddLLVM.cmake	2022-10-16 23:47:37.416529186 +0200
+@@ -657,6 +657,9 @@
+   elseif (NOT ARG_COMPONENT_LIB)
+     if (LLVM_LINK_LLVM_DYLIB AND NOT ARG_DISABLE_LLVM_LINK_LLVM_DYLIB)
+       set(llvm_libs LLVM)
++      if(NOT HAVE_CXX_ATOMICS_WITHOUT_LIB OR NOT HAVE_CXX_ATOMICS64_WITHOUT_LIB)  
++        list(APPEND llvm_libs "atomic")
++      endif()
+     else()
+       llvm_map_components_to_libnames(llvm_libs
+        ${ARG_LINK_COMPONENTS}
+@@ -993,6 +996,9 @@
+     # API for all shared libaries loaded by this executable.
+     target_link_libraries(${name} PRIVATE ${LLVM_PTHREAD_LIB})
+   endif()
++  if(NOT HAVE_CXX_ATOMICS_WITHOUT_LIB OR NOT HAVE_CXX_ATOMICS64_WITHOUT_LIB)  
++    target_link_libraries(${name} PRIVATE "atomic")
++  endif()
+ 
+   llvm_codesign(${name} ENTITLEMENTS ${ARG_ENTITLEMENTS} BUNDLE_PATH ${ARG_BUNDLE_PATH})
+ endmacro(add_llvm_executable name)
