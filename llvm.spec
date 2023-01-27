@@ -82,32 +82,32 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	15.0.5
+Version:	15.0.7
 Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	a6c26842fd81475295544b50b274f509
+# Source0-md5:	c77db4c71e1eb267358204dffe2c6e10
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	e0be450c75553fa6c864837aa1f1d7e8
+# Source1-md5:	a6d0141e50b48f5e60c682277dac83b4
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	fcad41530d4c8fbbe3f4e5b59a176a70
+# Source2-md5:	12e6777354f0121cbe73ef13342a9302
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	2969a25f8f45e667c2b6a2936af368bb
+# Source3-md5:	680b5cfa29edd559c044e85928f4c37c
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	43f87ec87df3b2050ba1b3e80c8fb73c
+# Source4-md5:	c8bf12ff2fa7b6db6b2d60832c8d9cd1
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	a6c5850236e003ea619bdd5e4b45f79b
+# Source5-md5:	68b76dd37b263aca3a5132b5f8c23f80
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	142311e1d675aa30dbeaf17a539b91a6
+# Source6-md5:	a7a87763d4a94f49c60112c4a01e8b77
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	31ff7f18eab97a264cf0a8550681161d
-# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/llvm-project-13.0.1.src.tar.xz
+# Source7-md5:	5691ea5c2d1eb9c7105dbf2b38c8a9c1
+# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/llvm-project-15.0.7.src.tar.xz
 Source8:	mlir-%{version}.tar.xz
-# Source8-md5:	d37e2c5d0d9a054c984e09d079ab623f
+# Source8-md5:	42e71532b31cfe8930f0252bbe7f421d
 Source9:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/cmake-%{version}.src.tar.xz
-# Source9-md5:	fb2ef6f3f75ee620e0c8f2b68487bdb7
+# Source9-md5:	5be9535f0b93cb6232d0171a8abb3137
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-python-modules.patch
 Patch3:		x32-gcc-toolchain.patch
@@ -121,6 +121,8 @@ Patch10:	compiler-rt-paths.patch
 Patch11:	cmake-utils-path-override.patch
 Patch12:	x32-compiler-rt.patch
 Patch13:	atomic.patch
+# see https://github.com/llvm/llvm-project/issues/60292
+Patch14:	%{name}-swig.patch
 URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -714,6 +716,9 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %endif
 %patch11 -p1
 %patch13 -p1
+cd tools
+%patch14 -p1
+cd ..
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python3\?,#!%{__python3},
