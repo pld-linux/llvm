@@ -1162,7 +1162,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{abi}/lib/i*86-*linux/clang_rt.*.o
 %{_libdir}/clang/%{abi}/lib/i*86-*linux/libclang_rt.*.a
 %attr(755,root,root) %{_libdir}/clang/%{abi}/lib/i*86-*linux/libclang_rt.*.so
-%{_libdir}/clang/%{abi}/lib/i*86-*linux/liborc_rt.a
 %endif
 %ifarch %{x8664}
 %{_libdir}/clang/%{abi}/lib/x86_64-*linux/clang_rt.*.o
@@ -1218,7 +1217,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{abi}/lib/i386-*linux/clang_rt.*.o
 %{_libdir}/clang/%{abi}/lib/i386-*linux/libclang_rt.*.a
 %attr(755,root,root) %{_libdir}/clang/%{abi}/lib/i386-*linux/libclang_rt.*.so
-%{_libdir}/clang/%{abi}/lib/i386-*linux/liborc_rt.a
 %endif
 %ifarch x32
 %{_libdir}/clang/%{abi}/lib/x86_64-*linux/clang_rt.*.o
