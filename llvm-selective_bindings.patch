@@ -1,16 +1,7 @@
 --- llvm-13.0.0.src/cmake/config-ix.cmake.orig	2021-09-24 18:18:10.000000000 +0200
 +++ llvm-13.0.0.src/cmake/config-ix.cmake	2021-11-08 11:27:55.475562698 +0100
-@@ -569,7 +569,7 @@
- 
- set(LLVM_BINDINGS "")
- find_program(GO_EXECUTABLE NAMES go DOC "go executable")
--if(WIN32 OR NOT LLVM_ENABLE_BINDINGS)
-+if(WIN32 OR NOT LLVM_ENABLE_BINDINGS OR (DEFINED LLVM_BINDINGS_LIST AND NOT "go" IN_LIST LLVM_BINDINGS_LIST))
-   message(STATUS "Go bindings disabled.")
- else()
-   if(GO_EXECUTABLE STREQUAL "GO_EXECUTABLE-NOTFOUND")
 @@ -625,7 +625,7 @@
- # Keep the version requirements in sync with bindings/ocaml/README.txt.
+ set(LLVM_BINDINGS "")
  include(FindOCaml)
  include(AddOCaml)
 -if(WIN32 OR NOT LLVM_ENABLE_BINDINGS)

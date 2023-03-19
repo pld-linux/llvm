@@ -7,6 +7,6 @@
 -  string(SUBSTRING ${COMPILER_RT_DEFAULT_TARGET_TRIPLE} ${dash_index} -1 triple_suffix)
 +  string(SUBSTRING ${COMPILER_RT_DEFAULT_TARGET_TRIPLE} ${dash_index} -1 triple_suffix_with_abi)
 +  string(REPLACE "-gnux32" "" triple_suffix ${triple_suffix_with_abi})
+   string(SUBSTRING ${COMPILER_RT_DEFAULT_TARGET_TRIPLE} 0 ${dash_index} triple_cpu)
    if(COMPILER_RT_DEFAULT_TARGET_ONLY)
      # Use exact spelling when building only for the target specified to CMake.
-     set(target "${COMPILER_RT_DEFAULT_TARGET_TRIPLE}")

@@ -114,12 +114,3 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Lin
        Triple.isAndroid()) {
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
-@@ -266,7 +266,7 @@ Linux::Linux(const Driver &D, const llvm
-   // Android loader does not support .gnu.hash until API 23.
-   // Hexagon linker/loader does not support .gnu.hash
-   if (!IsMips && !IsHexagon) {
--    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsAlpineLinux() ||
-+    if (Distro.IsRedhat() || Distro.IsOpenSUSE() || Distro.IsAlpineLinux() || Distro.IsPLD() ||
-         (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick) ||
-         (IsAndroid && !Triple.isAndroidVersionLT(23)))
-       ExtraOpts.push_back("--hash-style=gnu");
