@@ -145,6 +145,7 @@ BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-PyYAML
+BuildRequires:	python3-modules
 BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov
