@@ -295,6 +295,7 @@ Summary:	API documentation for LLVM
 Summary(pl.UTF-8):	Dokumentacja API LLVM-a
 Group:		Development/Languages
 Requires:	%{name}-doc = %{version}-%{release}
+BuildArch:	noarch
 
 %description apidocs
 API documentation for the LLVM compiler infrastructure.
@@ -453,6 +454,7 @@ Summary(pl.UTF-8):	Dokumentacja do Clanga
 URL:		https://clang.llvm.org/
 Group:		Documentation
 Requires:	%{name} = %{version}-%{release}
+BuildArch:	noarch
 
 %description -n clang-doc
 Documentation for the Clang compiler front-end.
@@ -466,6 +468,7 @@ Summary(pl.UTF-8):	Dokumentacja API Clanga
 URL:		https://clang.llvm.org/
 Group:		Development/Languages
 Requires:	clang-doc = %{version}-%{release}
+BuildArch:	noarch
 
 %description -n clang-apidocs
 API documentation for the Clang compiler.
@@ -514,6 +517,7 @@ Summary(pl.UTF-8):	Bashowe dopełnianie składni polecenia clang
 Group:		Applications/Shells
 Requires:	bash-completion >= 1:2.0
 Requires:	clang = %{version}-%{release}
+BuildArch:	noarch
 
 %description -n bash-completion-clang
 Bash completion for clang command.
@@ -648,6 +652,7 @@ Summary:	Documentation for LLVM's OCaml binding
 Summary(pl.UTF-8):	Dokumentacja wiązania OCamla do LLVM-a
 Group:		Documentation
 Requires:	%{name}-ocaml = %{version}-%{release}
+BuildArch:	noarch
 
 %description ocaml-doc
 HTML documentation for LLVM's OCaml binding.
