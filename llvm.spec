@@ -978,7 +978,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/opt
 %attr(755,root,root) %{_bindir}/sancov
 %attr(755,root,root) %{_bindir}/sanstats
-#%%attr(755,root,root) %{_bindir}/split-file
 %attr(755,root,root) %{_bindir}/tblgen-lsp-server
 %attr(755,root,root) %{_bindir}/verify-uselistorder
 %if %{with doc}
