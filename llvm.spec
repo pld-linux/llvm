@@ -996,6 +996,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-cov.1*
 %{_mandir}/man1/llvm-cxxfilt.1*
 %{_mandir}/man1/llvm-cxxmap.1*
+%{_mandir}/man1/llvm-debuginfo-analyzer.1*
 %{_mandir}/man1/llvm-diff.1*
 %{_mandir}/man1/llvm-dis.1*
 %{_mandir}/man1/llvm-dwarfdump.1*
@@ -1013,6 +1014,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-objcopy.1*
 %{_mandir}/man1/llvm-objdump.1*
+%{_mandir}/man1/llvm-opt-report.1*
 %{_mandir}/man1/llvm-otool.1*
 %{_mandir}/man1/llvm-pdbutil.1*
 %{_mandir}/man1/llvm-profdata.1*
@@ -1021,6 +1023,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-readelf.1*
 %{_mandir}/man1/llvm-readobj.1*
 %{_mandir}/man1/llvm-remark-size-diff.1*
+%{_mandir}/man1/llvm-remarkutil.1*
 %{_mandir}/man1/llvm-size.1*
 %{_mandir}/man1/llvm-stress.1*
 %{_mandir}/man1/llvm-strings.1*
