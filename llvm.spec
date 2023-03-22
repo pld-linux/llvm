@@ -755,6 +755,9 @@ fi
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
 	-DLLVM_INSTALL_PACKAGE_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_libdir}/cmake/llvm") \
 	-DLLVM_TOOLS_INSTALL_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_bindir}") \
+%ifarch %{arm}
+	-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=ON \
+%endif
 %if %{with apidocs}
 	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
 %endif
