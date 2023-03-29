@@ -70,6 +70,10 @@
 %undefine	with_rt
 %endif
 
+%ifarch i386 i486 armv3l armv4b armv4l armv4tl armv5tl armv5tel armv5tejl armv6l armv6hl
+%define		with_libatomic	1
+%endif
+
 %define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_loongarch:LoongArch;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_systemz:SystemZ;}%{?with_target_ve:VE;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
 
 %if %{without mlir}
@@ -123,9 +127,7 @@ BuildRequires:	bison
 BuildRequires:	cmake >= 3.13.4
 BuildRequires:	flex
 BuildRequires:	groff
-%ifarch i386 i486 %{arm}
-BuildRequires:	libatomic-devel
-%endif
+%{?with_libatomic:BuildRequires:	libatomic-devel}
 BuildRequires:	libedit-devel
 BuildRequires:	libltdl-devel
 BuildRequires:	libpfm-devel
