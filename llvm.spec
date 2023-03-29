@@ -123,6 +123,9 @@ BuildRequires:	bison
 BuildRequires:	cmake >= 3.13.4
 BuildRequires:	flex
 BuildRequires:	groff
+%ifarch i386 i486 %{arm}
+BuildRequires:	libatomic-devel
+%endif
 BuildRequires:	libedit-devel
 BuildRequires:	libltdl-devel
 BuildRequires:	libpfm-devel
@@ -177,9 +180,6 @@ BuildRequires:	libstdc++-multilib-64-devel
 %endif
 %if %{with lldb}
 BuildRequires:	epydoc
-%ifarch i386 i486 %{arm}
-BuildRequires:	libatomic-devel
-%endif
 BuildRequires:	libxml2-devel >= 2
 BuildRequires:	lua-devel
 BuildRequires:	ncurses-ext-devel
