@@ -66,11 +66,11 @@
 %undefine	with_ocaml
 %endif
 
-%ifarch armv3l armv4b armv4l armv4tl armv5tl armv5tel armv5tejl armv6l armv6hl
+%ifarch armv3l %{armv4} %{armv5} %{armv6}
 %undefine	with_rt
 %endif
 
-%ifarch i386 i486 armv3l armv4b armv4l armv4tl armv5tl armv5tel armv5tejl armv6l armv6hl
+%ifarch i386 i486 armv3l %{armv4} %{armv5} %{armv6}
 %define		with_libatomic	1
 %endif
 
@@ -149,7 +149,7 @@ BuildRequires:	python3-modules
 BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.742
+BuildRequires:	rpmbuild(macros) >= 2.007
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xar-devel >= 1.6
@@ -1148,7 +1148,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang/%{abi}/bin
 %attr(755,root,root) %{_libdir}/clang/%{abi}/bin/hwasan_symbolize
 %endif
-%ifarch %{ix86} %{x8664} aarch64 armv7hl armv7hnl
+%ifarch %{ix86} %{x8664} aarch64 %{armv7}
 %dir %{_libdir}/clang/%{abi}/lib
 %dir %{_libdir}/clang/%{abi}/lib/*-linux*
 %dir %{_libdir}/clang/%{abi}/share
@@ -1179,7 +1179,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/clang/%{abi}/lib/aarch64-*linux/libclang_rt.*.a.syms
 %{_libdir}/clang/%{abi}/lib/aarch64-*linux/liborc_rt.a
 %endif
-%ifarch armv7hl armv7hnl
+%ifarch %{armv7}
 %{_libdir}/clang/%{abi}/lib/armhf-*linux%{_gnu}/clang_rt.*.o
 %{_libdir}/clang/%{abi}/lib/armhf-*linux%{_gnu}/libclang_rt.*.a
 %attr(755,root,root) %{_libdir}/clang/%{abi}/lib/armhf-*linux%{_gnu}/libclang_rt.*.so
@@ -1189,7 +1189,7 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
 %{_libdir}/clang/%{abi}/share/asan_ignorelist.txt
 %endif
-%ifarch %{ix86} %{x8664} mips64 aarch64 armv7hl armv7hnl
+%ifarch %{ix86} %{x8664} mips64 aarch64 %{armv7}
 %{_libdir}/clang/%{abi}/share/cfi_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64 mips64
