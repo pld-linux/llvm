@@ -266,7 +266,12 @@ Summary:	Static libraries and header files for LLVM
 Summary(pl.UTF-8):	Biblioteki statyczne i pliki nagłówkowe dla LLVM-a
 Group:		Development/Languages
 Requires:	%{name}-libs = %{version}-%{release}
+%{?with_libatomic:Requires:	libatomic-devel}
 Requires:	libstdc++-devel >= 6:3.4
+Requires:	ncurses-devel
+%{?with_z3:Requires:	z3-devel}
+Requires:	zlib-devel
+Requires:	zstd-devel
 
 %description devel
 This package contains static libraries and header files needed to
