@@ -151,6 +151,7 @@ BuildRequires:	xar-devel >= 1.6
 BuildRequires:	xz
 %{?with_z3:BuildRequires:	z3-devel >= 4.7.1}
 BuildRequires:	zlib-devel
+BuildRequires:	zstd-devel
 %if %{with apidocs}
 BuildRequires:	doxygen
 BuildRequires:	graphviz
