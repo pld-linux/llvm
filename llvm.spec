@@ -116,7 +116,6 @@ Patch9:		%{name}-libexecdir.patch
 Patch10:	compiler-rt-paths.patch
 Patch11:	cmake-utils-path-override.patch
 Patch12:	x32-compiler-rt.patch
-Patch13:	atomic.patch
 URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -714,7 +713,6 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch12 -p1
 %endif
 %patch11 -p1
-%patch13 -p1
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python3\?,#!%{__python3},
