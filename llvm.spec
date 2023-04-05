@@ -104,9 +104,8 @@ Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{versio
 # Source6-md5:	4c031fc367188d0a45b7ab8838dd9b49
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
 # Source7-md5:	b895740c1fd1c69bd28d03f93fa3eea1
-# "mlir" subdir extracted from https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.0/llvm-project-16.0.0.src.tar.xz
-Source8:	mlir-%{version}.tar.xz
-# Source8-md5:	9596f341d62129b9c7204305c111d5be
+Source8:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/mlir-%{version}.src.tar.xz
+# Source8-md5:	cae4435791c2711af6e9111b913236b4
 Source9:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/cmake-%{version}.src.tar.xz
 # Source9-md5:	b2103df1421f7bcc271fcacec27a24bb
 Patch1:		%{name}-pld.patch
@@ -702,7 +701,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %{__mv} flang-%{version}.src tools/flang
 %endif
 %if %{with mlir}
-%{__mv} mlir tools/mlir
+%{__mv} mlir-%{version}.src tools/mlir
 %endif
 %{__mv} cmake-%{version}.src cmake-utils
 
