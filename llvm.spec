@@ -83,31 +83,31 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	16.0.0
+Version:	16.0.1
 Release:	0.1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	c465413aa9ab18837f40cc5750d39a33
+# Source0-md5:	9dab5bef4c8ec371c5dda8a6a729fe55
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	d38fd3897a0fd6dc396c973ba08662aa
+# Source1-md5:	3ec8a646958609b28fe5544515ab4eed
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	5f0633ec762fed4f1e2c450b3654caa6
+# Source2-md5:	63d741ca23cf0dad94237c9e11063b4e
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	ad78eb12a144c7e5eb7ae235af8d6dfd
+# Source3-md5:	0250ec197adcdb1daa4b874b7a6739b0
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	4ede663c676600ed63e4d7d840ff480b
+# Source4-md5:	8af8b4dd326a4b5d25028891d7a6fe04
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	9c21e090e61e0dda6c7a044207af38e3
+# Source5-md5:	1015d09e53bb9f539b04300f47e97680
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	4c031fc367188d0a45b7ab8838dd9b49
+# Source6-md5:	e04be72798080b214f01bc88d0ea4fa1
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	b895740c1fd1c69bd28d03f93fa3eea1
+# Source7-md5:	fd87ca60b8513a79c47d32d6bf09cec5
 Source8:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/mlir-%{version}.src.tar.xz
-# Source8-md5:	cae4435791c2711af6e9111b913236b4
+# Source8-md5:	476bc7039a879b45f9990455005bb217
 Source9:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/cmake-%{version}.src.tar.xz
-# Source9-md5:	b2103df1421f7bcc271fcacec27a24bb
+# Source9-md5:	7d225951160c463a5aa528015acf3439
 Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
