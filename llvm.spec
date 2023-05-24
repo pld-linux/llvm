@@ -264,7 +264,7 @@ Biblioteki współdzielone LLVM-a.
 Summary:	Static libraries and header files for LLVM
 Summary(pl.UTF-8):	Biblioteki statyczne i pliki nagłówkowe dla LLVM-a
 Group:		Development/Languages
-Requires:	%{name}-libs = %{version}-%{release}
+Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 %{?with_libatomic:Requires:	libatomic-devel}
 Requires:	libstdc++-devel >= 6:3.4
 Requires:	ncurses-devel
