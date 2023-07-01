@@ -83,31 +83,31 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	16.0.5
+Version:	16.0.6
 Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	d9185fc007c32aea27a6de3c7c1eb90d
+# Source0-md5:	7d986cda69719a35bd5ecb266fcf1f65
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	cb3e79db62c4c3b78cfcdebe66b00268
+# Source1-md5:	70053a666251fdcabc466ea4a0275972
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	3061b4cb0b2428a32b4fb5db540fe66c
+# Source2-md5:	79eb1121d4990a6585787e6b68361afe
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	4620e58af9b99b0cd1eff3eef9fbd681
+# Source3-md5:	89ab2812e99d35fae6a0141bb57b9b1d
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	a8d348b8e4fc9fb211b7b3cabeb57c79
+# Source4-md5:	540613f9eaffb7bd05dfd77b52e6a4e2
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	c2591b90f0a8e97ed4edd98f7aa757c9
+# Source5-md5:	775a93a7b168101f544dbfed23ac4aaa
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	2c9ced008edb48107c521064764399c3
+# Source6-md5:	9c9530a0853624a869917853a2da2bd1
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	83bb9240ca34e9f5178364447bfbc272
+# Source7-md5:	988186ce1f8629f924660e350a57e000
 Source8:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/mlir-%{version}.src.tar.xz
-# Source8-md5:	7deedc08af051a7d857f6ae6dd789185
+# Source8-md5:	9c9dac6bd7fdaf682f60fabca839c578
 Source9:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/cmake-%{version}.src.tar.xz
-# Source9-md5:	eee5d96a80319bb36e82c245b46abbdb
+# Source9-md5:	b7830bb90e376c90a43c2c190a0a5ffa
 Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch4:		cmake-buildtype.patch
@@ -173,8 +173,8 @@ BuildRequires:	libstdc++-multilib-32-devel
 %ifarch x32
 BuildRequires:	gcc-c++-multilib-32
 BuildRequires:	gcc-c++-multilib-64
-BuildRequires:	glibc-devel(x86_64)
 BuildRequires:	glibc-devel(ix86)
+BuildRequires:	glibc-devel(x86_64)
 BuildRequires:	libstdc++-multilib-32-devel
 BuildRequires:	libstdc++-multilib-64-devel
 %endif
@@ -731,7 +731,7 @@ find -name '*.py' -print0 | xargs -0 sed -i -e '1{
 }'
 
 %if %{with flang}
-%{__sed} -i -e '1s,/usr/bin/env bash,/bin/bash,' tools/flang/tools/f18/flang.in
+%{__sed} -i -e '1s,/usr/bin/env bash,/bin/bash,' tools/flang/tools/f18/flang-to-external-fc.in
 %endif
 
 %build
@@ -880,6 +880,9 @@ install -d $RPM_BUILD_ROOT%{bash_compdir}
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
 # it seems it is used internally by an extra clang tool
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
+%if %{with flang}
+%{__rm} -r $RPM_BUILD_ROOT%{_libdir}/objects-PLD
+%endif
 
 # disable completeness check incompatible with split packaging
 %{__sed} -i -e '/^foreach(target .*IMPORT_CHECK_TARGETS/,/^endforeach/d; /^unset(_IMPORT_CHECK_TARGETS)/d' \
@@ -1321,10 +1324,11 @@ rm -rf $RPM_BUILD_ROOT
 %files -n flang
 %defattr(644,root,root,755)
 %doc tools/flang/{LICENSE.TXT,README.md}
-%attr(755,root,root) %{_bindir}/f18
+%attr(755,root,root) %{_bindir}/bbc
 %attr(755,root,root) %{_bindir}/f18-parse-demo
 %attr(755,root,root) %{_bindir}/fir-opt
-%attr(755,root,root) %{_bindir}/flang
+%attr(755,root,root) %{_bindir}/flang-new
+%attr(755,root,root) %{_bindir}/flang-to-external-fc
 %attr(755,root,root) %{_bindir}/tco
 %dir %{_includedir}/flang
 %{_includedir}/flang/Version.inc
@@ -1335,8 +1339,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n flang-devel
 %defattr(644,root,root,755)
-%{_libdir}/libFIROptimizer.a
+%{_libdir}/libFIR*.a
+%{_libdir}/libHLFIR*.a
 %{_libdir}/libFortran*.a
+%{_libdir}/libflangFrontend*.a
 %{_includedir}/flang/Common
 %{_includedir}/flang/Decimal
 %{_includedir}/flang/Evaluate
@@ -1345,7 +1351,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/flang/Lower
 %{_includedir}/flang/Optimizer
 %{_includedir}/flang/Parser
+%{_includedir}/flang/Runtime
 %{_includedir}/flang/Semantics
+%{_includedir}/flang/Tools
 %{_includedir}/flang/ISO_Fortran_binding.h
 %{_libdir}/cmake/flang
 %endif
