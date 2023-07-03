@@ -880,7 +880,7 @@ install -d $RPM_BUILD_ROOT%{bash_compdir}
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/clang/clang-format-bbedit.applescript
 # it seems it is used internally by an extra clang tool
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libfindAllSymbols.a
-%if %{with flang}
+%if %{with mlir}
 %{__rm} -r $RPM_BUILD_ROOT%{_libdir}/objects-PLD
 %endif
 
