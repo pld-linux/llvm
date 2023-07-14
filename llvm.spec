@@ -817,12 +817,14 @@ fi
 %{__make} -C tools/clang/docs docs-clang-html
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
+%if %{with lldb}
 # workaround failed import of _lldb
 cp -pnL %{_lib}/liblldb.so tools/lldb/docs/lldb/_lldb.so
 %{__make} \
 	LD_LIBRARY_PATH=$(pwd)/%{_lib} \
 	-C tools/lldb/docs lldb-python-doc-package
 %{__make} -C tools/lldb/docs lldb-cpp-doc
+%endif
 %endif
 
 %install
