@@ -811,9 +811,6 @@ fi
 %if %{with doc}
 %{__make} -C docs docs-llvm-html
 %{__make} -C docs docs-llvm-man
-%if %{with ocaml}
-%{__make} -C docs ocaml_doc
-%endif
 %{__make} -C tools/clang/docs docs-clang-html
 %{__make} -C tools/clang/docs docs-clang-man
 %{__make} -C tools/lld/docs docs-lld-html
@@ -825,6 +822,9 @@ cp -pnL %{_lib}/liblldb.so tools/lldb/docs/lldb/_lldb.so
 	-C tools/lldb/docs lldb-python-doc-package
 %{__make} -C tools/lldb/docs lldb-cpp-doc
 %endif
+%endif
+%if %{with ocaml}
+%{__make} -C docs ocaml_doc
 %endif
 
 %install
