@@ -83,34 +83,33 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	16.0.6
+Version:	17.0.2
 Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	7d986cda69719a35bd5ecb266fcf1f65
+# Source0-md5:	ad114e00a5350c96de9d7ca4866d8d01
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	70053a666251fdcabc466ea4a0275972
+# Source1-md5:	da00c6de5a1946fcc0b6419ee5600a65
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	79eb1121d4990a6585787e6b68361afe
+# Source2-md5:	b0ce0f1c7e687f96e9d775c4aa3978c1
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	89ab2812e99d35fae6a0141bb57b9b1d
+# Source3-md5:	a51abb56e09a172fe9c5a795e0890cf3
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	540613f9eaffb7bd05dfd77b52e6a4e2
+# Source4-md5:	24843481f9e054de13f5335a07883eaf
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	775a93a7b168101f544dbfed23ac4aaa
+# Source5-md5:	6862a7a0af802291c929d2f104ecf909
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	9c9530a0853624a869917853a2da2bd1
+# Source6-md5:	7389729b6ea88a71bc69d20aec8a4ea8
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	988186ce1f8629f924660e350a57e000
+# Source7-md5:	9eb16034e79717d54be3a69d9673f5d5
 Source8:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/mlir-%{version}.src.tar.xz
-# Source8-md5:	9c9dac6bd7fdaf682f60fabca839c578
+# Source8-md5:	bf6d5e89bc58b880b01b38878af7e20f
 Source9:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/cmake-%{version}.src.tar.xz
-# Source9-md5:	b7830bb90e376c90a43c2c190a0a5ffa
+# Source9-md5:	fa05d0b40615544f0e421a28f173d634
 Patch1:		%{name}-pld.patch
 Patch3:		x32-gcc-toolchain.patch
-Patch4:		cmake-buildtype.patch
 Patch5:		%{name}-ocaml-shared.patch
 Patch6:		%{name}-flang.patch
 Patch7:		llvm12-build_fixes.patch
@@ -123,7 +122,7 @@ URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
 BuildRequires:	bison
-BuildRequires:	cmake >= 3.13.4
+BuildRequires:	cmake >= 3.20.0
 BuildRequires:	flex
 BuildRequires:	groff
 %{?with_libatomic:BuildRequires:	libatomic-devel}
@@ -205,7 +204,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	16
+%define		abi	17
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -707,7 +706,6 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 
 %patch1 -p1
 %patch3 -p1
-%patch4 -p1
 %patch5 -p1
 %if %{with flang}
 %patch6 -p1
@@ -760,9 +758,6 @@ fi
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
 	-DLLVM_INSTALL_PACKAGE_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_libdir}/cmake/llvm") \
 	-DLLVM_TOOLS_INSTALL_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_bindir}") \
-%ifarch %{arm}
-	-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=ON \
-%endif
 %if %{with apidocs}
 	-DLLVM_ENABLE_DOXYGEN:BOOL=ON \
 %endif
@@ -1051,9 +1046,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libLLVM-%{abi}.so
 # non-soname symlink
 %attr(755,root,root) %{_libdir}/libLLVM-%{version}.so
-%attr(755,root,root) %{_libdir}/libLTO.so.16
-%attr(755,root,root) %{_libdir}/libRemarks.so.16
-%attr(755,root,root) %{_libdir}/libclang-cpp.so.16
+%attr(755,root,root) %{_libdir}/libLTO.so.17
+%attr(755,root,root) %{_libdir}/libRemarks.so.17
+%attr(755,root,root) %{_libdir}/libclang-cpp.so.17
 
 %files devel
 %defattr(644,root,root,755)
@@ -1091,11 +1086,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/mlir-reduce
 %attr(755,root,root) %{_bindir}/mlir-tblgen
 %attr(755,root,root) %{_bindir}/mlir-translate
-%attr(755,root,root) %{_libdir}/libMLIR.so.16
-%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.16
-%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.16
-%attr(755,root,root) %{_libdir}/libmlir_float16_utils.so.16
-%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.16
+%attr(755,root,root) %{_libdir}/libMLIR.so.17
+%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.17
+%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.17
+%attr(755,root,root) %{_libdir}/libmlir_float16_utils.so.17
+%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.17
 %if %{with doc}
 %{_mandir}/man1/mlir-tblgen.1*
 %endif
@@ -1248,7 +1243,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.16
+%attr(755,root,root) %{_libdir}/libclang.so.17
 %attr(755,root,root) %{_libdir}/libclang.so.*.*.*
 
 %files -n clang-devel
@@ -1384,8 +1379,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-vscode
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.16
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.16
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.17
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.17
 %dir %{py3_sitedir}/lldb
 %attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
 %{py3_sitedir}/lldb/formatters
