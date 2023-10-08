@@ -1113,13 +1113,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc tools/polly/{CREDITS.txt,LICENSE.TXT,README} tools/polly/www/{bugs,changelog,contributors}.html
 %attr(755,root,root) %{_libdir}/LLVMPolly.so
-%{?with_target_nvptx:%attr(755,root,root) %{_libdir}/libGPURuntime.so}
 
 %files polly-devel
 %defattr(644,root,root,755)
 %{_libdir}/libPolly.a
 %{_libdir}/libPollyISL.a
-%{?with_target_nvptx:%{_libdir}/libPollyPPCG.a}
 %{_includedir}/polly
 %{_libdir}/cmake/polly
 %endif
