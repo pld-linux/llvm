@@ -1,0 +1,11 @@
+--- llvm-17.0.2.src/projects/compiler-rt/CMakeLists.txt.orig	2023-10-03 08:37:35.000000000 +0200
++++ llvm-17.0.2.src/projects/compiler-rt/CMakeLists.txt	2023-10-07 10:31:48.211026182 +0200
+@@ -5,7 +5,7 @@
+ 
+ cmake_minimum_required(VERSION 3.20.0)
+ 
+-set(LLVM_COMMON_CMAKE_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
++set(LLVM_COMMON_CMAKE_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/../cmake" CACHE STRING "Path to CMake modules shared between projects")
+ include(${LLVM_COMMON_CMAKE_UTILS}/Modules/CMakePolicy.cmake
+   NO_POLICY_SCOPE)
+ 
