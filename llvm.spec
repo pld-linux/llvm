@@ -132,6 +132,7 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libpfm-devel
 BuildRequires:	libstdc++-devel >= 6:5
 BuildRequires:	libxml2-devel >= 2
+%{?with_ocaml:BuildRequires:	llvm-devel >= 17}
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
 BuildRequires:	ocaml >= 4.00.0
