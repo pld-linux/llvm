@@ -109,6 +109,7 @@ Source8:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{versio
 Source9:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/cmake-%{version}.src.tar.xz
 # Source9-md5:	38ae9cc0950f277c8f88e570c4d18010
 Patch1:		%{name}-pld.patch
+Patch2:		%{name}-ocaml-link-dylib.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch5:		%{name}-ocaml-shared.patch
 Patch6:		%{name}-flang.patch
@@ -132,7 +133,6 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libpfm-devel
 BuildRequires:	libstdc++-devel >= 6:5
 BuildRequires:	libxml2-devel >= 2
-%{?with_ocaml:BuildRequires:	llvm-devel >= 17}
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
 BuildRequires:	ocaml >= 4.00.0
@@ -707,6 +707,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %{__mv} cmake-%{version}.src cmake-utils
 
 %patch1 -p1
+%patch2 -p1
 %patch3 -p1
 %patch5 -p1
 %if %{with flang}
@@ -744,8 +745,8 @@ cd build
 CPPFLAGS="%{rpmcppflags} -D_FILE_OFFSET_BITS=64"
 
 %if %{with lowmem}
-export CFLAGS="%{rpmcflags} -NDEBUG -g0"
-export CXXFLAGS="%{rpmcxxflags} -NDEBUG -g0"
+export CFLAGS="%{rpmcflags} -DNDEBUG -g0"
+export CXXFLAGS="%{rpmcxxflags} -DNDEBUG -g0"
 if echo 'int main(){}' | %{__cc} -x c %{rpmldflags} -Wl,--reduce-memory-overheads -o /dev/null - > /dev/null 2>&1; then
 export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 fi
