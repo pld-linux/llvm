@@ -8,7 +8,6 @@
 #	%{_datadir}/clang/clang-format.el - clang tools emacs integration
 #	%{_datadir}/clang/clang-include-fixer.el
 #	%{_datadir}/clang/clang-rename.el
-# - no content in doc package (it used to contain parts of clang apidocs and some examples)
 # - system isl in polly?
 # - dependencies and files for lua module
 #	%{_libdir}/lua/5.3/lldb.so
@@ -281,18 +280,6 @@ develop new native programs that use the LLVM infrastructure.
 Ten pakiet zawiera biblioteki statyczne oraz pliki nagłówkowe
 potrzebne do tworzenia nowych programów natywnych wykorzystujących
 infrastrukturę LLVM.
-
-%package doc
-Summary:	Documentation for LLVM
-Summary(pl.UTF-8):	Dokumentacja do LLVM-a
-Group:		Documentation
-# does not require base
-
-%description doc
-Documentation for the LLVM compiler infrastructure.
-
-%description doc -l pl.UTF-8
-Dokumentacja do infrastruktury kompilatorów LLVM.
 
 %package apidocs
 Summary:	API documentation for LLVM
@@ -1068,9 +1055,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with doc}
 %{_mandir}/man1/llvm-config.1*
 %endif
-
-#%files doc
-#%defattr(644,root,root,755)
 
 %if %{with apidocs}
 %files apidocs
