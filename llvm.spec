@@ -325,8 +325,8 @@ Summary:	LLVM Multi-Level Intermediate Representation development files
 Summary(pl.UTF-8):	Pliki do programowania z użyciem wielopoziomowej reprezentacji pośredniej LLVM
 Group:		Development/Tools
 URL:		https://mlir.llvm.org/
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	%{name}-mlir = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Requires:	%{name}-mlir%{?_isa} = %{version}-%{release}
 
 %description mlir-devel
 LLVM Multi-Level Intermediate Representation development files.
@@ -359,8 +359,8 @@ Summary:	Header files for LLVM Polly optimization infrastructure
 Summary(pl.UTF-8):	Pliki nagłówkowe infrastruktury optymalizacji LLVM-a Polly
 Group:		Development/Libraries
 URL:		https://polly.llvm.org/
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	%{name}-polly = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Requires:	%{name}-polly%{?_isa} = %{version}-%{release}
 
 %description polly-devel
 Header files for LLVM Polly optimization infrastructure.
@@ -442,8 +442,8 @@ Summary:	Header files for Clang
 Summary(pl.UTF-8):	Pliki nagłówkowe Clanga
 Group:		Development/Languages
 URL:		https://clang.llvm.org/
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	clang = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Requires:	clang-libs%{?_isa} = %{version}-%{release}
 %{?with_polly:Requires:	llvm-polly-devel = %{version}-%{release}}
 
 %description -n clang-devel
@@ -549,8 +549,8 @@ Summary:	Fortran frontend for LLVM - development files
 Summary(pl.UTF-8):	Frontend LLVM-a do Fortranu - pliki programistyczne
 Group:		Development/Languages
 URL:		http://flang.llvm.org/
-Requires:	%{name}-mlir-devel = %{version}-%{release}
-Requires:	flang-devel = %{version}-%{release}
+Requires:	%{name}-mlir-devel%{?_isa} = %{version}-%{release}
+Requires:	flang%{?_isa} = %{version}-%{release}
 
 %description -n flang-devel
 Development files for LLVM Fortran frontend.
@@ -577,7 +577,7 @@ Summary:	Development files for LLD linker tools
 Summary(pl.UTF-8):	Pliki programistyczne narzędzi konsolidujących LLD
 Group:		Development/Tools
 URL:		https://lld.llvm.org/
-Requires:	%{name}-devel = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 Requires:	xar-devel >= 1.6
 
 %description -n lld-devel
@@ -611,9 +611,9 @@ Summary:	Development files for LLDB debugger
 Summary(pl.UTF-8):	Pliki programistyczne debuggera LLDB
 Group:		Development/Libraries
 URL:		https://lldb.llvm.org/
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	clang-devel = %{version}-%{release}
-Requires:	lldb = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Requires:	clang-devel%{?_isa} = %{version}-%{release}
+Requires:	lldb%{?_isa} = %{version}-%{release}
 
 %description -n lldb-devel
 Development files for LLDB debugger.
@@ -640,8 +640,8 @@ Wiązanie OCamla do LLVM-a.
 Summary:	Development files for LLVM OCaml binding
 Summary(pl.UTF-8):	Pliki programistyczne wiązania OCamla do LLVM-a
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	%{name}-ocaml = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Requires:	%{name}-ocaml%{?_isa} = %{version}-%{release}
 
 %description ocaml-devel
 The llvm-ocaml-devel package contains libraries and signature files
