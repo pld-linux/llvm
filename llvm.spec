@@ -1005,6 +1005,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-link.1*
 %{_mandir}/man1/llvm-lipo.1*
 %{_mandir}/man1/llvm-locstats.1*
+%{_mandir}/man1/llvm-mc.1*
 %{_mandir}/man1/llvm-mca.1*
 %{_mandir}/man1/llvm-nm.1*
 %{_mandir}/man1/llvm-objcopy.1*
@@ -1017,7 +1018,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-ranlib.1*
 %{_mandir}/man1/llvm-readelf.1*
 %{_mandir}/man1/llvm-readobj.1*
-%{_mandir}/man1/llvm-remark-size-diff.1*
+%{_mandir}/man1/llvm-reduce.1*
 %{_mandir}/man1/llvm-remarkutil.1*
 %{_mandir}/man1/llvm-size.1*
 %{_mandir}/man1/llvm-stress.1*
