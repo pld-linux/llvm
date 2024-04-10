@@ -169,6 +169,7 @@ BuildRequires:	tcl-devel
 BuildRequires:	gcc-c++-multilib-32
 BuildRequires:	glibc-devel(ix86)
 BuildRequires:	libstdc++-multilib-32-devel
+BuildRequires:	libunwind-devel(x86-32)
 %endif
 %ifarch x32
 BuildRequires:	gcc-c++-multilib-32
@@ -177,6 +178,8 @@ BuildRequires:	glibc-devel(ix86)
 BuildRequires:	glibc-devel(x86_64)
 BuildRequires:	libstdc++-multilib-32-devel
 BuildRequires:	libstdc++-multilib-64-devel
+BuildRequires:	libunwind-devel(x86-32)
+BuildRequires:	libunwind-devel(x86-64)
 %endif
 %endif
 %if %{with lldb}
