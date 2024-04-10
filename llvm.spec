@@ -144,6 +144,7 @@ BuildRequires:	perl-tools-pod
 BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-PyYAML
 BuildRequires:	python3-modules
+%{?with_doc:BuildRequires:	python3-myst_parser}
 BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov
