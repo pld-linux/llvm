@@ -45,7 +45,7 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
        "aarch64-suse-linux"};
    static const char *const AArch64beLibDirs[] = {"/lib"};
 @@ -2055,8 +2056,13 @@ void Generic_GCC::GCCInstallationDetecto
-                                                  "aarch64_be-linux-gnu"};
+   static const char *const AArch64beTriples[] = {"aarch64_be-none-linux-gnu"};
  
    static const char *const ARMLibDirs[] = {"/lib"};
 -  static const char *const ARMTriples[] = {"arm-linux-gnueabi"};
@@ -81,7 +81,7 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
    static const char *const PPCLibDirs[] = {"/lib32", "/lib"};
    static const char *const PPCTriples[] = {
 +      "powerpc-pld-linux",
-       "powerpc-linux-gnu", "powerpc-unknown-linux-gnu", "powerpc-linux-gnuspe",
+       "powerpc-unknown-linux-gnu",
        // On 32-bit PowerPC systems running SUSE Linux, gcc is configured as a
        // 64-bit compiler which defaults to "-m32", hence "powerpc64-suse-linux".
 @@ -2146,14 +2154,14 @@ void Generic_GCC::GCCInstallationDetecto
@@ -99,8 +99,8 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
    static const char *const SystemZLibDirs[] = {"/lib64", "/lib"};
 -  static const char *const SystemZTriples[] = {
 +  static const char *const SystemZTriples[] = {"s390x-pld-linux",
-       "s390x-linux-gnu", "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu",
-       "s390x-suse-linux", "s390x-redhat-linux"};
+       "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu", "s390x-suse-linux",
+       "s390x-redhat-linux"};
  
 diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Linux.cpp llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Linux.cpp
 --- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Linux.cpp	2020-12-18 20:57:38.000000000 +0100
