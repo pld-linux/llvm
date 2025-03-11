@@ -83,7 +83,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	19.1.7
-Release:	
+Release:	2
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
@@ -696,21 +696,21 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %endif
 %{__mv} cmake-%{version}.src cmake-utils
 
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch5 -p1
+%patch -P 1 -p1
+%patch -P 2 -p1
+%patch -P 3 -p1
+%patch -P 5 -p1
 %if %{with flang}
-%patch6 -p1
+%patch -P 6 -p1
 %endif
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
+%patch -P 7 -p1
+%patch -P 8 -p1
+%patch -P 9 -p1
 %if %{with rt}
-%patch10 -p1
-%patch12 -p1
+%patch -P 10 -p1
+%patch -P 12 -p1
 %endif
-%patch11 -p1
+%patch -P 11 -p1
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python3\?,#!%{__python3},
