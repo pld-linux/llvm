@@ -50,6 +50,7 @@
 %bcond_without	target_powerpc		# PowerPC target support
 %bcond_without	target_riscv		# RISCV target support
 %bcond_without	target_sparc		# Sparc target support
+%bcond_without	target_spirv		# SPIR-V target support
 %bcond_without	target_systemz		# SystemZ target support
 %bcond_without	target_ve		# VE target support
 %bcond_without	target_webassembly	# WebAssembly target support
@@ -73,7 +74,7 @@
 %define		with_libatomic	1
 %endif
 
-%define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_loongarch:LoongArch;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_systemz:SystemZ;}%{?with_target_ve:VE;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
+%define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_loongarch:LoongArch;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_spirv:SPIRV;}%{?with_target_systemz:SystemZ;}%{?with_target_ve:VE;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
 
 %if %{without mlir}
 %undefine	with_flang
@@ -82,31 +83,31 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	19.1.7
-Release:	6
+Version:	20.1.8
+Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-%{version}.src.tar.xz
-# Source0-md5:	45229744809103ad151e3757a0f21d3d
+# Source0-md5:	78040509eb91309b4ec2edfe12cd20d8
 Source1:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-%{version}.src.tar.xz
-# Source1-md5:	8a29181acd27b9c03b0039b75f5fcaa0
+# Source1-md5:	62a0500bb932868061607cde0c01f584
 Source2:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/compiler-rt-%{version}.src.tar.xz
-# Source2-md5:	0286b00ef3057362eb0636d3298999b1
+# Source2-md5:	3869861662d173ca8303b9f1524d1e91
 Source3:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lldb-%{version}.src.tar.xz
-# Source3-md5:	211a74d57e1c448c8edaef854ee8dd53
+# Source3-md5:	fe02a1ee0ef2817faa0607052170b23c
 Source4:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/polly-%{version}.src.tar.xz
-# Source4-md5:	bd932e941bd8f295c77628c523a49a4d
+# Source4-md5:	49d7a5f58b6893ec760a7315a0bf1662
 Source5:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/clang-tools-extra-%{version}.src.tar.xz
-# Source5-md5:	620832c02d18dd787a6aaa1e8c94e028
+# Source5-md5:	254c99f104cd17b32ef721acaeb58a7c
 Source6:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/lld-%{version}.src.tar.xz
-# Source6-md5:	fb21e57090e30d49dac086be8a096333
+# Source6-md5:	46e2b2330e763466b249a4f0ff4c03f9
 Source7:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/flang-%{version}.src.tar.xz
-# Source7-md5:	36fa59ff1d528f43a39bc624c91fc07e
+# Source7-md5:	6327df9cc12d4533a80dc965e9ce5ca9
 Source8:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/mlir-%{version}.src.tar.xz
-# Source8-md5:	a8efce91e8d6fb357c0159cf84f8859d
+# Source8-md5:	0b0fa65bca5ac6e8035fc4d267711fc7
 Source9:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/cmake-%{version}.src.tar.xz
-# Source9-md5:	52b5249a06305e19c3bdae2e972c99c3
+# Source9-md5:	5bfb8f4b4a2b3ccffca0d2406e4cdcc6
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-ocaml-link-dylib.patch
 Patch3:		x32-gcc-toolchain.patch
@@ -208,7 +209,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	19.1
+%define		abi	20.1
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -859,7 +860,7 @@ cp -a build/tools/clang/docs/html clang-apidoc
 # And prepare Clang documentation
 rm -rf clang-docs
 install -d clang-docs
-for f in LICENSE.TXT NOTES.txt README.txt; do
+for f in LICENSE.TXT NOTES.txt README.md; do
 	ln tools/clang/$f clang-docs
 done
 
@@ -917,7 +918,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/llvm-c-test
 %attr(755,root,root) %{_bindir}/llvm-cat
 %attr(755,root,root) %{_bindir}/llvm-cfi-verify
+%attr(755,root,root) %{_bindir}/llvm-cgdata
 %attr(755,root,root) %{_bindir}/llvm-cov
+%attr(755,root,root) %{_bindir}/llvm-ctxprof-util
 %attr(755,root,root) %{_bindir}/llvm-cvtres
 %attr(755,root,root) %{_bindir}/llvm-cxxdump
 %attr(755,root,root) %{_bindir}/llvm-cxxfilt
@@ -1038,11 +1041,11 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/LLVMgold.so
-%attr(755,root,root) %{_libdir}/libLLVM-19.so
+%attr(755,root,root) %{_libdir}/libLLVM-20.so
 %attr(755,root,root) %{_libdir}/libLLVM.so.%{abi}
-%attr(755,root,root) %{_libdir}/libLTO.so.19.1
-%attr(755,root,root) %{_libdir}/libRemarks.so.19.1
-%attr(755,root,root) %{_libdir}/libclang-cpp.so.19.1
+%attr(755,root,root) %{_libdir}/libLTO.so.20.1
+%attr(755,root,root) %{_libdir}/libRemarks.so.20.1
+%attr(755,root,root) %{_libdir}/libclang-cpp.so.20.1
 
 %files devel
 %defattr(644,root,root,755)
@@ -1069,28 +1072,29 @@ rm -rf $RPM_BUILD_ROOT
 %files mlir
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/mlir-cat
-%attr(755,root,root) %{_bindir}/mlir-cpu-runner
 %attr(755,root,root) %{_bindir}/mlir-linalg-ods-yaml-gen
 %attr(755,root,root) %{_bindir}/mlir-lsp-server
 %attr(755,root,root) %{_bindir}/mlir-minimal-opt
 %attr(755,root,root) %{_bindir}/mlir-minimal-opt-canonicalize
 %attr(755,root,root) %{_bindir}/mlir-opt
 %attr(755,root,root) %{_bindir}/mlir-pdll
-%attr(755,root,root) %{_bindir}/mlir-pdll-lsp-server*
+%attr(755,root,root) %{_bindir}/mlir-pdll-lsp-server
 %attr(755,root,root) %{_bindir}/mlir-query
 %attr(755,root,root) %{_bindir}/mlir-reduce
+%attr(755,root,root) %{_bindir}/mlir-rewrite
+%attr(755,root,root) %{_bindir}/mlir-runner
 %attr(755,root,root) %{_bindir}/mlir-tblgen
 %attr(755,root,root) %{_bindir}/mlir-transform-opt
 %attr(755,root,root) %{_bindir}/mlir-translate
 %attr(755,root,root) %{_bindir}/tblgen-to-irdl
-%attr(755,root,root) %{_libdir}/libMLIR.so.19.1
-%attr(755,root,root) %{_libdir}/libMLIRExecutionEngineShared.so.19.1
-%attr(755,root,root) %{_libdir}/libmlir_arm_runner_utils.so.19.1
-%attr(755,root,root) %{_libdir}/libmlir_arm_sme_abi_stubs.so.19.1
-%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.19.1
-%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.19.1
-%attr(755,root,root) %{_libdir}/libmlir_float16_utils.so.19.1
-%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.19.1
+%attr(755,root,root) %{_libdir}/libMLIR.so.20.1
+%attr(755,root,root) %{_libdir}/libMLIRExecutionEngineShared.so.20.1
+%attr(755,root,root) %{_libdir}/libmlir_arm_runner_utils.so.20.1
+%attr(755,root,root) %{_libdir}/libmlir_arm_sme_abi_stubs.so.20.1
+%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.20.1
+%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.20.1
+%attr(755,root,root) %{_libdir}/libmlir_float16_utils.so.20.1
+%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.20.1
 %if %{with doc}
 %{_mandir}/man1/mlir-tblgen.1*
 %endif
@@ -1131,7 +1135,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/amdgpu-arch
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
-%attr(755,root,root) %{_bindir}/clang-19
+%attr(755,root,root) %{_bindir}/clang-20
 %attr(755,root,root) %{_bindir}/clang-check
 %attr(755,root,root) %{_bindir}/clang-cl
 %attr(755,root,root) %{_bindir}/clang-cpp
@@ -1142,111 +1146,114 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-nvlink-wrapper
 %attr(755,root,root) %{_bindir}/clang-offload-bundler
 %attr(755,root,root) %{_bindir}/clang-offload-packager
-%attr(755,root,root) %{_bindir}/clang-pseudo
 %attr(755,root,root) %{_bindir}/clang-repl
+%attr(755,root,root) %{_bindir}/clang-sycl-linker
 %attr(755,root,root) %{_bindir}/clang-tblgen
 %attr(755,root,root) %{_bindir}/git-clang-format
 %attr(755,root,root) %{_bindir}/nvptx-arch
 %dir %{_libdir}/clang
-%dir %{_libdir}/clang/19
-%{_libdir}/clang/19/include
+%dir %{_libdir}/clang/20
+%{_libdir}/clang/20/include
 %if %{with rt}
 %ifarch %{x8664} x32 aarch64
-%dir %{_libdir}/clang/19/bin
-%attr(755,root,root) %{_libdir}/clang/19/bin/hwasan_symbolize
+%dir %{_libdir}/clang/20/bin
+%attr(755,root,root) %{_libdir}/clang/20/bin/hwasan_symbolize
 %endif
 %ifarch %{ix86} %{x8664} aarch64 %{armv7}
-%dir %{_libdir}/clang/19/lib
-%dir %{_libdir}/clang/19/lib/*-linux*
-%dir %{_libdir}/clang/19/share
+%dir %{_libdir}/clang/20/lib
+%dir %{_libdir}/clang/20/lib/*-linux*
+%dir %{_libdir}/clang/20/share
 %endif
 %ifarch x32
 %if %{with multilib}
-%dir %{_libdir}/clang/19/lib
-%dir %{_libdir}/clang/19/lib/*-linux*
-%dir %{_libdir}/clang/19/share
+%dir %{_libdir}/clang/20/lib
+%dir %{_libdir}/clang/20/lib/*-linux*
+%dir %{_libdir}/clang/20/share
 %endif
 %endif
 %ifarch %{ix86}
-%{_libdir}/clang/19/lib/i*86-*linux/clang_rt.*.o
-%{_libdir}/clang/19/lib/i*86-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/19/lib/i*86-*linux/libclang_rt.*.so
+%{_libdir}/clang/20/lib/i*86-*linux/clang_rt.*.o
+%{_libdir}/clang/20/lib/i*86-*linux/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/20/lib/i*86-*linux/libclang_rt.*.so
 %endif
 %ifarch %{x8664}
-%{_libdir}/clang/19/lib/x86_64-*linux/clang_rt.*.o
-%{_libdir}/clang/19/lib/x86_64-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/19/lib/x86_64-*linux/libclang_rt.*.so
-%{_libdir}/clang/19/lib/x86_64-*linux/libclang_rt.*.a.syms
-%{_libdir}/clang/19/lib/x86_64-*linux/liborc_rt.a
+%{_libdir}/clang/20/lib/x86_64-*linux/clang_rt.*.o
+%{_libdir}/clang/20/lib/x86_64-*linux/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/20/lib/x86_64-*linux/libclang_rt.*.so
+%{_libdir}/clang/20/lib/x86_64-*linux/libclang_rt.*.a.syms
+%{_libdir}/clang/20/lib/x86_64-*linux/liborc_rt.a
 %endif
 %ifarch aarch64
-%{_libdir}/clang/19/lib/aarch64-*linux/clang_rt.*.o
-%{_libdir}/clang/19/lib/aarch64-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/19/lib/aarch64-*linux/libclang_rt.*.so
-%{_libdir}/clang/19/lib/aarch64-*linux/libclang_rt.*.a.syms
-%{_libdir}/clang/19/lib/aarch64-*linux/liborc_rt.a
+%{_libdir}/clang/20/lib/aarch64-*linux/clang_rt.*.o
+%{_libdir}/clang/20/lib/aarch64-*linux/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/20/lib/aarch64-*linux/libclang_rt.*.so
+%{_libdir}/clang/20/lib/aarch64-*linux/libclang_rt.*.a.syms
+%{_libdir}/clang/20/lib/aarch64-*linux/liborc_rt.a
 %endif
 %ifarch %{armv7}
 %ifarch %{arm32_with_hf}
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}hf/clang_rt.*.o
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/19/lib/arm-*linux%{_gnu}hf/libclang_rt.*.so
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a.syms
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}hf/liborc_rt.a
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}hf/clang_rt.*.o
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/20/lib/arm-*linux%{_gnu}hf/libclang_rt.*.so
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a.syms
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}hf/liborc_rt.a
 %else
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}/clang_rt.*.o
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/19/lib/arm-*linux%{_gnu}/libclang_rt.*.so
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}/libclang_rt.*.a.syms
-%{_libdir}/clang/19/lib/arm-*linux%{_gnu}/liborc_rt.a
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}/clang_rt.*.o
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/20/lib/arm-*linux%{_gnu}/libclang_rt.*.so
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}/libclang_rt.*.a.syms
+%{_libdir}/clang/20/lib/arm-*linux%{_gnu}/liborc_rt.a
 %endif
 %endif
 %ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
-%{_libdir}/clang/19/share/asan_ignorelist.txt
+%{_libdir}/clang/20/share/asan_ignorelist.txt
 %endif
 %ifarch %{ix86} %{x8664} mips64 aarch64 %{armv7}
-%{_libdir}/clang/19/share/cfi_ignorelist.txt
+%{_libdir}/clang/20/share/cfi_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64 mips64
-%{_libdir}/clang/19/share/dfsan_abilist.txt
-%{_libdir}/clang/19/share/msan_ignorelist.txt
+%{_libdir}/clang/20/share/dfsan_abilist.txt
+%{_libdir}/clang/20/share/msan_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64
-%{_libdir}/clang/19/share/hwasan_ignorelist.txt
+%{_libdir}/clang/20/share/hwasan_ignorelist.txt
 %endif
 %ifarch x32
 %if %{with multilib}
-%{_libdir}/clang/19/share/asan_ignorelist.txt
-%{_libdir}/clang/19/share/cfi_ignorelist.txt
-%{_libdir}/clang/19/share/dfsan_abilist.txt
-%{_libdir}/clang/19/share/msan_ignorelist.txt
-%{_libdir}/clang/19/share/hwasan_ignorelist.txt
+%{_libdir}/clang/20/share/asan_ignorelist.txt
+%{_libdir}/clang/20/share/cfi_ignorelist.txt
+%{_libdir}/clang/20/share/dfsan_abilist.txt
+%{_libdir}/clang/20/share/msan_ignorelist.txt
+%{_libdir}/clang/20/share/hwasan_ignorelist.txt
 %endif
 %endif
 %endif
 %dir %{_datadir}/clang
 %{_datadir}/clang/clang-format-diff.py
+%dir %{_datadir}/clang-doc
+%{_datadir}/clang-doc/clang-doc-default-stylesheet.css
+%{_datadir}/clang-doc/index.js
 
 %if %{with rt} && %{with multilib}
 %ifarch %{x8664} x32
 %files -n clang-multilib
 %defattr(644,root,root,755)
-%{_libdir}/clang/19/lib/i386-*linux/clang_rt.*.o
-%{_libdir}/clang/19/lib/i386-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/19/lib/i386-*linux/libclang_rt.*.so
+%{_libdir}/clang/20/lib/i386-*linux/clang_rt.*.o
+%{_libdir}/clang/20/lib/i386-*linux/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/20/lib/i386-*linux/libclang_rt.*.so
 %endif
 %ifarch x32
-%{_libdir}/clang/19/lib/x86_64-*linux/clang_rt.*.o
-%{_libdir}/clang/19/lib/x86_64-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/19/lib/x86_64-*linux/libclang_rt.*.so
-%{_libdir}/clang/19/lib/x86_64-*linux/libclang_rt.*.a.syms
-%{_libdir}/clang/19/lib/x86_64-*linux/liborc_rt.a
+%{_libdir}/clang/20/lib/x86_64-*linux/clang_rt.*.o
+%{_libdir}/clang/20/lib/x86_64-*linux/libclang_rt.*.a
+%attr(755,root,root) %{_libdir}/clang/20/lib/x86_64-*linux/libclang_rt.*.so
+%{_libdir}/clang/20/lib/x86_64-*linux/libclang_rt.*.a.syms
+%{_libdir}/clang/20/lib/x86_64-*linux/liborc_rt.a
 %endif
 %endif
 
 %files -n clang-libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.19.1
+%attr(755,root,root) %{_libdir}/libclang.so.20.1
 %attr(755,root,root) %{_libdir}/libclang.so.*.*.*
 
 %files -n clang-devel
@@ -1301,7 +1308,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/clang-move
 %attr(755,root,root) %{_bindir}/clang-query
 %attr(755,root,root) %{_bindir}/clang-refactor
-%attr(755,root,root) %{_bindir}/clang-rename
 %attr(755,root,root) %{_bindir}/clang-reorder-fields
 %attr(755,root,root) %{_bindir}/clang-scan-deps
 %attr(755,root,root) %{_bindir}/clang-tidy
@@ -1382,8 +1388,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-instr
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.19.1
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.19.1
+%attr(755,root,root) %ghost %{_libdir}/liblldb.so.20.1
+%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.20.1
 %dir %{py3_sitedir}/lldb
 %attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
 %{py3_sitedir}/lldb/formatters
@@ -1439,4 +1445,3 @@ rm -rf $RPM_BUILD_ROOT
 %files -n vim-plugin-clang
 %defattr(644,root,root,755)
 %{_datadir}/clang/clang-format.py
-%{_datadir}/clang/clang-rename.py

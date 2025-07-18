@@ -2,7 +2,7 @@
 +++ llvm-15.0.2.src/CMakeLists.txt	2022-10-15 23:16:11.530931066 +0200
 @@ -2,7 +2,7 @@
  
- cmake_minimum_required(VERSION 3.20.0)
+ include(CMakeDependentOption)
  
 -set(LLVM_COMMON_CMAKE_UTILS ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 +set(LLVM_COMMON_CMAKE_UTILS ${CMAKE_CURRENT_SOURCE_DIR}/../cmake CACHE STRING "Path to CMake modules shared between projects")

@@ -41,9 +41,9 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
    static const char *const AArch64LibDirs[] = {"/lib64", "/lib"};
    static const char *const AArch64Triples[] = {
 +      "aarch64-pld-linux",
-       "aarch64-none-linux-gnu", "aarch64-linux-gnu", "aarch64-redhat-linux",
-       "aarch64-suse-linux"};
+       "aarch64-none-linux-gnu", "aarch64-redhat-linux", "aarch64-suse-linux"};
    static const char *const AArch64beLibDirs[] = {"/lib"};
+   static const char *const AArch64beTriples[] = {"aarch64_be-none-linux-gnu"};
 @@ -2055,8 +2056,13 @@ void Generic_GCC::GCCInstallationDetecto
    static const char *const AArch64beTriples[] = {"aarch64_be-none-linux-gnu"};
  
