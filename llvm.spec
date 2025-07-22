@@ -995,6 +995,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/llvm-ar.1*
 %{_mandir}/man1/llvm-as.1*
 %{_mandir}/man1/llvm-bcanalyzer.1*
+%{_mandir}/man1/llvm-cgdata.1*
 %{_mandir}/man1/llvm-cov.1*
 %{_mandir}/man1/llvm-cxxfilt.1*
 %{_mandir}/man1/llvm-cxxmap.1*
@@ -1131,7 +1132,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang
 %defattr(644,root,root,755)
-%doc clang-docs/{LICENSE.TXT,NOTES.txt,README.txt} %{?with_tests:clang-testlog.txt}
+%doc clang-docs/{LICENSE.TXT,NOTES.txt,README.md} %{?with_tests:clang-testlog.txt}
 %attr(755,root,root) %{_bindir}/amdgpu-arch
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
@@ -1299,7 +1300,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-tools-extra
 %defattr(644,root,root,755)
-%doc tools/clang/tools/extra/{CODE_OWNERS.TXT,README.txt}
+%doc tools/clang/tools/extra/README.txt
 %attr(755,root,root) %{_bindir}/clang-apply-replacements
 %attr(755,root,root) %{_bindir}/clang-change-namespace
 %attr(755,root,root) %{_bindir}/clang-extdef-mapping
