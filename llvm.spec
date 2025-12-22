@@ -121,6 +121,7 @@ Patch9:		%{name}-libexecdir.patch
 Patch10:	compiler-rt-paths.patch
 Patch11:	cmake-utils-path-override.patch
 Patch12:	x32-compiler-rt.patch
+Patch13:	lldb-headers-dir.patch
 URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -715,6 +716,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %patch -P 12 -p1
 %endif
 %patch -P 11 -p1
+%{?with_lldb:%patch -P 13 -p1 -d tools/lldb}
 
 grep -rl /usr/bin/env projects tools utils | xargs sed -i -e '1{
 	s,^#!.*bin/env python3\?,#!%{__python3},

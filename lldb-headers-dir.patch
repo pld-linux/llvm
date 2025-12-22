@@ -1,0 +1,23 @@
+--- lldb/source/API/CMakeLists.txt.orig	2025-12-12 11:35:47.000000000 +0100
++++ lldb/source/API/CMakeLists.txt	2025-12-22 23:14:14.836678784 +0100
+@@ -299,6 +299,11 @@
+ file(GLOB root_private_headers ${LLDB_SOURCE_DIR}/include/lldb/lldb-private*.h)
+ list(REMOVE_ITEM root_public_headers ${root_private_headers})
+ 
++add_custom_command(
++  OUTPUT ${lldb_header_staging_dir}
++  COMMAND ${CMAKE_COMMAND} -E make_directory ${lldb_header_staging_dir}
++  COMMENT "LLDB headers: create staging directory for LLDB headers")
++
+ find_program(unifdef_EXECUTABLE unifdef)
+ 
+ foreach(header
+@@ -318,7 +323,7 @@
+   endif()
+ 
+   add_custom_command(
+-    DEPENDS ${header} OUTPUT ${staged_header}
++    DEPENDS ${header} ${lldb_header_staging_dir} OUTPUT ${staged_header}
+     COMMAND ${copy_command}
+     COMMENT "LLDB headers: stage LLDB headers in include directory")
+ 
