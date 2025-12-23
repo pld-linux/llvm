@@ -220,7 +220,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # objcopy: BFD (GNU Binutils) 2.32 assertion fail format.c:459
 # objcopy: error: .../libLLVM-8.so(.debug_gnu_pubtypes) is too large (0x1ceee347 bytes)
 # objcopy: .../libLLVM-8.so[.debug_gnu_pubtypes]: memory exhausted
-%ifarch x32
+%ifarch %{ix86} x32
 %define		_enable_debug_packages	0
 %endif
 # ix86 and x32 - the same issue as https://llvm.org/bugs/show_bug.cgi?id=27237
