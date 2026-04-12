@@ -1,15 +1,14 @@
-diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/include/clang/Driver/Distro.h llvm-11.0.1.src/tools/clang/include/clang/Driver/Distro.h
---- llvm-11.0.1.src.org/tools/clang/include/clang/Driver/Distro.h	2020-12-18 20:57:38.000000000 +0100
-+++ llvm-11.0.1.src/tools/clang/include/clang/Driver/Distro.h	2021-03-25 22:27:39.173689051 +0100
-@@ -28,6 +28,7 @@ public:
-     // the first and last known member in the family, e.g. IsRedHat().
+diff -urNp -x '*.orig' llvm-project.src.orig/clang/include/clang/Driver/Distro.h llvm-project.src/clang/include/clang/Driver/Distro.h
+--- llvm-project.src.orig/clang/include/clang/Driver/Distro.h	2020-12-18 20:57:38.000000000 +0100
++++ llvm-project.src/clang/include/clang/Driver/Distro.h	2021-03-25 22:27:39.173689051 +0100
+@@ -30,5 +30,6 @@
      AlpineLinux,
      ArchLinux,
 +    PLDLinux,
-     DebianLenny,
-     DebianSqueeze,
-     DebianWheezy,
-@@ -132,6 +133,10 @@ public:
+     DebianJessie,
+     DebianStretch,
+     DebianBuster,
+@@ -132,6 +133,10 @@
  
    bool IsGentoo() const { return DistroVal == Gentoo; }
  
@@ -20,9 +19,9 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/include/clang/Driver/Dist
    /// @}
  };
  
-diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/Distro.cpp llvm-11.0.1.src/tools/clang/lib/Driver/Distro.cpp
---- llvm-11.0.1.src.org/tools/clang/lib/Driver/Distro.cpp	2020-12-18 20:57:38.000000000 +0100
-+++ llvm-11.0.1.src/tools/clang/lib/Driver/Distro.cpp	2021-03-25 22:27:39.173689051 +0100
+diff -urNp -x '*.orig' llvm-project.src.orig/clang/lib/Driver/Distro.cpp llvm-project.src/clang/lib/Driver/Distro.cpp
+--- llvm-project.src.orig/clang/lib/Driver/Distro.cpp	2020-12-18 20:57:38.000000000 +0100
++++ llvm-project.src/clang/lib/Driver/Distro.cpp	2021-03-25 22:27:39.173689051 +0100
 @@ -165,6 +165,9 @@ static Distro::DistroType DetectDistro(l
    if (VFS.exists("/etc/gentoo-release"))
      return Distro::Gentoo;
@@ -33,9 +32,9 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/Distro.cpp llv
    return Distro::UnknownDistro;
  }
  
-diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp
---- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2020-12-18 20:57:38.000000000 +0100
-+++ llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:27:39.173689051 +0100
+diff -urNp -x '*.orig' llvm-project.src.orig/clang/lib/Driver/ToolChains/Gnu.cpp llvm-project.src/clang/lib/Driver/ToolChains/Gnu.cpp
+--- llvm-project.src.orig/clang/lib/Driver/ToolChains/Gnu.cpp	2020-12-18 20:57:38.000000000 +0100
++++ llvm-project.src/clang/lib/Driver/ToolChains/Gnu.cpp	2021-03-25 22:27:39.173689051 +0100
 @@ -2048,6 +2048,7 @@ void Generic_GCC::GCCInstallationDetecto
    // lists should shrink over time. Please don't add more elements to *Triples.
    static const char *const AArch64LibDirs[] = {"/lib64", "/lib"};
@@ -102,9 +101,9 @@ diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Gnu
        "s390x-unknown-linux-gnu", "s390x-ibm-linux-gnu", "s390x-suse-linux",
        "s390x-redhat-linux"};
  
-diff -urNp -x '*.orig' llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Linux.cpp llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Linux.cpp
---- llvm-11.0.1.src.org/tools/clang/lib/Driver/ToolChains/Linux.cpp	2020-12-18 20:57:38.000000000 +0100
-+++ llvm-11.0.1.src/tools/clang/lib/Driver/ToolChains/Linux.cpp	2021-03-25 22:27:39.173689051 +0100
+diff -urNp -x '*.orig' llvm-project.src.orig/clang/lib/Driver/ToolChains/Linux.cpp llvm-project.src/clang/lib/Driver/ToolChains/Linux.cpp
+--- llvm-project.src.orig/clang/lib/Driver/ToolChains/Linux.cpp	2020-12-18 20:57:38.000000000 +0100
++++ llvm-project.src/clang/lib/Driver/ToolChains/Linux.cpp	2021-03-25 22:27:39.173689051 +0100
 @@ -226,7 +226,7 @@ Linux::Linux(const Driver &D, const llvm
      ExtraOpts.push_back("now");
    }

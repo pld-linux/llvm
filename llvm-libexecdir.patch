@@ -1,16 +1,16 @@
---- llvm-14.0.4.src/tools/clang/tools/scan-build-py/CMakeLists.txt.orig	2022-05-25 00:02:58.000000000 +0200
-+++ llvm-14.0.4.src/tools/clang/tools/scan-build-py/CMakeLists.txt	2022-05-31 12:44:17.819410412 +0200
-@@ -72,7 +72,7 @@
-                      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libexec/${lib})
-   list(APPEND Depends ${CMAKE_BINARY_DIR}/libexec/${lib})
-   install(PROGRAMS libexec/${lib}
--          DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}"
-+          DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/clang-analyzer"
-           COMPONENT scan-build-py)
- endforeach()
- 
---- llvm-14.0.4.src/tools/clang/tools/scan-build/CMakeLists.txt.orig	2022-05-25 00:02:58.000000000 +0200
-+++ llvm-14.0.4.src/tools/clang/tools/scan-build/CMakeLists.txt	2022-05-31 12:43:50.736232980 +0200
+--- llvm-project.src/clang/tools/scan-build-py/CMakeLists.txt.orig	2022-05-25 00:02:58.000000000 +0200
++++ llvm-project.src/clang/tools/scan-build-py/CMakeLists.txt	2022-05-31 12:44:17.819410412 +0200
+@@ -75,7 +75,7 @@
+                        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libexec/${lib})
+     list(APPEND Depends ${CMAKE_BINARY_DIR}/libexec/${lib})
+     install(PROGRAMS libexec/${lib}
+-            DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}"
++            DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/clang-analyzer"
+             COMPONENT scan-build-py)
+   endforeach()
+
+--- llvm-project.src/clang/tools/scan-build/CMakeLists.txt.orig	2022-05-25 00:02:58.000000000 +0200
++++ llvm-project.src/clang/tools/scan-build/CMakeLists.txt	2022-05-31 12:43:50.736232980 +0200
 @@ -61,7 +61,7 @@
                         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libexec/${LibexecFile})
      list(APPEND Depends ${CMAKE_BINARY_DIR}/libexec/${LibexecFile})
@@ -19,4 +19,4 @@
 +            DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/clang-analyzer"
              COMPONENT scan-build)
    endforeach()
- 
+

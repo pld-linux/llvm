@@ -1,5 +1,5 @@
---- llvm-15.0.2.src/CMakeLists.txt.orig	2022-10-15 23:14:23.474649716 +0200
-+++ llvm-15.0.2.src/CMakeLists.txt	2022-10-15 23:16:11.530931066 +0200
+--- llvm-project.src/llvm/CMakeLists.txt.orig	2022-10-15 23:14:23.474649716 +0200
++++ llvm-project.src/llvm/CMakeLists.txt	2022-10-15 23:16:11.530931066 +0200
 @@ -2,7 +2,7 @@
  
  include(CMakeDependentOption)

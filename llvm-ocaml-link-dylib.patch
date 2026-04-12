@@ -1,5 +1,5 @@
---- llvm-17.0.4.src/cmake/modules/AddOCaml.cmake.orig	2023-11-06 21:27:39.906604595 +0100
-+++ llvm-17.0.4.src/cmake/modules/AddOCaml.cmake	2023-11-06 22:12:34.479135305 +0100
+--- llvm-project.src/llvm/cmake/modules/AddOCaml.cmake.orig	2023-11-06 21:27:39.906604595 +0100
++++ llvm-project.src/llvm/cmake/modules/AddOCaml.cmake	2023-11-06 22:12:34.479135305 +0100
 @@ -186,9 +186,13 @@ function(add_ocaml_library name)
    endforeach()
  

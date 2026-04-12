@@ -1,5 +1,5 @@
---- llvm-13.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp.orig	2021-10-25 20:48:42.045696956 +0200
-+++ llvm-13.0.0.src/tools/clang/lib/Driver/ToolChains/Gnu.cpp	2021-10-25 20:56:43.802012798 +0200
+--- llvm-project.src/clang/lib/Driver/ToolChains/Gnu.cpp.orig	2021-10-25 20:48:42.045696956 +0200
++++ llvm-project.src/clang/lib/Driver/ToolChains/Gnu.cpp	2021-10-25 20:56:43.802012798 +0200
 @@ -2113,8 +2113,9 @@
        "x86_64-redhat-linux",    "x86_64-suse-linux",
        "x86_64-manbo-linux-gnu", "x86_64-slackware-linux",

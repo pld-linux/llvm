@@ -1,5 +1,5 @@
---- llvm-13.0.0.src/cmake/config-ix.cmake.orig	2021-09-24 18:18:10.000000000 +0200
-+++ llvm-13.0.0.src/cmake/config-ix.cmake	2021-11-08 11:27:55.475562698 +0100
+--- llvm-project.src/llvm/cmake/config-ix.cmake.orig	2021-09-24 18:18:10.000000000 +0200
++++ llvm-project.src/llvm/cmake/config-ix.cmake	2021-11-08 11:27:55.475562698 +0100
 @@ -625,7 +625,7 @@
  set(LLVM_BINDINGS "")
  include(FindOCaml)

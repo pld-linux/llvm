@@ -1,5 +1,5 @@
---- llvm-15.0.2.src/projects/compiler-rt/cmake/Modules/CompilerRTUtils.cmake.orig	2022-10-04 11:29:17.000000000 +0200
-+++ llvm-15.0.2.src/projects/compiler-rt/cmake/Modules/CompilerRTUtils.cmake	2022-10-16 22:33:08.014906010 +0200
+--- llvm-project.src/compiler-rt/cmake/Modules/CompilerRTUtils.cmake.orig	2022-10-04 11:29:17.000000000 +0200
++++ llvm-project.src/compiler-rt/cmake/Modules/CompilerRTUtils.cmake	2022-10-16 22:33:08.014906010 +0200
 @@ -478,7 +478,8 @@
  
  function(get_compiler_rt_target arch variable)

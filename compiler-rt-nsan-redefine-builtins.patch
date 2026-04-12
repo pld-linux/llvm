@@ -1,0 +1,14 @@
+--- a/compiler-rt/lib/nsan/CMakeLists.txt.orig
++++ b/compiler-rt/lib/nsan/CMakeLists.txt
+@@ -30,6 +30,11 @@
+ set(NSAN_CFLAGS ${SANITIZER_COMMON_CFLAGS})
+ append_rtti_flag(OFF NSAN_CFLAGS)
+
++# nsan.h includes <math.h> which on GCC 15+ pulls in C++ STL headers that
++# forward-declare std::array, conflicting with the redefinitions in
++# sanitizer_redefine_builtins.h. Disable those redefinitions for nsan.
++list(APPEND NSAN_CFLAGS -DSANITIZER_COMMON_NO_REDEFINE_BUILTINS)
++
+ set(NSAN_DYNAMIC_CFLAGS ${NSAN_CFLAGS})
+
+ set(NSAN_COMMON_RUNTIME_OBJECT_LIBS
