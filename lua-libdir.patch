@@ -1,0 +1,11 @@
+--- llvm-project-22.1.3.src/lldb/CMakeLists.txt~	2026-04-07 00:57:04.000000000 +0200
++++ llvm-project-22.1.3.src/lldb/CMakeLists.txt	2026-04-19 18:56:57.310004576 +0200
+@@ -101,7 +101,7 @@
+ endif ()
+ 
+ if (LLDB_ENABLE_LUA)
+-  set(LLDB_LUA_DEFAULT_RELATIVE_PATH "lib/lua/${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}")
++  set(LLDB_LUA_DEFAULT_RELATIVE_PATH "lib${LLVM_LIBDIR_SUFFIX}/lua/${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}")
+   set(LLDB_LUA_RELATIVE_PATH ${LLDB_LUA_DEFAULT_RELATIVE_PATH}
+     CACHE STRING "Path where Lua modules are installed, relative to install prefix")
+ endif ()

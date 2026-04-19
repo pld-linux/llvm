@@ -9,8 +9,6 @@
 #	%{_datadir}/clang/clang-include-fixer.el
 #	%{_datadir}/clang/clang-rename.el
 # - system isl in polly?
-# - dependencies and files for lua module
-#	%{_libdir}/lua/5.4/lldb.so
 # - figure out whether we need obj.MLIRCAPIIR files
 # - cmake dependencies mess (LLVMExports.cmake appears to require all -devels):
 #   with llvm-devel and spirv-tools-devel installed but without llvm-mlir (or other packages):
@@ -84,7 +82,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	22.1.3
-Release:	1
+Release:	2
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
@@ -101,6 +99,7 @@ Patch10:	compiler-rt-paths.patch
 Patch11:	cmake-utils-path-override.patch
 Patch12:	x32-compiler-rt.patch
 Patch14:	compiler-rt-nsan-redefine-builtins.patch
+Patch15:	lua-libdir.patch
 URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -681,6 +680,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %if %{with rt}
 %patch -P 14 -p1
 %endif
+%patch -P 15 -p1
 
 grep -rl /usr/bin/env clang clang-tools-extra compiler-rt flang lld lldb llvm mlir polly | xargs sed -i -e '1{
 	s,^#!.*bin/env python3\?,#!%{__python3},
@@ -1377,7 +1377,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-mcp
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-tblgen
-%attr(755,root,root) %{_prefix}/lib/lua/5.4/lldb.so
+%attr(755,root,root) %{_libdir}/lua/5.4/lldb.so
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/liblldb.so.22.1
 %attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.22.1
