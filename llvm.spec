@@ -1241,8 +1241,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.22.1
 %attr(755,root,root) %{_libdir}/libclang.so.*.*.*
+%ghost %{_libdir}/libclang.so.22.1
 
 %files -n clang-devel
 %defattr(644,root,root,755)
@@ -1380,7 +1380,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/lua/5.4/lldb.so
 %attr(755,root,root) %{_libdir}/liblldb.so.%{version}
 %attr(755,root,root) %ghost %{_libdir}/liblldb.so.22.1
-%attr(755,root,root) %ghost %{_libdir}/liblldbIntelFeatures.so.22.1
+%attr(755,root,root) %{_libdir}/liblldbIntelFeatures.so.22.1
 %dir %{py3_sitedir}/lldb
 %attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
 %{py3_sitedir}/lldb/formatters
