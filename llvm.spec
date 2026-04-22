@@ -1019,20 +1019,20 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/LLVMgold.so
-%attr(755,root,root) %{_libdir}/libLLVM-22.so
-%attr(755,root,root) %{_libdir}/libLLVM.so.%{abi}
-%attr(755,root,root) %{_libdir}/libLTO.so.22.1
-%attr(755,root,root) %{_libdir}/libRemarks.so.22.1
-%attr(755,root,root) %{_libdir}/libclang-cpp.so.22.1
+%{_libdir}/LLVMgold.so
+%{_libdir}/libLLVM-22.so
+%{_libdir}/libLLVM.so.%{abi}
+%{_libdir}/libLTO.so.22.1
+%{_libdir}/libRemarks.so.22.1
+%{_libdir}/libclang-cpp.so.22.1
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/llvm-config
-%attr(755,root,root) %{_libdir}/libLLVM.so
-%attr(755,root,root) %{_libdir}/libLTO.so
-%attr(755,root,root) %{_libdir}/libRemarks.so
-%attr(755,root,root) %{_libdir}/libclang-cpp.so
+%{_libdir}/libLLVM.so
+%{_libdir}/libLTO.so
+%{_libdir}/libRemarks.so
+%{_libdir}/libclang-cpp.so
 %{_libdir}/libLLVM*.a
 %{_includedir}/llvm
 %{_includedir}/llvm-c
@@ -1066,30 +1066,30 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/mlir-transform-opt
 %attr(755,root,root) %{_bindir}/mlir-translate
 %attr(755,root,root) %{_bindir}/tblgen-to-irdl
-%attr(755,root,root) %{_libdir}/libMLIR.so.22.1
-%attr(755,root,root) %{_libdir}/libMLIRExecutionEngineShared.so.22.1
-%attr(755,root,root) %{_libdir}/libmlir_apfloat_wrappers.so.22.1
-%attr(755,root,root) %{_libdir}/libmlir_arm_runner_utils.so.22.1
-%attr(755,root,root) %{_libdir}/libmlir_arm_sme_abi_stubs.so.22.1
-%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so.22.1
-%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so.22.1
-%attr(755,root,root) %{_libdir}/libmlir_float16_utils.so.22.1
-%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so.22.1
+%{_libdir}/libMLIR.so.22.1
+%{_libdir}/libMLIRExecutionEngineShared.so.22.1
+%{_libdir}/libmlir_apfloat_wrappers.so.22.1
+%{_libdir}/libmlir_arm_runner_utils.so.22.1
+%{_libdir}/libmlir_arm_sme_abi_stubs.so.22.1
+%{_libdir}/libmlir_async_runtime.so.22.1
+%{_libdir}/libmlir_c_runner_utils.so.22.1
+%{_libdir}/libmlir_float16_utils.so.22.1
+%{_libdir}/libmlir_runner_utils.so.22.1
 %if %{with doc}
 %{_mandir}/man1/mlir-tblgen.1*
 %endif
 
 %files mlir-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libMLIR.so
-%attr(755,root,root) %{_libdir}/libMLIRExecutionEngineShared.so
-%attr(755,root,root) %{_libdir}/libmlir_apfloat_wrappers.so
-%attr(755,root,root) %{_libdir}/libmlir_arm_runner_utils.so
-%attr(755,root,root) %{_libdir}/libmlir_arm_sme_abi_stubs.so
-%attr(755,root,root) %{_libdir}/libmlir_async_runtime.so
-%attr(755,root,root) %{_libdir}/libmlir_c_runner_utils.so
-%attr(755,root,root) %{_libdir}/libmlir_float16_utils.so
-%attr(755,root,root) %{_libdir}/libmlir_runner_utils.so
+%{_libdir}/libMLIR.so
+%{_libdir}/libMLIRExecutionEngineShared.so
+%{_libdir}/libmlir_apfloat_wrappers.so
+%{_libdir}/libmlir_arm_runner_utils.so
+%{_libdir}/libmlir_arm_sme_abi_stubs.so
+%{_libdir}/libmlir_async_runtime.so
+%{_libdir}/libmlir_c_runner_utils.so
+%{_libdir}/libmlir_float16_utils.so
+%{_libdir}/libmlir_runner_utils.so
 %{_libdir}/libMLIR*.a
 %{_includedir}/mlir
 %{_includedir}/mlir-c
@@ -1100,7 +1100,7 @@ rm -rf $RPM_BUILD_ROOT
 %files polly
 %defattr(644,root,root,755)
 %doc polly/{CREDITS.txt,LICENSE.TXT,README} polly/www/{bugs,changelog,contributors}.html
-%attr(755,root,root) %{_libdir}/LLVMPolly.so
+%{_libdir}/LLVMPolly.so
 
 %files polly-devel
 %defattr(644,root,root,755)
@@ -1156,19 +1156,19 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86}
 %{_libdir}/clang/22/lib/i*86-*linux/clang_rt.*.o
 %{_libdir}/clang/22/lib/i*86-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/22/lib/i*86-*linux/libclang_rt.*.so
+%{_libdir}/clang/22/lib/i*86-*linux/libclang_rt.*.so
 %endif
 %ifarch %{x8664}
 %{_libdir}/clang/22/lib/x86_64-*linux/clang_rt.*.o
 %{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.so
+%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.so
 %{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a.syms
 %{_libdir}/clang/22/lib/x86_64-*linux/liborc_rt.a
 %endif
 %ifarch aarch64
 %{_libdir}/clang/22/lib/aarch64-*linux/clang_rt.*.o
 %{_libdir}/clang/22/lib/aarch64-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/22/lib/aarch64-*linux/libclang_rt.*.so
+%{_libdir}/clang/22/lib/aarch64-*linux/libclang_rt.*.so
 %{_libdir}/clang/22/lib/aarch64-*linux/libclang_rt.*.a.syms
 %{_libdir}/clang/22/lib/aarch64-*linux/liborc_rt.a
 %endif
@@ -1176,13 +1176,13 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{arm32_with_hf}
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/clang_rt.*.o
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/libclang_rt.*.so
+%{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/libclang_rt.*.so
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a.syms
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/liborc_rt.a
 %else
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}/clang_rt.*.o
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/22/lib/arm-*linux%{_gnu}/libclang_rt.*.so
+%{_libdir}/clang/22/lib/arm-*linux%{_gnu}/libclang_rt.*.so
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}/libclang_rt.*.a.syms
 %{_libdir}/clang/22/lib/arm-*linux%{_gnu}/liborc_rt.a
 %endif
@@ -1228,12 +1228,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/clang/22/lib/i386-*linux/clang_rt.*.o
 %{_libdir}/clang/22/lib/i386-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/22/lib/i386-*linux/libclang_rt.*.so
+%{_libdir}/clang/22/lib/i386-*linux/libclang_rt.*.so
 %endif
 %ifarch x32
 %{_libdir}/clang/22/lib/x86_64-*linux/clang_rt.*.o
 %{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a
-%attr(755,root,root) %{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.so
+%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.so
 %{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a.syms
 %{_libdir}/clang/22/lib/x86_64-*linux/liborc_rt.a
 %endif
@@ -1241,7 +1241,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so.*.*.*
+%{_libdir}/libclang.so.*.*.*
 %ghost %{_libdir}/libclang.so.22.1
 
 %files -n clang-devel
@@ -1377,10 +1377,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-mcp
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-tblgen
-%attr(755,root,root) %{_libdir}/lua/5.4/lldb.so
-%attr(755,root,root) %{_libdir}/liblldb.so.%{version}
-%attr(755,root,root) %ghost %{_libdir}/liblldb.so.22.1
-%attr(755,root,root) %{_libdir}/liblldbIntelFeatures.so.22.1
+%{_libdir}/lua/5.4/lldb.so
+%{_libdir}/liblldb.so.%{version}
+%ghost %{_libdir}/liblldb.so.22.1
+%{_libdir}/liblldbIntelFeatures.so.22.1
 %dir %{py3_sitedir}/lldb
 %attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
 %{py3_sitedir}/lldb/formatters
@@ -1400,19 +1400,19 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py3_sitedir}/lldb/native
 %{py3_sitedir}/lldb/native/__init__.py
 %{py3_sitedir}/lldb/native/__pycache__
-%attr(755,root,root) %{py3_sitedir}/lldb/native/_lldb.abi3.so
+%{py3_sitedir}/lldb/native/_lldb.abi3.so
 
 %files -n lldb-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/liblldb.so
-%attr(755,root,root) %{_libdir}/liblldbIntelFeatures.so
+%{_libdir}/liblldb.so
+%{_libdir}/liblldbIntelFeatures.so
 %{_includedir}/lldb
 %endif
 
 %if %{with ocaml}
 %files ocaml
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/ocaml/stublibs/dllllvm*.so
+%{_libdir}/ocaml/stublibs/dllllvm*.so
 %dir %{_libdir}/ocaml/llvm
 %{_libdir}/ocaml/llvm/llvm*.cma
 %{_libdir}/ocaml/llvm/llvm*.cmi
