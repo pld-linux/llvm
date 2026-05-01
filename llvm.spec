@@ -130,7 +130,7 @@ BuildRequires:	python3-modules
 BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 2.007
+BuildRequires:	rpmbuild(macros) >= 2.047
 %{?with_doc:BuildRequires:	sphinx-pdg}
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xar-devel >= 1.6
@@ -216,7 +216,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # TODO: add - -Werror=format-security to tools/lldb/scripts/LLDBWrapPython.cpp
 %define		filterout_c	-fvar-tracking-assignments
 %define		filterout_cxx	-fvar-tracking-assignments -Werror=format-security
-%define		filterout_ccpp	-fvar-tracking-assignments
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -711,15 +710,24 @@ export LDFLAGS="%{rpmldflags} -Wl,--reduce-memory-overheads"
 fi
 %endif
 
+# -Werror=trampolines is not understood by clang and breaks target clang compiler feature checks
+CLANG_CFLAGS="$(echo "$CFLAGS" | sed -e 's/-Werror=trampolines *//')"
+CLANG_CXXFLAGS="$(echo "$CXXFLAGS" | sed -e 's/-Werror=trampolines *//')"
+PROJECTS="clang;clang-tools-extra;lld;%{?with_polly:polly;}%{?with_mlir:mlir;}%{?with_lldb:lldb;}%{?with_flang:flang}"
+RUNTIMES="%{?with_rt:compiler-rt;}%{?with_flang:flang-rt}"
+
 %cmake ../llvm \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
+	-DBUILTINS_CMAKE_ARGS="-DCMAKE_C_FLAGS=$CLANG_CFLAGS;-DCMAKE_CXX_FLAGS=$CLANG_CXXFLAGS" \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	-DLLVM_ADDITIONAL_BUILD_TYPES=PLD \
-	-DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;lld%{?with_rt:;compiler-rt}%{?with_polly:;polly}%{?with_mlir:;mlir}%{?with_lldb:;lldb}%{?with_flang:;flang}" \
 	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
 	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
+	%{?with_rt:-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON} \
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
+	-DLLVM_ENABLE_PROJECTS="${PROJECTS%;}" \
+	-DLLVM_ENABLE_RUNTIMES="${RUNTIMES%;}" \
 	-DLLVM_INSTALL_PACKAGE_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_libdir}/cmake/llvm") \
 	-DLLVM_TOOLS_INSTALL_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_bindir}") \
 %if %{with apidocs}
@@ -748,8 +756,9 @@ fi
 	-DLLVM_TARGETS_TO_BUILD="%{targets_to_build}" \
 	-DLLVM_INCLUDE_TESTS:BOOL=OFF \
 %if %{with polly}
-	%{cmake_on_off target_nvptx POLLY_ENABLE_GPGPU_CODEGEN} \
+	-DPOLLY_ENABLE_GPGPU_CODEGEN:BOOL=%{__ON_OFF target_nvptx} \
 %endif
+	-DRUNTIMES_CMAKE_ARGS="-DCMAKE_C_FLAGS=$CLANG_CFLAGS;-DCMAKE_CXX_FLAGS=$CLANG_CXXFLAGS" \
 	-DSPHINX_WARNINGS_AS_ERRORS=OFF \
 %if %{with rt}
 	-DCOMPILER_RT_INCLUDE_TESTS:BOOL=OFF \

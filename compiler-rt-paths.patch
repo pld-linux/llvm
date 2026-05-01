@@ -17,3 +17,13 @@
  set(COMPILER_RT_INSTALL_DATA_DIR "${default_install_path}" CACHE PATH
    "Path where compiler-rt data files should be installed.")
  
+--- llvm-project-22.1.3.src/llvm/cmake/modules/LLVMExternalProjectUtils.cmake.orig	2026-04-07 00:57:04.000000000 +0200
++++ llvm-project-22.1.3.src/llvm/cmake/modules/LLVMExternalProjectUtils.cmake	2026-04-29 19:54:30.983912237 +0200
+@@ -391,6 +391,7 @@ function(llvm_ExternalProject_Add name s
+                ${compiler_args}
+                ${verbose}
+                -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
++               -DLLVM_LIBDIR_SUFFIX=${LLVM_LIBDIR_SUFFIX}
+                ${sysroot_arg}
+                -DLLVM_BINARY_DIR=${PROJECT_BINARY_DIR}
+                -DLLVM_CONFIG_PATH=${llvm_config_path}
