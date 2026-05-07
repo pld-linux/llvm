@@ -184,7 +184,7 @@ BuildRequires:	xz-devel
 %if %{with ocaml}
 BuildConflicts:	llvm-ocaml
 %endif
-Requires:	%{name}-libs = %{version}-%{release}
+Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 # LLVM is not supported on PPC64
 # http://llvm.org/bugs/show_bug.cgi?id=3729
 ExcludeArch:	ppc64
@@ -283,7 +283,7 @@ Summary:	LLVM Multi-Level Intermediate Representation libraries and tools
 Summary(pl.UTF-8):	Biblioteki i narzędzia wielopoziomowej reprezentacji pośredniej LLVM
 Group:		Development/Tools
 URL:		https://mlir.llvm.org/
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description mlir
 LLVM Multi-Level Intermediate Representation libraries and tools.
@@ -311,7 +311,7 @@ Summary:	Polyhedral optimizations for LLVM
 Summary(pl.UTF-8):	Optymalizacje wielościanowe dla LLVM-a
 Group:		Development/Tools
 URL:		https://polly.llvm.org/
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description polly
 Polly is a high-level loop and data-locality optimizer and
@@ -344,8 +344,8 @@ Summary:	A C language family frontend for LLVM
 Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C
 Group:		Development/Languages
 URL:		https://clang.llvm.org/
-Requires:	%{name} = %{version}-%{release}
-Requires:	clang-libs = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	clang-libs%{?_isa} = %{version}-%{release}
 
 %description -n clang
 clang: noun 1. A loud, resonant, metallic sound. 2. The strident call
@@ -370,7 +370,7 @@ Summary:	A C language family frontend for LLVM - 32-bit support
 Summary(pl.UTF-8):	Frontend LLVM-a do języków z rodziny C - obsługa binariów 32-bitowych
 Group:		Development/Languages
 URL:		https://clang.llvm.org/
-Requires:	clang = %{version}-%{release}
+Requires:	clang%{?_isa} = %{version}-%{release}
 
 %description -n clang-multilib
 clang: noun 1. A loud, resonant, metallic sound. 2. The strident call
@@ -415,7 +415,7 @@ Group:		Development/Languages
 URL:		https://clang.llvm.org/
 Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 Requires:	clang-libs%{?_isa} = %{version}-%{release}
-%{?with_polly:Requires:	llvm-polly-devel = %{version}-%{release}}
+%{?with_polly:Requires:	llvm-polly-devel%{?_isa} = %{version}-%{release}}
 
 %description -n clang-devel
 This package contains header files for the Clang compiler.
@@ -505,7 +505,7 @@ Summary:	Fortran frontend for LLVM
 Summary(pl.UTF-8):	Frontend LLVM-a do Fortranu
 Group:		Development/Languages
 URL:		http://flang.llvm.org/
-Requires:	%{name}-mlir = %{version}-%{release}
+Requires:	%{name}-mlir%{?_isa} = %{version}-%{release}
 
 %description -n flang
 Flang is a ground-up implementation of a Fortran front end written in
@@ -534,7 +534,7 @@ Summary:	The LLVM linker
 Summary(pl.UTF-8):	Konsolidator z projektu LLVM
 Group:		Development/Libraries
 URL:		https://lld.llvm.org/
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description -n lld
 lld is a new set of modular code for creating linker tools.
@@ -562,7 +562,7 @@ Summary:	Next generation high-performance debugger
 Summary(pl.UTF-8):	Wydajny debugger nowej generacji
 Group:		Development/Debuggers
 URL:		https://lldb.llvm.org/
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	python3-six
 
 %description -n lldb
@@ -596,7 +596,7 @@ Pliki programistyczne debuggera LLDB.
 Summary:	OCaml binding for LLVM
 Summary(pl.UTF-8):	Wiązanie OCamla do LLVM-a
 Group:		Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 %if %{with ocaml}
 %requires_eq	ocaml-runtime
 %endif
@@ -639,7 +639,7 @@ Dokumentacja HTML wiązania OCamla do LLVM-a.
 Summary:	Optimization records visualization tools
 Summary(pl.UTF-8):	Narzędzia do wizualizacji rekordów optymalizacji
 Group:		Development/Tools
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{version}-%{release}
 BuildArch:	noarch
 
 %description opt-viewer
