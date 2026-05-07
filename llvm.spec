@@ -563,7 +563,6 @@ Summary(pl.UTF-8):	Wydajny debugger nowej generacji
 Group:		Development/Debuggers
 URL:		https://lldb.llvm.org/
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-Requires:	python3-six
 
 %description -n lldb
 LLDB is a next generation, high-performance debugger. It is built as a
