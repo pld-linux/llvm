@@ -31,6 +31,7 @@
 %bcond_without	polly			# Polly cache-locality optimization, auto-parallelism and vectorization
 %bcond_without	rt			# compiler-rt libraries
 %bcond_without	multilib		# compiler-rt multilib libraries
+%bcond_without	libclc			# libclc runtime
 %bcond_without	ocaml			# OCaml binding
 %bcond_without	z3			# Z3 constraint solver support in Clang Static Analyzer
 %bcond_without	doc			# HTML docs and man pages
@@ -58,6 +59,11 @@
 %bcond_with	apidocs			# doxygen docs (HUGE, so they are not built by default)
 %bcond_with	tests			# run tests
 %bcond_with	lowmem			# lower memory requirements
+
+# use llvm-spirv instead of LLVM SPIRV target+spirv-tools
+# as of 22.1 the latter fails with:
+# error: 0: Unresolved external reference to "_Z37__clc_flush_denormal_if_not_supportedf"
+%bcond_without	libclc_llvm_spirv
 
 # No ocaml on other arches or no native ocaml (required for ocaml-ctypes)
 %ifnarch %{ix86} %{x8664} %{arm} aarch64 ppc sparc sparcv9
@@ -184,6 +190,15 @@ BuildRequires:	xz-devel
 #BuildRequires:	isl-devel >= 0.22.1
 #TODO (bcond): cuda-devel (with POLLY_ENABLE_GPGPU_CODEGEN=ON)
 %{?with_target_nvptx:BuildRequires:	ocl-icd-libOpenCL-devel}
+%endif
+%if %{with libclc}
+%if %{with libclc_llvm_spirv}
+# llvm-spirv
+BuildRequires:	SPIRV-LLVM-Translator >= %{major}
+%else
+# spirv-link
+BuildRequires:	spirv-tools
+%endif
 %endif
 %if %{with ocaml}
 BuildConflicts:	llvm-ocaml
@@ -663,6 +678,51 @@ Clang format and rename integration for Vim.
 %description -n vim-plugin-clang -l pl.UTF-8
 Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 
+%package libclc
+Summary:	OpenCL C programming language library implementation
+Summary(pl.UTF-8):	Implementacja biblioteki języka programowania OpenCL C
+Group:		Libraries
+URL:		https://libclc.llvm.org/
+Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+
+%description libclc
+libclc is an open source, BSD licensed implementation of the library
+requirements of the OpenCL C programming language, as specified by the
+OpenCL 1.1 Specification. The following sections of the specification
+impose library requirements:
+
+ * 6.1: Supported Data Types
+ * 6.2.3: Explicit Conversions
+ * 6.2.4.2: Reinterpreting Types Using as_type() and as_typen()
+ * 6.9: Preprocessor Directives and Macros
+ * 6.11: Built-in Functions
+ * 9.3: Double Precision Floating-Point
+ * 9.4: 64-bit Atomics
+ * 9.5: Writing to 3D image memory objects
+ * 9.6: Half Precision Floating-Point
+
+libclc is intended to be used with the Clang compiler's OpenCL
+frontend.
+
+%description libclc -l pl.UTF-8
+libclc to mająca otwarte źródła, wydana na licencji BSD implementacja
+wymagań bibliotecznych języka programowania OpenCL C zgodna ze
+specyfikacją OpenCL 1.1. Wymagania biblioteczne wynikają z
+następujących sekcji specyfikacji:
+
+ * 6.1: obsługiwane typy danych
+ * 6.2.3: jawne konwersje
+ * 6.2.4.2: reinterpretacja typów przy użyciu as_type() i as_typen()
+ * 6.9: dyrektywy i makra preprocesora
+ * 6.11: funkcje wbudowane
+ * 9.3: arytmetyka zmiennoprzecinkowa podwójnej precyzji
+ * 9.4: 64-bitowe operacje atomowe
+ * 9.5: zapis do biektów obrazów 3D w pamięci
+ * 9.6: arytmetyka zmiennoprzecinkowa połówkowej precyzji
+
+libclc jest przeznaczona do używania z frontendem OpenCL kompilatora
+Clang.
+
 %prep
 %setup -q -n %{name}-project-%{version}.src
 
@@ -716,12 +776,13 @@ fi
 CLANG_CFLAGS="$(echo "$CFLAGS" | sed -e 's/-Werror=trampolines *//')"
 CLANG_CXXFLAGS="$(echo "$CXXFLAGS" | sed -e 's/-Werror=trampolines *//')"
 PROJECTS="clang;clang-tools-extra;lld;%{?with_polly:polly;}%{?with_mlir:mlir;}%{?with_lldb:lldb;}%{?with_flang:flang}"
-RUNTIMES="%{?with_rt:compiler-rt;}%{?with_flang:flang-rt}"
+RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_flang:flang-rt}"
 
 %cmake ../llvm \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DBUILTINS_CMAKE_ARGS="-DCMAKE_C_FLAGS=$CLANG_CFLAGS;-DCMAKE_CXX_FLAGS=$CLANG_CXXFLAGS" \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
+	%{!?with_libclc_llvm_spirv:-DLIBCLC_USE_SPIRV_BACKEND:BOOL=ON} \
 	-DLLVM_ADDITIONAL_BUILD_TYPES=PLD \
 	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
 	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
@@ -816,6 +877,13 @@ rel_ca_libexecdir="${abs_ca_libexecdir#%{_prefix}}"
 
 # not installed by cmake buildsystem
 install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
+
+%if %{with libclc}
+# symlink as specified in .pc file
+ln -snf ../%{_lib}/clang/%{major}/lib/libclc $RPM_BUILD_ROOT%{_datadir}/clc
+# not filled when building within llvm
+%{__sed} -i -e '/^Version/ s/: $/: 0.2.0/' $RPM_BUILD_ROOT%{_npkgconfigdir}/libclc.pc
+%endif
 
 %if %{with doc}
 cp -p build/docs/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
@@ -1451,3 +1519,51 @@ rm -rf $RPM_BUILD_ROOT
 %files -n vim-plugin-clang
 %defattr(644,root,root,755)
 %{_datadir}/clang/clang-format.py
+
+%if %{with libclc}
+%files libclc
+%defattr(644,root,root,755)
+%doc libclc/{CREDITS.TXT,LICENSE.TXT,Maintainers.md,README.md} libclc/www/index.html
+%dir %{_libdir}/clang/%{major}/lib/libclc
+%{_libdir}/clang/%{major}/lib/libclc/amdgcn-amd-amdhsa.bc
+%{_libdir}/clang/%{major}/lib/libclc/aruba-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/barts-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/bonaire-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/caicos-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/carrizo-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/cayman-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/cedar-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/clspv-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/clspv64-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/cypress-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/fiji-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/gfx*-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/hainan-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/hawaii-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/hemlock-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/iceland-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/juniper-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/kabini-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/kaveri-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/mullins-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/nvptx64-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/oland-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/palm-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/pitcairn-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/polaris*-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/redwood-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/stoney-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/sumo*-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/tahiti-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/tonga-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/tongapro-amdgcn-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/turks-r600-*.bc
+%{_libdir}/clang/%{major}/lib/libclc/verde-amdgcn-*.bc
+# symlink, according to .pc file
+%{_datadir}/clc
+%{_npkgconfigdir}/libclc.pc
+
+# libclc-spirv subpackage?
+%{_libdir}/clang/%{major}/lib/libclc/spirv-mesa3d-.spv
+%{_libdir}/clang/%{major}/lib/libclc/spirv64-mesa3d-.spv
+%endif
