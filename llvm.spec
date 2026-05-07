@@ -1255,7 +1255,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n clang-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libclang.so
+%{_libdir}/libclang.so
 %{_libdir}/libclang*.a
 %{_includedir}/clang
 %{_includedir}/clang-c
