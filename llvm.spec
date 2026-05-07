@@ -78,6 +78,10 @@
 %undefine	with_flang
 %endif
 
+%define		major	22
+%define		abi	22.1
+%define		lua_ver	5.4
+
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
@@ -167,7 +171,7 @@ BuildRequires:	libunwind-devel(x86-64)
 %if %{with lldb}
 BuildRequires:	epydoc
 BuildRequires:	libxml2-devel >= 2
-BuildRequires:	lua-devel
+BuildRequires:	lua-devel >= %{lua_ver}
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python3-devel >= 1:3.2
 %{?with_doc:BuildRequires:	python3-recommonmark}
@@ -190,7 +194,6 @@ Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 ExcludeArch:	ppc64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		abi	22.1
 %define		_sysconfdir	/etc/%{name}
 
 %define		specflags_ppc	-fno-var-tracking-assignments
@@ -415,7 +418,7 @@ Group:		Development/Languages
 URL:		https://clang.llvm.org/
 Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 Requires:	clang-libs%{?_isa} = %{version}-%{release}
-%{?with_polly:Requires:	llvm-polly-devel%{?_isa} = %{version}-%{release}}
+%{?with_polly:Requires:	%{name}-polly-devel%{?_isa} = %{version}-%{release}}
 
 %description -n clang-devel
 This package contains header files for the Clang compiler.
@@ -1028,11 +1031,11 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %{_libdir}/LLVMgold.so
-%{_libdir}/libLLVM-22.so
+%{_libdir}/libLLVM-%{major}.so
 %{_libdir}/libLLVM.so.%{abi}
-%{_libdir}/libLTO.so.22.1
-%{_libdir}/libRemarks.so.22.1
-%{_libdir}/libclang-cpp.so.22.1
+%{_libdir}/libLTO.so.%{abi}
+%{_libdir}/libRemarks.so.%{abi}
+%{_libdir}/libclang-cpp.so.%{abi}
 
 %files devel
 %defattr(644,root,root,755)
@@ -1074,15 +1077,15 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/mlir-transform-opt
 %attr(755,root,root) %{_bindir}/mlir-translate
 %attr(755,root,root) %{_bindir}/tblgen-to-irdl
-%{_libdir}/libMLIR.so.22.1
-%{_libdir}/libMLIRExecutionEngineShared.so.22.1
-%{_libdir}/libmlir_apfloat_wrappers.so.22.1
-%{_libdir}/libmlir_arm_runner_utils.so.22.1
-%{_libdir}/libmlir_arm_sme_abi_stubs.so.22.1
-%{_libdir}/libmlir_async_runtime.so.22.1
-%{_libdir}/libmlir_c_runner_utils.so.22.1
-%{_libdir}/libmlir_float16_utils.so.22.1
-%{_libdir}/libmlir_runner_utils.so.22.1
+%{_libdir}/libMLIR.so.%{abi}
+%{_libdir}/libMLIRExecutionEngineShared.so.%{abi}
+%{_libdir}/libmlir_apfloat_wrappers.so.%{abi}
+%{_libdir}/libmlir_arm_runner_utils.so.%{abi}
+%{_libdir}/libmlir_arm_sme_abi_stubs.so.%{abi}
+%{_libdir}/libmlir_async_runtime.so.%{abi}
+%{_libdir}/libmlir_c_runner_utils.so.%{abi}
+%{_libdir}/libmlir_float16_utils.so.%{abi}
+%{_libdir}/libmlir_runner_utils.so.%{abi}
 %if %{with doc}
 %{_mandir}/man1/mlir-tblgen.1*
 %endif
@@ -1124,7 +1127,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/amdgpu-arch
 %attr(755,root,root) %{_bindir}/clang
 %attr(755,root,root) %{_bindir}/clang++
-%attr(755,root,root) %{_bindir}/clang-22
+%attr(755,root,root) %{_bindir}/clang-%{major}
 %attr(755,root,root) %{_bindir}/clang-check
 %attr(755,root,root) %{_bindir}/clang-cl
 %attr(755,root,root) %{_bindir}/clang-cpp
@@ -1142,79 +1145,79 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/nvptx-arch
 %attr(755,root,root) %{_bindir}/offload-arch
 %dir %{_libdir}/clang
-%dir %{_libdir}/clang/22
-%{_libdir}/clang/22/include
+%dir %{_libdir}/clang/%{major}
+%{_libdir}/clang/%{major}/include
 %if %{with rt}
 %ifarch %{x8664} x32 aarch64
-%dir %{_libdir}/clang/22/bin
-%attr(755,root,root) %{_libdir}/clang/22/bin/hwasan_symbolize
+%dir %{_libdir}/clang/%{major}/bin
+%attr(755,root,root) %{_libdir}/clang/%{major}/bin/hwasan_symbolize
 %endif
 %ifarch %{ix86} %{x8664} aarch64 %{armv7}
-%dir %{_libdir}/clang/22/lib
-%dir %{_libdir}/clang/22/lib/*-linux*
-%dir %{_libdir}/clang/22/share
+%dir %{_libdir}/clang/%{major}/lib
+%dir %{_libdir}/clang/%{major}/lib/*-linux*
+%dir %{_libdir}/clang/%{major}/share
 %endif
 %ifarch x32
 %if %{with multilib}
-%dir %{_libdir}/clang/22/lib
-%dir %{_libdir}/clang/22/lib/*-linux*
-%dir %{_libdir}/clang/22/share
+%dir %{_libdir}/clang/%{major}/lib
+%dir %{_libdir}/clang/%{major}/lib/*-linux*
+%dir %{_libdir}/clang/%{major}/share
 %endif
 %endif
 %ifarch %{ix86}
-%{_libdir}/clang/22/lib/i*86-*linux/clang_rt.*.o
-%{_libdir}/clang/22/lib/i*86-*linux/libclang_rt.*.a
-%{_libdir}/clang/22/lib/i*86-*linux/libclang_rt.*.so
+%{_libdir}/clang/%{major}/lib/i*86-*linux/clang_rt.*.o
+%{_libdir}/clang/%{major}/lib/i*86-*linux/libclang_rt.*.a
+%{_libdir}/clang/%{major}/lib/i*86-*linux/libclang_rt.*.so
 %endif
 %ifarch %{x8664}
-%{_libdir}/clang/22/lib/x86_64-*linux/clang_rt.*.o
-%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a
-%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.so
-%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a.syms
-%{_libdir}/clang/22/lib/x86_64-*linux/liborc_rt.a
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/clang_rt.*.o
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/libclang_rt.*.a
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/libclang_rt.*.so
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/libclang_rt.*.a.syms
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/liborc_rt.a
 %endif
 %ifarch aarch64
-%{_libdir}/clang/22/lib/aarch64-*linux/clang_rt.*.o
-%{_libdir}/clang/22/lib/aarch64-*linux/libclang_rt.*.a
-%{_libdir}/clang/22/lib/aarch64-*linux/libclang_rt.*.so
-%{_libdir}/clang/22/lib/aarch64-*linux/libclang_rt.*.a.syms
-%{_libdir}/clang/22/lib/aarch64-*linux/liborc_rt.a
+%{_libdir}/clang/%{major}/lib/aarch64-*linux/clang_rt.*.o
+%{_libdir}/clang/%{major}/lib/aarch64-*linux/libclang_rt.*.a
+%{_libdir}/clang/%{major}/lib/aarch64-*linux/libclang_rt.*.so
+%{_libdir}/clang/%{major}/lib/aarch64-*linux/libclang_rt.*.a.syms
+%{_libdir}/clang/%{major}/lib/aarch64-*linux/liborc_rt.a
 %endif
 %ifarch %{armv7}
 %ifarch %{arm32_with_hf}
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/clang_rt.*.o
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/libclang_rt.*.so
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a.syms
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}hf/liborc_rt.a
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}hf/clang_rt.*.o
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}hf/libclang_rt.*.so
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}hf/libclang_rt.*.a.syms
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}hf/liborc_rt.a
 %else
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}/clang_rt.*.o
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}/libclang_rt.*.a
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}/libclang_rt.*.so
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}/libclang_rt.*.a.syms
-%{_libdir}/clang/22/lib/arm-*linux%{_gnu}/liborc_rt.a
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}/clang_rt.*.o
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}/libclang_rt.*.a
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}/libclang_rt.*.so
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}/libclang_rt.*.a.syms
+%{_libdir}/clang/%{major}/lib/arm-*linux%{_gnu}/liborc_rt.a
 %endif
 %endif
 %ifarch %{ix86} %{x8664} %{arm} aarch64 mips mips64 ppc64
-%{_libdir}/clang/22/share/asan_ignorelist.txt
+%{_libdir}/clang/%{major}/share/asan_ignorelist.txt
 %endif
 %ifarch %{ix86} %{x8664} mips64 aarch64 %{armv7}
-%{_libdir}/clang/22/share/cfi_ignorelist.txt
+%{_libdir}/clang/%{major}/share/cfi_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64 mips64
-%{_libdir}/clang/22/share/dfsan_abilist.txt
-%{_libdir}/clang/22/share/msan_ignorelist.txt
+%{_libdir}/clang/%{major}/share/dfsan_abilist.txt
+%{_libdir}/clang/%{major}/share/msan_ignorelist.txt
 %endif
 %ifarch %{x8664} aarch64
-%{_libdir}/clang/22/share/hwasan_ignorelist.txt
+%{_libdir}/clang/%{major}/share/hwasan_ignorelist.txt
 %endif
 %ifarch x32
 %if %{with multilib}
-%{_libdir}/clang/22/share/asan_ignorelist.txt
-%{_libdir}/clang/22/share/cfi_ignorelist.txt
-%{_libdir}/clang/22/share/dfsan_abilist.txt
-%{_libdir}/clang/22/share/msan_ignorelist.txt
-%{_libdir}/clang/22/share/hwasan_ignorelist.txt
+%{_libdir}/clang/%{major}/share/asan_ignorelist.txt
+%{_libdir}/clang/%{major}/share/cfi_ignorelist.txt
+%{_libdir}/clang/%{major}/share/dfsan_abilist.txt
+%{_libdir}/clang/%{major}/share/msan_ignorelist.txt
+%{_libdir}/clang/%{major}/share/hwasan_ignorelist.txt
 %endif
 %endif
 %endif
@@ -1234,23 +1237,23 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{x8664} x32
 %files -n clang-multilib
 %defattr(644,root,root,755)
-%{_libdir}/clang/22/lib/i386-*linux/clang_rt.*.o
-%{_libdir}/clang/22/lib/i386-*linux/libclang_rt.*.a
-%{_libdir}/clang/22/lib/i386-*linux/libclang_rt.*.so
+%{_libdir}/clang/%{major}/lib/i386-*linux/clang_rt.*.o
+%{_libdir}/clang/%{major}/lib/i386-*linux/libclang_rt.*.a
+%{_libdir}/clang/%{major}/lib/i386-*linux/libclang_rt.*.so
 %endif
 %ifarch x32
-%{_libdir}/clang/22/lib/x86_64-*linux/clang_rt.*.o
-%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a
-%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.so
-%{_libdir}/clang/22/lib/x86_64-*linux/libclang_rt.*.a.syms
-%{_libdir}/clang/22/lib/x86_64-*linux/liborc_rt.a
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/clang_rt.*.o
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/libclang_rt.*.a
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/libclang_rt.*.so
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/libclang_rt.*.a.syms
+%{_libdir}/clang/%{major}/lib/x86_64-*linux/liborc_rt.a
 %endif
 %endif
 
 %files -n clang-libs
 %defattr(644,root,root,755)
 %{_libdir}/libclang.so.*.*.*
-%ghost %{_libdir}/libclang.so.22.1
+%ghost %{_libdir}/libclang.so.%{abi}
 
 %files -n clang-devel
 %defattr(644,root,root,755)
@@ -1385,10 +1388,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lldb-mcp
 %attr(755,root,root) %{_bindir}/lldb-server
 %attr(755,root,root) %{_bindir}/lldb-tblgen
-%{_libdir}/lua/5.4/lldb.so
+%{_libdir}/lua/%{lua_ver}/lldb.so
 %{_libdir}/liblldb.so.%{version}
-%ghost %{_libdir}/liblldb.so.22.1
-%{_libdir}/liblldbIntelFeatures.so.22.1
+%ghost %{_libdir}/liblldb.so.%{abi}
+%{_libdir}/liblldbIntelFeatures.so.%{abi}
 %dir %{py3_sitedir}/lldb
 %attr(755,root,root) %{py3_sitedir}/lldb/lldb-argdumper
 %{py3_sitedir}/lldb/formatters
