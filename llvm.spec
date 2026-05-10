@@ -32,6 +32,7 @@
 %bcond_without	rt			# compiler-rt libraries
 %bcond_without	multilib		# compiler-rt multilib libraries
 %bcond_without	libclc			# libclc runtime
+%bcond_without	libcxx			# libcxx, libcxxabi, libunwind runtimes
 %bcond_without	ocaml			# OCaml binding
 %bcond_without	z3			# Z3 constraint solver support in Clang Static Analyzer
 %bcond_without	doc			# HTML docs and man pages
@@ -681,6 +682,7 @@ Integracja narzędzi Clang do formatowania i zmiany nazw z Vimem.
 %package libclc
 Summary:	OpenCL C programming language library implementation
 Summary(pl.UTF-8):	Implementacja biblioteki języka programowania OpenCL C
+License:	MIT or BSD-like
 Group:		Libraries
 URL:		https://libclc.llvm.org/
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
@@ -722,6 +724,132 @@ następujących sekcji specyfikacji:
 
 libclc jest przeznaczona do używania z frontendem OpenCL kompilatora
 Clang.
+
+%package libcxx
+Summary:	LibC++ - C++ standard library from LLVM project
+Summary(pl.UTF-8):	LibC++ - biblioteka standardowa C++ z projektu LLVM
+License:	MIT or BSD-like
+Group:		Libraries
+URL:		https://libcxx.llvm.org/
+Requires:	%{name}-libcxxabi%{?_isa} = %{version}-%{release}
+
+%description libcxx
+libc++ is a new implementation of the C++ standard library, targeting
+C++11 and above.
+
+%description libcxx -l pl.UTF-8
+libc++ to nowa implementacja biblioteki standardowej C++ ze wskazaniem
+na standard C++11 i nowsze.
+
+%package libcxx-devel
+Summary:	Header files of LLVM LibC++ library
+Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki LLVM LibC++
+License:	MIT or BSD-like
+Group:		Development/Libraries
+URL:		https://libcxx.llvm.org/
+Requires:	%{name}-libcxx%{?_isa} = %{version}-%{release}
+Requires:	%{name}-libcxxabi-devel%{?_isa} = %{version}-%{release}
+
+%description libcxx-devel
+Header files of LLVM LibC++ library.
+
+%description libcxx-devel -l pl.UTF-8
+Pliki nagłówkowe biblioteki LLVM LibC++.
+
+%package libcxx-static
+Summary:	Static LLVM LibC++ library
+Summary(pl.UTF-8):	Statyczna biblioteka LLVM LibC++
+License:	MIT or BSD-like
+Group:		Development/Libraries
+URL:		https://libcxx.llvm.org/
+Requires:	%{name}-libcxx-devel%{?_isa} = %{version}-%{release}
+
+%description libcxx-static
+Static LLVM LibC++ library.
+
+%description libcxx-static -l pl.UTF-8
+Statyczna biblioteka LLVM LibC++.
+
+%package libcxxabi
+Summary:	libc++abi - C++ standard library support from LLVM project
+Summary(pl.UTF-8):	libc++abi - wsparcie dla biblioteki standardowej C++ z projektu LLVM
+License:	MIT or BSD-like
+Group:		Libraries
+URL:		https://libcxxabi.llvm.org/
+
+%description libcxxabi
+libc++abi is a new implementation of low level support for a standard
+C++ library.
+
+%description libcxxabi -l pl.UTF-8
+libc++abi to nowa implementacja niskopoziomowego wsparcia dla
+biblioteki standardowej C++.
+
+%package libcxxabi-devel
+Summary:	Development files for LLVM libc++abi library
+Summary(pl.UTF-8):	Pliki programistyczne biblioteki LLVM libc++abi
+License:	MIT or BSD-like
+Group:		Development/Libraries
+URL:		https://libcxxabi.llvm.org/
+Requires:	%{name}-libcxxabi%{?_isa} = %{version}-%{release}
+
+%description libcxxabi-devel
+Development files for LLVM libc++abi library.
+
+%description libcxxabi-devel -l pl.UTF-8
+Pliki programistyczne biblioteki LLVM libc++abi.
+
+%package libcxxabi-static
+Summary:	Static LLVM libc++abi library
+Summary(pl.UTF-8):	Statyczna biblioteka LLVM libc++abi
+License:	MIT or BSD-like
+Group:		Development/Libraries
+URL:		https://libcxxabi.llvm.org/
+Requires:	%{name}-libcxxabi-devel%{?_isa} = %{version}-%{release}
+
+%description libcxxabi-static
+Static LLVM libc++abi library.
+
+%description libcxxabi-static -l pl.UTF-8
+Statyczna biblioteka LLVM libc++abi.
+
+%package libunwind
+Summary:	LLVM libunwind implementation
+Summary(pl.UTF-8):	Implementacja biblioteki libunwind z projektu LLVM
+License:	MIT or BSD-like
+Group:		Libraries
+
+%description libunwind
+LLVM libunwind implementation.
+
+%description libunwind -l pl.UTF-8
+Implementacja biblioteki libunwind z projektu LLVM.
+
+%package libunwind-devel
+Summary:	Header file for LLVM libunwind implementation
+Summary(pl.UTF-8):	Plik nagłówkowy implementacji LLVM libunwind
+Group:		Development/Libraries
+License:	MIT or BSD-like
+Requires:	%{name}-libunwind%{?_isa} = %{version}-%{release}
+
+%description libunwind-devel
+Header file for LLVM libunwind implementation.
+
+%description libunwind-devel -l pl.UTF-8
+Plik nagłówkowy implementacji LLVM libunwind.
+
+%package libunwind-static
+Summary:	Static LLVM libunwind library
+Summary(pl.UTF-8):	Statyczna biblioteka LLVM libunwind
+Group:		Development/Libraries
+License:	MIT or BSD-like
+Requires:	%{name}-libunwind-devel%{?_isa} = %{version}-%{release}
+
+%description libunwind-static
+Static LLVM libunwind library.
+
+%description libunwind-static -l pl.UTF-8
+Statyczna biblioteka LLVM libunwind.
 
 %prep
 %setup -q -n %{name}-project-%{version}.src
@@ -776,19 +904,31 @@ fi
 CLANG_CFLAGS="$(echo "$CFLAGS" | sed -e 's/-Werror=trampolines *//')"
 CLANG_CXXFLAGS="$(echo "$CXXFLAGS" | sed -e 's/-Werror=trampolines *//')"
 PROJECTS="clang;clang-tools-extra;lld;%{?with_polly:polly;}%{?with_mlir:mlir;}%{?with_lldb:lldb;}%{?with_flang:flang}"
-RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_flang:flang-rt}"
+RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_libcxx:libcxx;libcxxabi;libunwind;}%{?with_flang:flang-rt}"
 
 %cmake ../llvm \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DBUILTINS_CMAKE_ARGS="-DCMAKE_C_FLAGS=$CLANG_CFLAGS;-DCMAKE_CXX_FLAGS=$CLANG_CXXFLAGS" \
+	-DCLANG_DEFAULT_UNWINDLIB:STRING=libgcc \
+	-DCOMPILER_RT_BUILD_LIBFUZZER:BOOL=OFF \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	%{!?with_libclc_llvm_spirv:-DLIBCLC_USE_SPIRV_BACKEND:BOOL=ON} \
+	-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT:BOOL=ON \
+	-DLIBCXX_INCLUDE_BENCHMARKS:BOOL=OFF \
+	-DLIBCXX_INSTALL_INCLUDE_TARGET_DIR:PATH=%{_includedir}/c++/v1 \
+	-DLIBCXX_INSTALL_LIBRARY_DIR:PATH=%{_libdir} \
+	-DLIBCXXABI_INSTALL_LIBRARY_DIR:PATH=%{_libdir} \
+	-DLIBCXX_STATICALLY_LINK_ABI_IN_STATIC_LIBRARY:BOOL=ON \
+	-DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=OFF \
+	-DLIBUNWIND_INSTALL_INCLUDE_DIR:PATH=%{_includedir}/llvm-libunwind \
+	-DLIBUNWIND_INSTALL_LIBRARY_DIR:PATH=%{_libdir} \
 	-DLLVM_ADDITIONAL_BUILD_TYPES=PLD \
 	-DLLVM_BINDINGS_LIST:LIST="%{?with_ocaml:ocaml}" \
 	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
 	%{?with_rt:-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON} \
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
+	-DLLVM_ENABLE_LIBCXX:BOOL=OFF \
 	-DLLVM_ENABLE_PROJECTS="${PROJECTS%;}" \
 	-DLLVM_ENABLE_RUNTIMES="${RUNTIMES%;}" \
 	-DLLVM_INSTALL_PACKAGE_DIR=%(realpath -m "--relative-to=%{_prefix}" "%{_libdir}/cmake/llvm") \
@@ -885,6 +1025,14 @@ ln -snf ../%{_lib}/clang/%{major}/lib/libclc $RPM_BUILD_ROOT%{_datadir}/clc
 %{__sed} -i -e '/^Version/ s/: $/: 0.2.0/' $RPM_BUILD_ROOT%{_npkgconfigdir}/libclc.pc
 %endif
 
+%if %{with libcxx}
+# resolve conflict with libunwind from libunwind.spec
+install -d $RPM_BUILD_ROOT{%{_includedir},%{_libdir}}/llvm-libunwind
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/libunwind.a $RPM_BUILD_ROOT%{_libdir}/llvm-libunwind
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libunwind.so
+ln -sf ../$(basename $RPM_BUILD_ROOT%{_libdir}/libunwind.so.*.*) $RPM_BUILD_ROOT%{_libdir}/llvm-libunwind/libunwind.so
+%endif
+
 %if %{with doc}
 cp -p build/docs/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 # these tools are not installed
@@ -945,11 +1093,23 @@ rm -rf $RPM_BUILD_ROOT
 %post	mlir -p /sbin/ldconfig
 %postun	mlir -p /sbin/ldconfig
 
+%post	polly -p /sbin/ldconfig
+%postun	polly -p /sbin/ldconfig
+
 %post	-n clang-libs -p /sbin/ldconfig
 %postun	-n clang-libs -p /sbin/ldconfig
 
 %post	-n lldb -p /sbin/ldconfig
 %postun	-n lldb -p /sbin/ldconfig
+
+%post	libcxx -p /sbin/ldconfig
+%postun	libcxx -p /sbin/ldconfig
+
+%post	libcxxabi -p /sbin/ldconfig
+%postun	libcxxabi -p /sbin/ldconfig
+
+%post	libunwind -p /sbin/ldconfig
+%postun	libunwind -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -1566,4 +1726,64 @@ rm -rf $RPM_BUILD_ROOT
 # libclc-spirv subpackage?
 %{_libdir}/clang/%{major}/lib/libclc/spirv-mesa3d-.spv
 %{_libdir}/clang/%{major}/lib/libclc/spirv64-mesa3d-.spv
+%endif
+
+%if %{with libcxx}
+%files libcxx
+%defattr(644,root,root,755)
+%{_libdir}/libc++.so.*.*
+%ghost %{_libdir}/libc++.so.1
+
+%files libcxx-devel
+%defattr(644,root,root,755)
+%{_libdir}/libc++.so
+%{_libdir}/libc++.modules.json
+%{_libdir}/libc++experimental.a
+%{_includedir}/c++/v1/*
+%exclude %{_includedir}/c++/v1/cxxabi.h
+%exclude %{_includedir}/c++/v1/__cxxabi_config.h
+%{_datadir}/libc++
+
+%files libcxx-static
+%defattr(644,root,root,755)
+%{_libdir}/libc++.a
+
+%files libcxxabi
+%defattr(644,root,root,755)
+%{_libdir}/libc++abi.so.*.*
+%ghost %{_libdir}/libc++abi.so.1
+
+%files libcxxabi-devel
+%defattr(644,root,root,755)
+%{_libdir}/libc++abi.so
+# top dir shared with libstdc++, the rest is llvm-specific
+%dir %{_includedir}/c++
+%dir %{_includedir}/c++/v1
+%{_includedir}/c++/v1/cxxabi.h
+%{_includedir}/c++/v1/__cxxabi_config.h
+
+%files libcxxabi-static
+%defattr(644,root,root,755)
+%{_libdir}/libc++abi.a
+
+%files libunwind
+%defattr(644,root,root,755)
+# libunwind from libunwind.spec has different soname
+%{_libdir}/libunwind.so.*.*
+%ghost %{_libdir}/libunwind.so.1
+
+%files libunwind-devel
+%defattr(644,root,root,755)
+%dir %{_libdir}/llvm-libunwind
+%{_libdir}/llvm-libunwind/libunwind.so
+%dir %{_includedir}/llvm-libunwind
+%{_includedir}/llvm-libunwind/libunwind.h
+%{_includedir}/llvm-libunwind/libunwind.modulemap
+%{_includedir}/llvm-libunwind/unwind*.h
+%{_includedir}/llvm-libunwind/__libunwind_config.h
+%{_includedir}/llvm-libunwind/mach-o
+
+%files libunwind-static
+%defattr(644,root,root,755)
+%{_libdir}/llvm-libunwind/libunwind.a
 %endif
