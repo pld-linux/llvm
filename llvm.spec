@@ -33,6 +33,8 @@
 %bcond_without	multilib		# compiler-rt multilib libraries
 %bcond_without	libclc			# libclc runtime
 %bcond_without	libcxx			# libcxx, libcxxabi, libunwind runtimes
+%bcond_without	openmp			# OpenMP runtime
+%bcond_with	openmp_fortran		# OpenMP Fortran modules (fails in 22.1.3)
 %bcond_without	ocaml			# OCaml binding
 %bcond_without	z3			# Z3 constraint solver support in Clang Static Analyzer
 %bcond_without	doc			# HTML docs and man pages
@@ -79,6 +81,10 @@
 %define		with_libatomic	1
 %endif
 
+%ifnarch %{ix86} %{x8664} %{arm} aarch64 ppc64
+%undefine	with_openmp
+%endif
+
 %define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_loongarch:LoongArch;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_spirv:SPIRV;}%{?with_target_systemz:SystemZ;}%{?with_target_ve:VE;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
 
 %if %{without mlir}
@@ -117,6 +123,7 @@ BuildRequires:	binutils-devel
 BuildRequires:	bison
 BuildRequires:	cmake >= 3.20.0
 BuildRequires:	flex
+%{?with_openmp_fortran:BuildRequires:	gcc-fortran}
 BuildRequires:	groff
 %{?with_libatomic:BuildRequires:	libatomic-devel}
 BuildRequires:	libedit-devel
@@ -851,6 +858,70 @@ Static LLVM libunwind library.
 %description libunwind-static -l pl.UTF-8
 Statyczna biblioteka LLVM libunwind.
 
+%package openmp
+Summary:	Intel OpenMP runtime library implementation for use with Clang
+Summary(pl.UTF-8):	Implementacja biblioteki uruchomieniowej OpenMP firmy Intel dla kompilatora Clang
+License:	BSD-like or MIT (OMP), Apache v2.0 (Archer)
+Group:		Libraries
+URL:		https://openmp.llvm.org/
+
+%description openmp
+The OpenMP subproject of LLVM is intended to contain all of the
+components required to build an executing OpenMP program that are
+outside the compiler itself. Support for OpenMP 3.1 in Clang is in the
+process of being promoted into the Clang mainline, and can be found at
+OpenMP/Clang: <http://clang-omp.github.io/>.
+
+%description openmp -l pl.UTF-8
+Podprojekt OpenMP projektu LLVM ma na celu skompletowanie wszystkich
+komponentów wymaganych do zbudowania działającego programu OpenMP poza
+samym kompilatorem. Obsługa OpenMP 3.1 w Clangu jest w trakcie
+włączania do głównej linii kompilatora i można ją znaleźć w
+repozytorium OpenMP/Clang: <http://clang-omp.github.io/>.
+
+%package openmp-devel
+Summary:	Header file for Intel OpenMP implementation
+Summary(pl.UTF-8):	Plik nagłówkowy implementacji OpenMP firmy Intel
+License:	BSD-like or MIT (OMP), Apache v2.0 (Archer)
+Group:		Development/Libraries
+URL:		https://openmp.llvm.org/
+Requires:	%{name}-openmp%{?_isa} = %{version}-%{release}
+
+%description openmp-devel
+Header file for Intel OpenMP implementation.
+
+%description openmp-devel -l pl.UTF-8
+Plik nagłówkowy implementacji OpenMP firmy Intel.
+
+%package openmp-fortran-devel
+Summary:	Fortran modules for Intel OpenMP implementation
+Summary(pl.UTF-8):	Moduły Fortranu implementacji OpenMP firmy Intel
+License:	BSD-like or MIT
+Group:		Development/Libraries
+URL:		https://openmp.llvm.org/
+Requires:	%{name}-openmp-devel%{?_isa} = %{version}-%{release}
+
+%description openmp-fortran-devel
+Fortran modules for Intel OpenMP implementation.
+
+%description openmp-fortran-devel -l pl.UTF-8
+Moduły Fortranu implementacji OpenMP firmy Intel.
+
+%package openmp-gdb
+Summary:	GDB support for LLVM OpenMP
+Summary(pl.UTF-8):	Obsługa GDB do LLVM OpenMP
+License:	BSD-like or MIT
+Group:		Development/Tools
+URL:		https://openmp.llvm.org/
+Requires:	%{name}-openmp-devel%{?_isa} = %{version}-%{release}
+Requires:	gdb
+
+%description openmp-gdb
+GDB support for LLVM OpenMP.
+
+%description openmp-gdb -l pl.UTF-8
+Obsługa GDB do LLVM OpenMP.
+
 %prep
 %setup -q -n %{name}-project-%{version}.src
 
@@ -904,13 +975,19 @@ fi
 CLANG_CFLAGS="$(echo "$CFLAGS" | sed -e 's/-Werror=trampolines *//')"
 CLANG_CXXFLAGS="$(echo "$CXXFLAGS" | sed -e 's/-Werror=trampolines *//')"
 PROJECTS="clang;clang-tools-extra;lld;%{?with_polly:polly;}%{?with_mlir:mlir;}%{?with_lldb:lldb;}%{?with_flang:flang}"
-RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_libcxx:libcxx;libcxxabi;libunwind;}%{?with_flang:flang-rt}"
+RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_libcxx:libcxx;libcxxabi;libunwind;}%{?with_openmp:openmp;}%{?with_flang:flang-rt}"
 
 %cmake ../llvm \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DBUILTINS_CMAKE_ARGS="-DCMAKE_C_FLAGS=$CLANG_CFLAGS;-DCMAKE_CXX_FLAGS=$CLANG_CXXFLAGS" \
 	-DCLANG_DEFAULT_UNWINDLIB:STRING=libgcc \
 	-DCOMPILER_RT_BUILD_LIBFUZZER:BOOL=OFF \
+%if %{with rt}
+%ifarch x32
+	-DCOMPILER_RT_BUILD_MEMPROF:BOOL=OFF \
+%endif
+	-DCOMPILER_RT_INCLUDE_TESTS:BOOL=OFF \
+%endif
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	%{!?with_libclc_llvm_spirv:-DLIBCLC_USE_SPIRV_BACKEND:BOOL=ON} \
 	-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT:BOOL=ON \
@@ -920,6 +997,8 @@ RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_libcxx:libcxx;l
 	-DLIBCXXABI_INSTALL_LIBRARY_DIR:PATH=%{_libdir} \
 	-DLIBCXX_STATICALLY_LINK_ABI_IN_STATIC_LIBRARY:BOOL=ON \
 	-DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=OFF \
+	%{?with_openmp_fortran:-DLIBOMP_FORTRAN_MODULES:BOOL=ON} \
+	-DLIBOMP_INSTALL_ALIASES:BOOL=OFF \
 	-DLIBUNWIND_INSTALL_INCLUDE_DIR:PATH=%{_includedir}/llvm-libunwind \
 	-DLIBUNWIND_INSTALL_LIBRARY_DIR:PATH=%{_libdir} \
 	-DLLVM_ADDITIONAL_BUILD_TYPES=PLD \
@@ -958,17 +1037,12 @@ RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_libcxx:libcxx;l
 %endif
 	-DLLVM_TARGETS_TO_BUILD="%{targets_to_build}" \
 	-DLLVM_INCLUDE_TESTS:BOOL=OFF \
+	-DOPENMP_INSTALL_LIBDIR:PATH=%{_lib} \
 %if %{with polly}
 	-DPOLLY_ENABLE_GPGPU_CODEGEN:BOOL=%{__ON_OFF target_nvptx} \
 %endif
 	-DRUNTIMES_CMAKE_ARGS="-DCMAKE_C_FLAGS=$CLANG_CFLAGS;-DCMAKE_CXX_FLAGS=$CLANG_CXXFLAGS" \
-	-DSPHINX_WARNINGS_AS_ERRORS=OFF \
-%if %{with rt}
-	-DCOMPILER_RT_INCLUDE_TESTS:BOOL=OFF \
-%ifarch x32
-	-DCOMPILER_RT_BUILD_MEMPROF:BOOL=OFF
-%endif
-%endif
+	-DSPHINX_WARNINGS_AS_ERRORS=OFF
 
 %{__make} \
 	VERBOSE=1 \
@@ -1110,6 +1184,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %post	libunwind -p /sbin/ldconfig
 %postun	libunwind -p /sbin/ldconfig
+
+%post	openmp -p /sbin/ldconfig
+%postun	openmp -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -1375,6 +1452,13 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/clang
 %dir %{_libdir}/clang/%{major}
 %{_libdir}/clang/%{major}/include
+%if %{with openmp}
+%exclude %{_libdir}/clang/%{major}/include/omp.h
+%exclude %{_libdir}/clang/%{major}/include/omp-tools.h
+%exclude %{_libdir}/clang/%{major}/include/ompt.h
+%exclude %{_libdir}/clang/%{major}/include/ompt-multiplex.h
+%exclude %{_libdir}/clang/%{major}/include/ompx.h
+%endif
 %if %{with rt}
 %ifarch %{x8664} x32 aarch64
 %dir %{_libdir}/clang/%{major}/bin
@@ -1786,4 +1870,39 @@ rm -rf $RPM_BUILD_ROOT
 %files libunwind-static
 %defattr(644,root,root,755)
 %{_libdir}/llvm-libunwind/libunwind.a
+%endif
+
+%if %{with openmp}
+%files openmp
+%defattr(644,root,root,755)
+%doc openmp/{CREDITS.txt,LICENSE.TXT,README.rst} openmp/docs/ReleaseNotes.rst
+%attr(755,root,root) %{_libdir}/libarcher.so
+%attr(755,root,root) %{_libdir}/libomp.so
+%attr(755,root,root) %{_libdir}/libompd.so
+
+%files openmp-devel
+%defattr(644,root,root,755)
+%{_libdir}/libarcher_static.a
+%{_libdir}/clang/%{major}/include/omp.h
+%{_libdir}/clang/%{major}/include/omp-tools.h
+%{_libdir}/clang/%{major}/include/ompt.h
+%{_libdir}/clang/%{major}/include/ompt-multiplex.h
+%{_libdir}/clang/%{major}/include/ompx.h
+%{_libdir}/cmake/openmp
+
+%if %{with openmp_fortran}
+%files openmp-fortran-devel
+%defattr(644,root,root,755)
+# FIXME: in global includedir or clang's?
+%{_includedir}/omp_lib.h
+%{_includedir}/omp_lib.mod
+%{_includedir}/omp_lib_kinds.mod
+%endif
+
+%files openmp-gdb
+%defattr(644,root,root,755)
+%dir %{_datadir}/gdb/python/ompd
+%{_datadir}/gdb/python/ompd/*.py
+# FIXME: should be in arch-dependent directory
+%{_datadir}/gdb/python/ompd/ompdModule.so
 %endif
