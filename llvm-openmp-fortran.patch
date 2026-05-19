@@ -1,0 +1,15 @@
+This line causes:
+CMake Error at .../llvm-project-22.1.3.src/openmp/module/CMakeLists.txt:60 (set_property):
+  set_property DIRECTORY scope provided but requested directory was not
+  found.  This could be because the directory argument was invalid or, it is
+  valid but has not been processed yet.
+--- llvm-project-22.1.5.src/openmp/module/CMakeLists.txt.orig	2026-05-05 00:50:13.000000000 +0200
++++ llvm-project-22.1.5.src/openmp/module/CMakeLists.txt	2026-05-18 22:26:41.931190251 +0200
+@@ -57,7 +57,6 @@ elseif (LIBOMP_FORTRAN_MODULES)
+             ${LIBOMP_CONFIGURED_FFLAGS} ${LIBOMP_FORTRAN_SOURCE_FILE} "-J${CMAKE_CURRENT_BINARY_DIR}/../runtime/src"
+     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${LIBOMP_FORTRAN_SOURCE_FILE}"
+   )
+-  set_property(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/../runtime/src" PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "omp_lib${CMAKE_C_OUTPUT_EXTENSION}")
+   set(BUILD_FORTRAN_MODULES True)
+ endif ()
+ 

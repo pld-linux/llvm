@@ -34,7 +34,7 @@
 %bcond_without	libclc			# libclc runtime
 %bcond_without	libcxx			# libcxx, libcxxabi, libunwind runtimes
 %bcond_without	openmp			# OpenMP runtime
-%bcond_with	openmp_fortran		# OpenMP Fortran modules (fails in 22.1.3)
+%bcond_without	openmp_fortran		# OpenMP Fortran modules (fails in 22.1.3)
 %bcond_without	ocaml			# OCaml binding
 %bcond_without	z3			# Z3 constraint solver support in Clang Static Analyzer
 %bcond_without	doc			# HTML docs and man pages
@@ -98,17 +98,18 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	22.1.3
-Release:	4
+Version:	22.1.5
+Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-project-%{version}.src.tar.xz
-# Source0-md5:	1b8f0fdca6f49e323702ed7d4da0feae
+# Source0-md5:	bbd2badbec6a8e8af83721444c2990d6
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-ocaml-link-dylib.patch
 Patch3:		x32-gcc-toolchain.patch
 Patch5:		%{name}-ocaml-shared.patch
+Patch6:		%{name}-openmp-fortran.patch
 Patch7:		llvm12-build_fixes.patch
 Patch8:		%{name}-selective_bindings.patch
 Patch9:		%{name}-libexecdir.patch
@@ -929,6 +930,7 @@ Obsługa GDB do LLVM OpenMP.
 %patch -P 2 -p1
 %patch -P 3 -p1
 %patch -P 5 -p1
+%patch -P 6 -p1
 %patch -P 7 -p1
 %patch -P 8 -p1
 %patch -P 9 -p1
@@ -1893,10 +1895,9 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with openmp_fortran}
 %files openmp-fortran-devel
 %defattr(644,root,root,755)
-# FIXME: in global includedir or clang's?
-%{_includedir}/omp_lib.h
-%{_includedir}/omp_lib.mod
-%{_includedir}/omp_lib_kinds.mod
+%{_libdir}/clang/%{major}/include/omp_lib.h
+%{_libdir}/clang/%{major}/include/omp_lib.mod
+%{_libdir}/clang/%{major}/include/omp_lib_kinds.mod
 %endif
 
 %files openmp-gdb
