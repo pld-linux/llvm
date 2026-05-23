@@ -1178,6 +1178,12 @@ rm -rf $RPM_BUILD_ROOT
 %post	-n lldb -p /sbin/ldconfig
 %postun	-n lldb -p /sbin/ldconfig
 
+%pretrans libclc
+# used to be dir in llvm-libclc.spec, to be replaced by symlink
+if [ -d %{_datadir}/clc ]; then
+	rm -rf %{_datadir}/clc
+fi
+
 %post	libcxx -p /sbin/ldconfig
 %postun	libcxx -p /sbin/ldconfig
 
