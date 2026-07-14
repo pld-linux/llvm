@@ -190,6 +190,7 @@ BuildRequires:	libunwind-devel(x86-64)
 %if %{with lldb}
 BuildRequires:	epydoc
 BuildRequires:	libxml2-devel >= 2
+BuildRequires:	lua >= %{lua_ver}
 BuildRequires:	lua-devel >= %{lua_ver}
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python3-devel >= 1:3.2
