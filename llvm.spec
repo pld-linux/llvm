@@ -85,6 +85,10 @@
 %undefine	with_openmp
 %endif
 
+%ifnarch x32
+%define		with_asm	1
+%endif
+
 %define		targets_to_build	%{?with_target_aarch64:AArch64;}%{?with_target_amdgpu:AMDGPU;}%{?with_target_arm:ARM;}%{?with_target_avr:AVR;}%{?with_target_bpf:BPF;}%{?with_target_hexagon:Hexagon;}%{?with_target_lanai:Lanai;}%{?with_target_loongarch:LoongArch;}%{?with_target_mips:Mips;}%{?with_target_msp430:MSP430;}%{?with_target_nvptx:NVPTX;}%{?with_target_powerpc:PowerPC;}%{?with_target_riscv:RISCV;}%{?with_target_sparc:Sparc;}%{?with_target_spirv:SPIRV;}%{?with_target_systemz:SystemZ;}%{?with_target_ve:VE;}%{?with_target_webassembly:WebAssembly;}%{?with_target_x86:X86;}%{?with_target_xcore:XCore;}
 
 %if %{without mlir}
@@ -1008,6 +1012,7 @@ RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_libcxx:libcxx;l
 	-DLLVM_BINUTILS_INCDIR:STRING=%{_includedir} \
 	%{?with_rt:-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON} \
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+	%{!?with_asm:-DLLVM_DISABLE_ASSEMBLY_FILES:BOOL=ON} \
 	-DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
 	-DLLVM_ENABLE_LIBCXX:BOOL=OFF \
 	-DLLVM_ENABLE_PROJECTS="${PROJECTS%;}" \
