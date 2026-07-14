@@ -194,7 +194,7 @@ BuildRequires:	lua-devel >= %{lua_ver}
 BuildRequires:	ncurses-ext-devel
 BuildRequires:	python3-devel >= 1:3.2
 %{?with_doc:BuildRequires:	python3-recommonmark}
-BuildRequires:	swig-python >= 3.0.11
+BuildRequires:	swig-python >= 4
 BuildRequires:	xz-devel
 %endif
 %if %{with polly}
