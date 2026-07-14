@@ -1286,7 +1286,6 @@ fi
 %attr(755,root,root) %{_bindir}/reduce-chunk-list
 %attr(755,root,root) %{_bindir}/sancov
 %attr(755,root,root) %{_bindir}/sanstats
-%attr(755,root,root) %{_bindir}/tblgen-lsp-server
 %attr(755,root,root) %{_bindir}/verify-uselistorder
 %attr(755,root,root) %{_bindir}/yaml2macho-core
 %if %{with doc}
@@ -1394,6 +1393,7 @@ fi
 %attr(755,root,root) %{_bindir}/mlir-tblgen
 %attr(755,root,root) %{_bindir}/mlir-transform-opt
 %attr(755,root,root) %{_bindir}/mlir-translate
+%attr(755,root,root) %{_bindir}/tblgen-lsp-server
 %attr(755,root,root) %{_bindir}/tblgen-to-irdl
 %{_libdir}/libMLIR.so.%{abi}
 %{_libdir}/libMLIRExecutionEngineShared.so.%{abi}
