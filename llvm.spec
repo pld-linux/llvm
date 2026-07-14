@@ -1473,9 +1473,15 @@ fi
 %exclude %{_libdir}/clang/%{major}/include/ompx.h
 %endif
 %if %{with rt}
-%ifarch %{x8664} x32 aarch64
+%ifarch %{x8664} aarch64
 %dir %{_libdir}/clang/%{major}/bin
 %attr(755,root,root) %{_libdir}/clang/%{major}/bin/hwasan_symbolize
+%endif
+%ifarch x32
+%if %{with multilib}
+%dir %{_libdir}/clang/%{major}/bin
+%attr(755,root,root) %{_libdir}/clang/%{major}/bin/hwasan_symbolize
+%endif
 %endif
 %ifarch %{ix86} %{x8664} aarch64 %{armv7}
 %dir %{_libdir}/clang/%{major}/lib
