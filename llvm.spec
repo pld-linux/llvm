@@ -103,7 +103,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	22.1.5
-Release:	1
+Release:	2
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
@@ -122,6 +122,7 @@ Patch11:	cmake-utils-path-override.patch
 Patch12:	x32-compiler-rt.patch
 Patch14:	compiler-rt-nsan-redefine-builtins.patch
 Patch15:	lua-libdir.patch
+Patch16:	rust-1.97.0-miscompilation.patch
 URL:		https://llvm.org/
 BuildRequires:	bash
 BuildRequires:	binutils-devel
@@ -948,6 +949,7 @@ Obsługa GDB do LLVM OpenMP.
 %patch -P 14 -p1
 %endif
 %patch -P 15 -p1
+%patch -P 16 -p1
 
 grep -rl /usr/bin/env clang clang-tools-extra compiler-rt flang lld lldb llvm mlir polly | xargs sed -i -e '1{
 	s,^#!.*bin/env python3\?,#!%{__python3},
