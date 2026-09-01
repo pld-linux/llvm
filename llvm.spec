@@ -102,13 +102,13 @@
 Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
-Version:	22.1.5
-Release:	2
+Version:	22.1.8
+Release:	1
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
 Source0:	https://github.com/llvm/llvm-project/releases/download/llvmorg-%{version}/%{name}-project-%{version}.src.tar.xz
-# Source0-md5:	bbd2badbec6a8e8af83721444c2990d6
+# Source0-md5:	69065494ebcb1150b2a329c1b3db7584
 Patch1:		%{name}-pld.patch
 Patch2:		%{name}-ocaml-link-dylib.patch
 Patch3:		x32-gcc-toolchain.patch
