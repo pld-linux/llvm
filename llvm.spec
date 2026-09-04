@@ -250,6 +250,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		filterout_c	-fvar-tracking-assignments
 %define		filterout_cxx	-fvar-tracking-assignments -Werror=format-security
 
+%define		llvm_triple	%{_target_platform}
+
 %description
 LLVM is a compiler infrastructure designed for compile-time,
 link-time, runtime, and idle-time optimization of programs from
@@ -1041,7 +1043,8 @@ RUNTIMES="%{?with_rt:compiler-rt;}%{?with_libclc:libclc;}%{?with_libcxx:libcxx;l
 %endif
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_TARGET_ARCH:STRING=%{_target_base_arch} \
-	-DLLVM_DEFAULT_TARGET_TRIPLE:STRING=%{_target_platform} \
+	-DLLVM_DEFAULT_TARGET_TRIPLE:STRING=%{llvm_triple} \
+	-DLLVM_HOST_TRIPLE:STRING=%{llvm_triple} \
 %if %{with lowmem}
 	-DLLVM_PARALLEL_LINK_JOBS:STRING=1 \
 %endif
