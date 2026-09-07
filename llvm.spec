@@ -250,7 +250,15 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		filterout_c	-fvar-tracking-assignments
 %define		filterout_cxx	-fvar-tracking-assignments -Werror=format-security
 
+%ifarch armv6hl
+%define		llvm_triple	armv6hl-%{_vendor}-%{_os}-gnueabihf
+%endif
+%ifarch armv7hl armv7hnl
+%define		llvm_triple	armv7hl-%{_vendor}-%{_os}-gnueabihf
+%endif
+%ifnarch armv6hl armv7hl armv7hnl
 %define		llvm_triple	%{_target_platform}
+%endif
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
