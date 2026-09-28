@@ -149,7 +149,11 @@ BuildRequires:	perl-base >= 1:5.6
 BuildRequires:	perl-tools-pod
 BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-PyYAML
-BuildRequires:	python3-modules
+BuildRequires:	python3-build
+BuildRequires:	python3-hatch-vcs >= 0.4
+BuildRequires:	python3-hatchling >= 1.27
+BuildRequires:	python3-installer
+BuildRequires:	python3-modules >= 1:3.8
 %{?with_doc:BuildRequires:	python3-myst_parser}
 BuildRequires:	python3-pygments >= 2.0
 BuildRequires:	rpm-build >= 4.6
@@ -469,8 +473,8 @@ Ten pakiet zawiera pliki nagłówkowe kompilatora Clang.
 %package -n clang-doc
 Summary:	Documentation for Clang
 Summary(pl.UTF-8):	Dokumentacja do Clanga
-URL:		https://clang.llvm.org/
 Group:		Documentation
+URL:		https://clang.llvm.org/
 Requires:	%{name} = %{version}-%{release}
 BuildArch:	noarch
 
@@ -483,8 +487,8 @@ Dokumentacja do frontendu kompilatora Clang.
 %package -n clang-apidocs
 Summary:	API documentation for Clang
 Summary(pl.UTF-8):	Dokumentacja API Clanga
+Group:		Documentation
 URL:		https://clang.llvm.org/
-Group:		Development/Languages
 Requires:	clang-doc = %{version}-%{release}
 BuildArch:	noarch
 
@@ -493,6 +497,20 @@ API documentation for the Clang compiler.
 
 %description -n clang-apidocs -l pl.UTF-8
 Dokumentacja API kompilatora Clang.
+
+%package -n python3-clang
+Summary:	Python 3 binding for Clang
+Summary(pl.UTF-8):	Wiązanie Pythona 3 do Clanga
+Group:		Libraries/Python
+URL:		https://clang.llvm.org/
+Requires:	clang-libs = %{version}-%{release}
+BuildArch:	noarch
+
+%description -n python3-clang
+Python 3 binding for Clang.
+
+%description -n python3-clang -l pl.UTF-8
+Wiązanie Pythona 3 do Clanga.
 
 %package -n clang-analyzer
 Summary:	A source code analysis framework
@@ -1093,11 +1111,23 @@ cp -pnL %{_lib}/liblldb.so tools/lldb/docs/lldb/_lldb.so
 %{__make} -C docs ocaml_doc
 %endif
 
+cd ../clang/bindings/python
+%py3_build_pyproject
+
 %install
 rm -rf $RPM_BUILD_ROOT
 
 %{__make} -j1 -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
+
+# not installed by cmake buildsystem
+install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
+
+cd clang/bindings/python
+%py3_install_pyproject
+# don't require clang-devel
+%{__sed} -i -e 's/"libclang\.so"/"libclang.so.%{abi}"/' $RPM_BUILD_ROOT%{py3_sitescriptdir}/clang/cindex.py
+cd ../../..
 
 # only some .pyc files are created by make install
 %py3_comp $RPM_BUILD_ROOT%{py3_sitedir}
@@ -1109,9 +1139,6 @@ rel_ca_libexecdir="${abs_ca_libexecdir#%{_prefix}}"
 %{__sed} -i -e "s,/\.\./libexec/,/..${rel_ca_libexecdir}/," $RPM_BUILD_ROOT%{_bindir}/scan-build
 %py3_comp $RPM_BUILD_ROOT%{_datadir}/scan-view
 %py3_ocomp $RPM_BUILD_ROOT%{_datadir}/scan-view
-
-# not installed by cmake buildsystem
-install build/bin/pp-trace $RPM_BUILD_ROOT%{_bindir}
 
 %if %{with libclc}
 # symlink as specified in .pc file
@@ -1618,6 +1645,12 @@ fi
 %defattr(644,root,root,755)
 %doc clang-apidoc/*
 %endif
+
+%files -n python3-clang
+%defattr(644,root,root,755)
+%doc clang/bindings/python/README.txt
+%{py3_sitescriptdir}/clang
+%{py3_sitescriptdir}/clang-%{version}.dist-info
 
 %files -n clang-analyzer
 %defattr(644,root,root,755)
