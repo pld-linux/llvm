@@ -103,7 +103,7 @@ Summary:	The Low Level Virtual Machine (An Optimizing Compiler Infrastructure)
 Summary(pl.UTF-8):	Niskopoziomowa maszyna wirtualna (infrastruktura kompilatora optymalizującego)
 Name:		llvm
 Version:	22.1.8
-Release:	2
+Release:	3
 License:	Apache 2.0 with LLVM exceptions
 Group:		Development/Languages
 #Source0Download: https://github.com/llvm/llvm-project/releases/
@@ -517,7 +517,7 @@ Summary:	A source code analysis framework
 Summary(pl.UTF-8):	Szkielet do analizy kodu źródłowego
 Group:		Development/Languages
 URL:		https://clang-analyzer.llvm.org/
-Requires:	clang = %{version}-%{release}
+Requires:	clang%{?_isa} = %{version}-%{release}
 # not picked up automatically since files are currently not instaled
 # in standard Python hierarchies yet
 Requires:	python3
@@ -539,7 +539,7 @@ Summary:	Extra tools for Clang
 Summary(pl.UTF-8):	Dodatkowe narzędzia do kompilatora Clang
 Group:		Development/Tools
 URL:		https://clang.llvm.org/docs/ClangTools.html
-Requires:	clang = %{version}-%{release}
+Requires:	clang%{?_isa} = %{version}-%{release}
 
 %description -n clang-tools-extra
 Extra tools for Clang.
